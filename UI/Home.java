@@ -30,7 +30,7 @@ public class Home extends JFrame {
         cataloguePanel = new JPanel();
         catalogueBtn = new JButton("Catalogue Asset");
         catalogueBtn.addActionListener(e -> {
-            //TODO: Add catalogue asset functionalitys
+            System.out.println("Catalogue Asset Button Pressed");
         });
 
         cataloguePanel.add(catalogueBtn);

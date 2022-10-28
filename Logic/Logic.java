@@ -31,6 +31,56 @@ public class Logic {
         }
     }
 
+    /* -------------------- Getting from DB ------------------- */
+
+    /**
+     * Gets all the assets from the database
+     * 
+     * @return An ArrayList of all Assets
+     */
+    public ArrayList<String[]> getAllAssets() {
+        ArrayList<String[]> assets = new ArrayList<String[]>();
+
+        try {
+            Statement st = cn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT FilePath, AttributeName FROM Asset");
+
+            while (rs.next()) {
+                String[] asset = new String[2];
+                asset[0] = rs.getString("FilePath");
+                asset[1] = rs.getString("AttributeName");
+                assets.add(asset);
+            }
+
+            return assets;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ArrayList<String> getAsset(String filePath, String AttributeName) {
+        ArrayList<String> asset = new ArrayList<String>();
+
+        try {
+            Statement st = cn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM Asset WHERE FilePath = '" + filePath + "' AND AttributeName = '" + AttributeName + "'");
+
+            while (rs.next()) {
+                asset.add(rs.getString("FilePath"));
+                asset.add(rs.getString("AttributeName"));
+                asset.add(rs.getString("Name"));
+            }
+
+            return asset;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    /* ------------------ Adding to Database ------------------ */
+
     /**
      * Adds an attribute to the database
      * 
