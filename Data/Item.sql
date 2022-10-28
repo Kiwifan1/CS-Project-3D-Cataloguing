@@ -28,37 +28,35 @@ CREATE TABLE AssetSet
 -- All asset files must have come from a release of some kind 
 CREATE TABLE Release
 (
-    ID INT NOT NULL,
     Name VARCHAR(50) NOT NULL,
     Date DATETIME NOT NULL,
     Publisher VARCHAR(50) NOT NULL,
     Source VARCHAR(50) NOT NULL,
-    PRIMARY KEY (ID)
+    PRIMARY KEY (Name)
 )
 
 -- The metadata of the asset, including it's file path and download date
 CREATE TABLE AssetFile
 (
-    ID INT NOT NULL,
-    ReleaseID INT NOT NULL,
     Path VARCHAR(100) NOT NULL,
+    ReleaseName VARCHAR(50) NOT NULL,
     Image VARBINARY(MAX) NOT NULL,
     DownloadDate DATETIME NOT NULL,
     EditDate DATETIME CHECK (EditDate >= DownloadDate OR EditDate IS NULL),
-    PRIMARY KEY (ID),
+    PRIMARY KEY (Path),
     FOREIGN KEY (ReleaseID) REFERENCES Release(ID)
 )
 
 -- The actual asset, with information about it's name, attributes, and scale
 CREATE TABLE Asset
 (
-    FileID INT NOT NULL,
+    FilePath VARCHAR(100) NOT NULL,
     AttributeName VARCHAR(50) NOT NULL,
     Name VARCHAR(50) NOT NULL,
     SetName VARCHAR(5) NOT NULL,
     Scale VARCHAR(10) NOT NULL,
     -- TODO: Fix format for scale
-    PRIMARY KEY (FileID, AttributeName),
-    FOREIGN KEY (FileID) REFERENCES AssetFile(ID),
+    PRIMARY KEY (FilePath, AttributeName),
+    FOREIGN KEY (FilePath) REFERENCES AssetFile(Path),
     FOREIGN KEY (AttributeName) REFERENCES Attribute(Name),
 )
