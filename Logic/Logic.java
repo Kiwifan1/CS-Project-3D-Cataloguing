@@ -106,19 +106,19 @@ public class Logic {
     /**
      * Adds a release to the database.
      * 
-     * @param name The name of the release
-     * @param date The date of the release
-     * @param pub  The publisher of the release
-     * @param src  The source of the release
+     * @param name    The name of the release
+     * @param pubDate The date of the release
+     * @param pub     The publisher of the release
+     * @param src     The source of the release
      * @return Returns true if the release was added successfully
      */
-    public boolean addRelease(String name, String date, String pub, String src) {
+    public boolean addRelease(String name, String pubDate, String pub, String src) {
         try {
             String query = "INSERT INTO Release VALUES (?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, name);
-            ps.setString(2, date);
+            ps.setString(2, pubDate);
             ps.setString(3, pub);
             ps.setString(4, src);
 
@@ -137,19 +137,19 @@ public class Logic {
      * 
      * @param path         The path of the file
      * @param releaseName  The name of the release the file belongs to
-     * @param image        The image of the file
+     * @param imagePath    The path of the image of the file
      * @param downloadDate The download date of the file
      * @param editDate     The edit date of the file
      * @return Returns true if the file was added successfully
      */
-    public boolean addFile(String path, String releaseName, byte[] image, String downloadDate, String editDate) {
+    public boolean addFile(String path, String releaseName, String imagePath, String downloadDate, String editDate) {
         try {
             String query = "INSERT INTO AssetFile VALUES (?, ?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, path);
             ps.setString(2, releaseName);
-            ps.setBytes(3, image);
+            ps.setString(3, imagePath);
             ps.setString(4, downloadDate);
             ps.setString(5, editDate);
 

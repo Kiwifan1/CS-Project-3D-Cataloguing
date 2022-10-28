@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "cps-database.gonzaga.edu",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "Gonzaga",
+            "database": "jvenable_DB",
+            "username": "jvenable",
+            "password": "jvenable98837251"
+        }
+    ]
+}

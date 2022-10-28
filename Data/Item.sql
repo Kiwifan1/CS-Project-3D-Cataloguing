@@ -1,21 +1,24 @@
+DROP TABLE IF EXISTS Asset;
+DROP TABLE IF EXISTS AssetFile;
+DROP TABLE IF EXISTS AssetRelease;
+DROP TABLE IF EXISTS AssetSet;
+DROP TABLE IF EXISTS AssetGroup;
+DROP TABLE IF EXISTS Attribute;
 
--- Holds the attribute information, such that an asset can have multiple attributes
 CREATE TABLE Attribute
 (
     Name VARCHAR(50) NOT NULL,
     Description TINYTEXT,
     PRIMARY KEY (Name)
-)
+);
 
--- Each set must belong to a group
 CREATE TABLE AssetGroup
 (
     Name VARCHAR(50) NOT NULL,
     Description TINYTEXT,
     PRIMARY KEY (Name)
-)
+);
 
--- Each Asset must belong to a set
 CREATE TABLE AssetSet
 (
     Name VARCHAR(50) NOT NULL,
@@ -23,31 +26,28 @@ CREATE TABLE AssetSet
     Description TINYTEXT,
     PRIMARY KEY (Name, GroupName),
     FOREIGN KEY (GroupName) REFERENCES AssetGroup(Name)
-)
+);
 
--- All asset files must have come from a release of some kind 
-CREATE TABLE Release
+CREATE TABLE AssetRelease
 (
     Name VARCHAR(50) NOT NULL,
-    Date DATETIME NOT NULL,
+    PubDate DATE NOT NULL,
     Publisher VARCHAR(50) NOT NULL,
     Source VARCHAR(50) NOT NULL,
     PRIMARY KEY (Name)
-)
+);
 
--- The metadata of the asset, including it's file path and download date
 CREATE TABLE AssetFile
 (
     Path VARCHAR(100) NOT NULL,
     ReleaseName VARCHAR(50) NOT NULL,
-    Image VARBINARY(MAX) NOT NULL,
-    DownloadDate DATETIME NOT NULL,
+    ImagePath VARCHAR(100),
+    DownloadDate DATE NOT NULL,
     EditDate DATETIME CHECK (EditDate >= DownloadDate OR EditDate IS NULL),
     PRIMARY KEY (Path),
-    FOREIGN KEY (ReleaseID) REFERENCES Release(ID)
-)
+    FOREIGN KEY (ReleaseName) REFERENCES AssetRelease(Name)
+);
 
--- The actual asset, with information about it's name, attributes, and scale
 CREATE TABLE Asset
 (
     FilePath VARCHAR(100) NOT NULL,
@@ -58,5 +58,5 @@ CREATE TABLE Asset
     -- TODO: Fix format for scale
     PRIMARY KEY (FilePath, AttributeName),
     FOREIGN KEY (FilePath) REFERENCES AssetFile(Path),
-    FOREIGN KEY (AttributeName) REFERENCES Attribute(Name),
-)
+    FOREIGN KEY (AttributeName) REFERENCES Attribute(Name)
+);

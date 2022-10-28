@@ -33,8 +33,6 @@ public class Home extends JFrame {
             //TODO: Add catalogue asset functionalitys
         });
 
-        
-
         cataloguePanel.add(catalogueBtn);
 
         this.add(cataloguePanel, BorderLayout.CENTER);
