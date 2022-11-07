@@ -63,4 +63,23 @@ public class Login {
             return false;
         }
     }
+
+    /**
+     * Removes all users from the database
+     * 
+     * @return True if the users were removed, false otherwise
+     */
+    public boolean removeAllUsers() {
+        try {
+            String query = "DELETE FROM AppUser";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.executeUpdate();
+
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
 }

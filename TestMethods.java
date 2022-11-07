@@ -20,6 +20,8 @@ public class TestMethods {
         ConnectLogic logic = new ConnectLogic();
         Login login = new Login(logic);
 
+        login.removeAllUsers();
+
         String username = "test";
         String password = "test";
 
