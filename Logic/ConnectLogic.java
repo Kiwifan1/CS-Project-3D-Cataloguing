@@ -27,8 +27,7 @@ public class ConnectLogic {
     public void makeConnection() {
         try {
             // TODO: FIX ABSOLUTE PATH
-            File file = new File("C:/Users/joshu/OneDrive/Apps/Documents/GitHub/CS-Project-3D-Cataloguing/Logic/config.properties");
-            FileInputStream fis = new FileInputStream(file);
+            FileInputStream fis = new FileInputStream("C:/Users/joshu/OneDrive/Apps/Documents/GitHub/CS-Project-3D-Cataloguing/Logic/config.properties");
             Properties prop = new Properties();
             prop.load(fis);
 
