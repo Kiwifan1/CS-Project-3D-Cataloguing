@@ -9,6 +9,13 @@ import static org.junit.Assert.*;
 public class TestMethods {
 
     @Test
+    public void testConnection() {
+        ConnectLogic cl = new ConnectLogic();
+        Connection cn = cl.getConnection();
+        assertNotNull(cn);
+    }
+
+    @Test
     public void testAddUser() {
         ConnectLogic logic = new ConnectLogic();
         Login login = new Login(logic);
