@@ -12,7 +12,6 @@ public class TestMethods {
     public void testAddUser() {
         ConnectLogic logic = new ConnectLogic();
         Login login = new Login(logic);
-        RemoveLogic remove = new RemoveLogic(logic);
 
         String username = "test";
         String password = "test";

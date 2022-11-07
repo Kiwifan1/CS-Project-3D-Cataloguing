@@ -46,7 +46,7 @@ public class AddLogic {
      */
     public boolean addGroup(String name, String description) {
         try {
-            String query = "INSERT INTO Groups VALUES (?, ?)";
+            String query = "INSERT INTO AssetGroup VALUES (?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, name);
@@ -71,7 +71,7 @@ public class AddLogic {
      */
     public boolean addSet(String name, String groupName, String description) {
         try {
-            String query = "INSERT INTO Set VALUES (?, ?, ?)";
+            String query = "INSERT INTO AssetSet VALUES (?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, name);
@@ -97,7 +97,7 @@ public class AddLogic {
      */
     public boolean addRelease(String name, String pubDate, String pub, String src) {
         try {
-            String query = "INSERT INTO Release VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO AssetRelease VALUES (?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, name);

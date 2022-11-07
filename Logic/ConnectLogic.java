@@ -1,5 +1,6 @@
 package Logic;
 
+
 import java.sql.*;
 import java.util.*;
 import java.io.*;
@@ -25,7 +26,7 @@ public class ConnectLogic {
      */
     public void makeConnection() {
         try {
-            FileInputStream fis = new FileInputStream("./config.properties");
+            FileInputStream fis = new FileInputStream("config.properties");
             Properties prop = new Properties();
             prop.load(fis);
 

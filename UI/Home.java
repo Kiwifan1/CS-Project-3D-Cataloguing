@@ -1,7 +1,9 @@
 package UI;
 
 import javax.swing.*;
+
 import Logic.ConnectLogic;
+
 import java.awt.*;
 
 public class Home extends JFrame {
