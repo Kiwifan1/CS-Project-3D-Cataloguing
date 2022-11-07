@@ -21,7 +21,7 @@ public class Login {
      */
     public boolean addUser(String username, String password) {
         try {
-            String query = "INSERT INTO User VALUES (MD5(?), MD5(?))";
+            String query = "INSERT INTO AppUser VALUES (MD5(?), MD5(?))";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, username);
@@ -45,7 +45,7 @@ public class Login {
      */
     public boolean login(String username, String password) {
         try {
-            String query = "SELECT * FROM User WHERE Username = MD5(?) AND Pass = MD5(?)";
+            String query = "SELECT * FROM AppUser WHERE Username = MD5(?) AND Pass = MD5(?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, username);
