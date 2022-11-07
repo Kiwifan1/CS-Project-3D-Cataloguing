@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS AssetRelease;
 DROP TABLE IF EXISTS AssetSet;
 DROP TABLE IF EXISTS AssetGroup;
 DROP TABLE IF EXISTS Attribute;
+DROP TABLE IF EXISTS AuditLog;
+DROP TABLE IF EXISTS AppUser;
 
 CREATE TABLE Attribute
 (
@@ -59,4 +61,20 @@ CREATE TABLE Asset
     PRIMARY KEY (FilePath, AttributeName),
     FOREIGN KEY (FilePath) REFERENCES AssetFile(Path),
     FOREIGN KEY (AttributeName) REFERENCES Attribute(Name)
+);
+
+CREATE TABLE AppUser
+(
+    Username VARCHAR(50) NOT NULL,
+    Pass VARCHAR(50) NOT NULL,
+    PRIMARY KEY(Username, Pass)
+);
+
+CREATE TABLE AuditLog
+(
+    Username VARCHAR(50) NOT NULL,
+    Action VARCHAR(50) NOT NULL,
+    Date DATETIME NOT NULL,
+    PRIMARY KEY (Username, Action, Date),
+    FOREIGN KEY (Username) REFERENCES AppUser(Username)
 );

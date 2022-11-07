@@ -13,5 +13,9 @@
             "username": "jvenable",
             "password": "jvenable98837251"
         }
+    ],
+    "java.project.referencedLibraries": [
+        "C:\\Program Files (x86)\\MySQL\\Connector J 8.0\\mysql-connector-j-8.0.31.jar",
+        "test-lib\\**\\*.jar"
     ]
 }

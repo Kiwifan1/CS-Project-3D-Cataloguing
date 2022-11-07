@@ -4,79 +4,12 @@ import java.sql.*;
 import java.util.*;
 import java.io.*;
 
-public class Logic {
+public class AddLogic {
 
-    Connection cn;
+    private Connection cn;
 
-    public Logic() {
-        makeConnection();
-    }
-
-    /**
-     * Creates a connection to the database
-     */
-    public void makeConnection() {
-        try {
-            FileInputStream fis = new FileInputStream("./Logic/config.properties");
-            Properties prop = new Properties();
-            prop.load(fis);
-
-            String url = prop.getProperty("url");
-            String user = prop.getProperty("username");
-            String password = prop.getProperty("password");
-
-            this.cn = DriverManager.getConnection(url, user, password);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
-
-    /* -------------------- Getting from DB ------------------- */
-
-    /**
-     * Gets all the assets from the database
-     * 
-     * @return An ArrayList of all Assets
-     */
-    public ArrayList<String[]> getAllAssets() {
-        ArrayList<String[]> assets = new ArrayList<String[]>();
-
-        try {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT FilePath, AttributeName FROM Asset");
-
-            while (rs.next()) {
-                String[] asset = new String[2];
-                asset[0] = rs.getString("FilePath");
-                asset[1] = rs.getString("AttributeName");
-                assets.add(asset);
-            }
-
-            return assets;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    public ArrayList<String> getAsset(String filePath, String AttributeName) {
-        ArrayList<String> asset = new ArrayList<String>();
-
-        try {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM Asset WHERE FilePath = '" + filePath + "' AND AttributeName = '" + AttributeName + "'");
-
-            while (rs.next()) {
-                asset.add(rs.getString("FilePath"));
-                asset.add(rs.getString("AttributeName"));
-                asset.add(rs.getString("Name"));
-            }
-
-            return asset;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
+    public AddLogic(ConnectLogic logic) {
+        this.cn = logic.getConnection();
     }
 
     /* ------------------ Adding to Database ------------------ */
