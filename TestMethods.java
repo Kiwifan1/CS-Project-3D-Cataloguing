@@ -28,4 +28,27 @@ public class TestMethods {
         login.addUser(username, password);
         assertTrue(login.login(username, password));
     }
+
+    @Test
+    public void testAddAttribute() {
+        ConnectLogic logic = new ConnectLogic();
+        Attribute attribute = new Attribute(logic);
+
+        attribute.removeAllAttributes();
+
+        String name = "test";
+        String description = "test";
+
+        attribute.addAttribute(name, description);
+        ArrayList<String[]> attributes = attribute.getAllAttributes();
+
+        boolean found = false;
+        for (String[] a : attributes) {
+            if (a[0].equals(name) && a[1].equals(description)) {
+                found = true;
+            }
+        }
+
+        assertTrue(found);
+    }
 }

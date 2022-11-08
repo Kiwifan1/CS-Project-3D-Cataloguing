@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS AssetSet;
 DROP TABLE IF EXISTS AssetGroup;
 DROP TABLE IF EXISTS Attribute;
 DROP TABLE IF EXISTS AuditLog;
+DROP TABLE IF EXISTS Admin;
 DROP TABLE IF EXISTS AppUser;
 
 CREATE TABLE Attribute
@@ -45,7 +46,7 @@ CREATE TABLE AssetFile
     ReleaseName VARCHAR(50) NOT NULL,
     ImagePath VARCHAR(100),
     DownloadDate DATE NOT NULL,
-    EditDate DATETIME CHECK (EditDate >= DownloadDate OR EditDate IS NULL),
+    EditDate DATE CHECK (EditDate >= DownloadDate OR EditDate IS NULL),
     PRIMARY KEY (Path),
     FOREIGN KEY (ReleaseName) REFERENCES AssetRelease(Name)
 );
@@ -55,12 +56,13 @@ CREATE TABLE Asset
     FilePath VARCHAR(100) NOT NULL,
     AttributeName VARCHAR(50) NOT NULL,
     Name VARCHAR(50) NOT NULL,
-    SetName VARCHAR(5) NOT NULL,
+    ReleaseName VARCHAR(50) NOT NULL,
     Scale VARCHAR(10) NOT NULL,
     -- TODO: Fix format for scale
     PRIMARY KEY (FilePath, AttributeName),
     FOREIGN KEY (FilePath) REFERENCES AssetFile(Path),
-    FOREIGN KEY (AttributeName) REFERENCES Attribute(Name)
+    FOREIGN KEY (AttributeName) REFERENCES Attribute(Name),
+    FOREIGN KEY (ReleaseName) REFERENCES AssetRelease(Name)
 );
 
 CREATE TABLE AppUser
@@ -68,6 +70,13 @@ CREATE TABLE AppUser
     Username VARCHAR(50) NOT NULL,
     Pass VARCHAR(50) NOT NULL,
     PRIMARY KEY(Username, Pass)
+);
+
+CREATE TABLE Admin
+(
+    Username VARCHAR(50) NOT NULL,
+    PRIMARY KEY (Username),
+    FOREIGN KEY (Username) REFERENCES AppUser(Username)
 );
 
 CREATE TABLE AuditLog

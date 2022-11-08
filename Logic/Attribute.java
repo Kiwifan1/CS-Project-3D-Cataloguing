@@ -86,4 +86,20 @@ public class Attribute {
             return null;
         }
     }
+
+    /**
+     * Removes all attributes from the database
+     * 
+     * @return Returns true if the attributes were removed successfully
+     */
+    public boolean removeAllAttributes() {
+        try {
+            Statement st = cn.createStatement();
+            st.executeUpdate("DELETE FROM Attribute");
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
 }
