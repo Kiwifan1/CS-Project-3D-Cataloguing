@@ -4,11 +4,11 @@ import java.sql.*;
 import java.util.*;
 import java.io.*;
 
-public class File {
+public class AssetFile {
 
     private Connection cn;
 
-    public File(ConnectLogic logic) {
+    public AssetFile(ConnectLogic logic) {
         this.cn = logic.getConnection();
     }
 

@@ -1,7 +1,6 @@
 package UI;
 
-import Logic.Attribute;
-import Logic.ConnectLogic;
+import Logic.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +21,9 @@ public class Home extends JFrame {
 
     ConnectLogic logic;
     Attribute attribute;
+    Release release;
+    Set set;
+    Asset asset;
 
     JPanel homePanel;
     JPanel cataloguePanel;
@@ -31,11 +33,17 @@ public class Home extends JFrame {
 
     JButton catalogueBtn;
     JScrollPane attributeScroll;
+    JScrollPane publisherScroll;
+    JScrollPane releaseScroll;
+    JScrollPane scaleScroll;
 
     public Home() {
         super("Home");
+
+        // SQL logic
         logic = new ConnectLogic();
         attribute = new Attribute(logic);
+        release = new Release(logic);
 
         // set up the frame
         setSize(WIDTH, HEIGHT);
@@ -47,17 +55,78 @@ public class Home extends JFrame {
         this.setVisible(true);
     }
 
+    /**
+     * Checks all the checkboxes in a scroll pane and returns the text of the ones
+     * that are checked.
+     * 
+     * @param scroll The scroll pane to check
+     * @return Returns an ArrayList of the text of the checked checkboxes
+     */
+    private String[] getChecked(JScrollPane scroll) {
+        ArrayList<String> checked = new ArrayList<String>();
+
+        JPanel panel = (JPanel) scroll.getViewport().getView();
+
+        for (Component component : panel.getComponents()) {
+            JCheckBox box = (JCheckBox) component;
+
+            if (box.isSelected()) {
+                checked.add(box.getText());
+            }
+        }
+
+        return checked.toArray(new String[checked.size()]);
+    }
+
+    /**
+     * Makes the interactable components for the home panel.
+     */
     private void makeInteractables() {
-        // catalogue button
-        catalogueBtn = new JButton("Catalogue Asset");
-        catalogueBtn.addActionListener(e -> {
-            System.out.println("Catalogue Asset Button Pressed");
-        });
+        // publisher scroll pane
 
-        // tag scroll pane
-        attributeScroll = new JScrollPane();
+        ArrayList<String> publishers = release.getAllPublishers();
 
-        // TODO: Add checkboxes to the scroll pane
+        JPanel publisherBox = new JPanel();
+        publisherBox.setLayout(new BoxLayout(publisherBox, BoxLayout.Y_AXIS));
+
+        for (String publisher : publishers) {
+            JCheckBox publisherLabel = new JCheckBox(publisher);
+            publisherBox.add(publisherLabel);
+        }
+
+        publisherScroll = new JScrollPane(publisherBox);
+
+        // release scroll pane
+
+        String[] checked = getChecked(publisherScroll);
+        ArrayList<String> releases = release.getReleaseFromPub(checked);
+
+        JPanel releaseBox = new JPanel();
+        releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
+
+        for (String release : releases) {
+            JCheckBox releaseLabel = new JCheckBox(release);
+            releaseBox.add(releaseLabel);
+        }
+
+        releaseScroll = new JScrollPane(releaseBox);
+
+        // scale scroll pane
+
+        JPanel scaleBox = new JPanel();
+        scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
+
+        ArrayList<String> scales = asset.getScales();
+
+        for (String scale : scales) {
+            JCheckBox scaleLabel = new JCheckBox(scale);
+            scaleBox.add(scaleLabel);
+        }
+
+        scaleScroll = new JScrollPane(scaleBox);
+
+        // attribute scroll pane
+
         ArrayList<String[]> attributes = attribute.getAllAttributes();
 
         JPanel attributePanel = new JPanel();
@@ -69,7 +138,13 @@ public class Home extends JFrame {
         }
 
         attributeScroll = new JScrollPane(attributePanel);
-        attributeScroll.setPreferredSize(new Dimension(200, 200));
+
+        // catalogue button
+
+        catalogueBtn = new JButton("Catalogue Asset");
+        catalogueBtn.addActionListener(e -> {
+            System.out.println("Catalogue Asset Button Pressed");
+        });
     }
 
     private void makeHomePanel() {
@@ -124,6 +199,7 @@ public class Home extends JFrame {
         dragArea.setFont(new Font("Serif", Font.BOLD, 30));
         dragArea.setEditable(false);
         dragArea.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        dragArea.setBackground(Color.LIGHT_GRAY);
 
         // center text
         SimpleAttributeSet center = new SimpleAttributeSet();

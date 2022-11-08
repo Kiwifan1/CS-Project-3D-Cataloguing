@@ -15,7 +15,8 @@ public class Asset {
     /**
      * Adds an asset to the database. This method relies that the file was already
      * added with
-     * {@link File#addFile(int, int, String, byte[], String, String)} and it has an
+     * {@link AssetFile#addFile(int, int, String, byte[], String, String)} and it
+     * has an
      * attribute from {@link Attribute#addAttribute(int, String)}
      * 
      * @param filePath The path of the file
@@ -92,6 +93,29 @@ public class Asset {
             asset[1] = rs.getString("AttributeName");
 
             return asset;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    /**
+     * Gets all the scales from the database
+     * 
+     * @return An ArrayList of all the scales
+     */
+    public ArrayList<String> getScales() {
+        try {
+            Statement st = cn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT DISTINCT Scale FROM Asset");
+
+            ArrayList<String> scales = new ArrayList<String>();
+
+            while (rs.next()) {
+                scales.add(rs.getString("Scale"));
+            }
+
+            return scales;
         } catch (Exception e) {
             System.out.println(e);
             return null;

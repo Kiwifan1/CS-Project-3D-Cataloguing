@@ -89,4 +89,32 @@ public class Set {
             return null;
         }
     }
+
+    /**
+     * Gets all the sets from a specific group
+     * 
+     * @param groupName The name of the group
+     * @return An ArrayList of all sets in the group
+     */
+    public ArrayList<String> getSetsFromGroup(String groupName) {
+        try {
+            String query = "SELECT DISTINCT * FROM AssetSet WHERE GroupName = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, groupName);
+
+            ResultSet rs = ps.executeQuery();
+
+            ArrayList<String> set = new ArrayList<String>();
+
+            while (rs.next()) {
+                set.add(rs.getString("Name"));
+            }
+
+            return set;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
 }

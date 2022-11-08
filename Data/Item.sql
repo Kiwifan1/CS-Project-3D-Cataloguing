@@ -18,8 +18,10 @@ CREATE TABLE Attribute
 CREATE TABLE AssetGroup
 (
     Name VARCHAR(50) NOT NULL,
+    Publisher VARCHAR(50) NOT NULL,
     Description TINYTEXT,
-    PRIMARY KEY (Name)
+    PRIMARY KEY (Name, Publisher),
+    FOREIGN KEY (Publisher) REFERENCES AssetRelease(Publisher)
 );
 
 CREATE TABLE AssetSet
@@ -56,13 +58,11 @@ CREATE TABLE Asset
     FilePath VARCHAR(100) NOT NULL,
     AttributeName VARCHAR(50) NOT NULL,
     Name VARCHAR(50) NOT NULL,
-    ReleaseName VARCHAR(50) NOT NULL,
     Scale VARCHAR(10) NOT NULL,
     -- TODO: Fix format for scale
     PRIMARY KEY (FilePath, AttributeName),
     FOREIGN KEY (FilePath) REFERENCES AssetFile(Path),
     FOREIGN KEY (AttributeName) REFERENCES Attribute(Name),
-    FOREIGN KEY (ReleaseName) REFERENCES AssetRelease(Name)
 );
 
 CREATE TABLE AppUser
