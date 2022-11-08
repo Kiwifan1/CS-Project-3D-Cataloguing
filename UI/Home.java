@@ -22,7 +22,6 @@ public class Home extends JFrame {
     ConnectLogic logic;
     Attribute attribute;
     Release release;
-    Set set;
     Asset asset;
 
     JPanel homePanel;
@@ -56,32 +55,26 @@ public class Home extends JFrame {
     }
 
     /**
-     * Checks all the checkboxes in a scroll pane and returns the text of the ones
-     * that are checked.
-     * 
-     * @param scroll The scroll pane to check
-     * @return Returns an ArrayList of the text of the checked checkboxes
-     */
-    private String[] getChecked(JScrollPane scroll) {
-        ArrayList<String> checked = new ArrayList<String>();
-
-        JPanel panel = (JPanel) scroll.getViewport().getView();
-
-        for (Component component : panel.getComponents()) {
-            JCheckBox box = (JCheckBox) component;
-
-            if (box.isSelected()) {
-                checked.add(box.getText());
-            }
-        }
-
-        return checked.toArray(new String[checked.size()]);
-    }
-
-    /**
      * Makes the interactable components for the home panel.
      */
     private void makeInteractables() {
+
+        makePublisherScroll();
+        makeReleaseScroll();
+        makeScaleScroll();
+        makeAttributeScroll();
+
+        // catalogue button
+        catalogueBtn = new JButton("Catalogue Asset");
+        catalogueBtn.addActionListener(e -> {
+            System.out.println("Catalogue Asset Button Pressed");
+        });
+    }
+
+    /**
+     * Creates the publication scroll pane.
+     */
+    private void makePublisherScroll() {
         // publisher scroll pane
 
         ArrayList<String> publishers = release.getAllPublishers();
@@ -95,7 +88,12 @@ public class Home extends JFrame {
         }
 
         publisherScroll = new JScrollPane(publisherBox);
+    }
 
+    /**
+     * Creates the release scroll pane.
+     */
+    private void makeReleaseScroll() {
         // release scroll pane
 
         String[] checked = getChecked(publisherScroll);
@@ -110,7 +108,12 @@ public class Home extends JFrame {
         }
 
         releaseScroll = new JScrollPane(releaseBox);
+    }
 
+    /**
+     * Creates the scale scroll pane.
+     */
+    private void makeScaleScroll() {
         // scale scroll pane
 
         JPanel scaleBox = new JPanel();
@@ -124,7 +127,12 @@ public class Home extends JFrame {
         }
 
         scaleScroll = new JScrollPane(scaleBox);
+    }
 
+    /**
+     * Creates the attribute scroll pane.
+     */
+    private void makeAttributeScroll() {
         // attribute scroll pane
 
         ArrayList<String[]> attributes = attribute.getAllAttributes();
@@ -138,15 +146,11 @@ public class Home extends JFrame {
         }
 
         attributeScroll = new JScrollPane(attributePanel);
-
-        // catalogue button
-
-        catalogueBtn = new JButton("Catalogue Asset");
-        catalogueBtn.addActionListener(e -> {
-            System.out.println("Catalogue Asset Button Pressed");
-        });
     }
 
+    /**
+     * Creates the home panel.
+     */
     private void makeHomePanel() {
         homePanel = new JPanel(new BorderLayout());
 
@@ -160,12 +164,18 @@ public class Home extends JFrame {
         this.add(homePanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Creates the panel that contains the catalogue button and the scroll panes.
+     */
     private void makeCataloguePanel() {
         cataloguePanel = new JPanel();
         cataloguePanel.setLayout(new FlowLayout());
 
         // create the spacing and add the buttons
         cataloguePanel.add(Box.createHorizontalGlue());
+        cataloguePanel.add(publisherScroll);
+        cataloguePanel.add(releaseScroll);
+        cataloguePanel.add(scaleScroll);
         cataloguePanel.add(attributeScroll);
         cataloguePanel.add(Box.createRigidArea(new Dimension(10, 0)));
         cataloguePanel.add(catalogueBtn);
@@ -180,7 +190,7 @@ public class Home extends JFrame {
         dragPanel.setLayout(new BoxLayout(dragPanel, BoxLayout.Y_AXIS));
         dragPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        createDragArea();
+        makeDragArea();
 
         dragPanel.add(dragArea, BorderLayout.CENTER);
     }
@@ -191,7 +201,7 @@ public class Home extends JFrame {
      * @see https://stackoverflow.com/questions/811248/how-can-i-use-drag-and-drop-in-swing-to-get-file-path
      *      for how I got this to work
      */
-    private void createDragArea() {
+    private void makeDragArea() {
         dragArea = new JTextPane();
         dragArea.setText("Drag and drop files here");
 
@@ -222,5 +232,33 @@ public class Home extends JFrame {
                 }
             }
         });
+    }
+
+    /**
+     * Checks all the checkboxes in a scroll pane and returns the text of the ones
+     * that are checked.
+     * 
+     * @param scroll The scroll pane to check
+     * @return Returns an ArrayList of the text of the checked checkboxes, if
+     *         nothing is checked, return ['*']
+     */
+    private String[] getChecked(JScrollPane scroll) {
+        ArrayList<String> checked = new ArrayList<String>();
+
+        JPanel panel = (JPanel) scroll.getViewport().getView();
+
+        for (Component component : panel.getComponents()) {
+            JCheckBox box = (JCheckBox) component;
+
+            if (box.isSelected()) {
+                checked.add(box.getText());
+            }
+        }
+
+        if (checked.size() == 0) {
+            checked.add("*");
+        }
+
+        return checked.toArray(new String[checked.size()]);
     }
 }

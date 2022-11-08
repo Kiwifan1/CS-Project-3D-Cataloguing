@@ -1,75 +1,98 @@
-
--- Inserts test data for project
+-- Insert test data into tables
 
 INSERT INTO Attribute
 VALUES
-    ('Goblin', 'A little green man'),
-    ('Orc', 'A large green man'),
-    ('Human', 'Just a regular guy');
-
-INSERT INTO AssetGroup
-VALUES
-    ('Goblin Warriors', 'A group of goblin warriors'),
-    ('Orc Warriors', 'A group of orc warriors'),
-    ('Human Warriors', 'A group of human warriors');
-
-INSERT INTO AssetSet
-VALUES
-    ('Goblin Warriors 1', 'Goblin Warriors', 'A set of goblin warriors'),
-    ('Goblin Warriors 2', 'Goblin Warriors', 'A set of goblin warriors'),
-    ('Orc Warriors 1', 'Orc Warriors', 'A set of orc warriors'),
-    ('Human Warriors 1', 'Human Warriors', 'A set of human warriors'),
-    ('Human Warriors 2', 'Human Warriors', 'A set of human warriors');
+    ('Goblin', 'Little green man'),
+    ('Orc', 'Big Green man'),
+    ('Humanoid', 'Humanoid'),
+    ('Human', 'Human'),
+    ('Elf', 'Elf'),
+    ('Dwarf', 'Dwarf'),
+    ('Halfling', 'Halfling'),
+    ('Dragon', 'Dragon'),
+    ('Giant', 'Giant')
 
 INSERT INTO AssetRelease
 VALUES
-    ('Green Fury Goblins', '2015-01-02', 'Green Fury Games', 'MyMiniFactory'),
-    ('Angry Orcs', '2015-01-03', 'Anthropology', 'MyMiniFactory'),
-    ('Humans Settled', '2015-01-04', 'Bladesmith', 'Patreon');
+    ('D&D', 'Monster Manual', '2014-09-15', 'MyMiniFactory'),
+    ('Bladesmith', 'Hunters & Hunted', '2015-02-13', 'Patreon'),
+    ('Green Fury Goblins', 'Goblin Warrios', '2018-09-11', '3DModeling'),
+    ('WhiteWolf', 'May Release', '2014-04-13', 'Patreon')
+
+INSERT INTO AssetGroup
+VALUES
+    ('Goblins', 'D&D', 'Goblins'),
+    ('Orcs', 'D&D', 'Orcs'),
+    ('Dragons', 'D&D', 'Dragons'),
+    ('Giant', 'D&D', 'Giant'),
+    ('Goblins', 'Bladesmith', 'Goblins'),
+    ('Orcs', 'Bladesmith', 'Orcs'),
+    ('Dragons', 'Bladesmith', 'Dragons'),
+    ('Giant', 'Bladesmith', 'Giant'),
+    ('Humanoids', 'Bladesmith', 'Humans'),
+    ('Elf', 'Bladesmith', 'Humans'),
+    ('Dwarf', 'Bladesmith', 'Humans'),
+    ('Halfling', 'Bladesmith', 'Humans'),
+    ('Goblins', 'Green Fury Goblins', 'Goblins'),
+    ('Orcs', 'Green Fury Goblins', 'Orcs'),
+    ('Dragons', 'Green Fury Goblins', 'Dragons'),
+    ('Giant', 'Green Fury Goblins', 'Giant'),
+    ('Goblins', 'WhiteWolf', 'Goblins'),
+    ('Orcs', 'WhiteWolf', 'Orcs'),
+    ('Dragons', 'WhiteWolf', 'Dragons'),
+    ('Giant', 'WhiteWolf', 'Giant')
 
 INSERT INTO AssetFile
 VALUES
-    ('GoblinWarriors1/GoblinWarrior1.stl', 'Green Fury Goblins', 'GoblinWarriors1/GoblinWarrior1.png', '2015-01-02', '2015-01-02'),
-    ('GoblinWarriors1/GoblinWarrior2.stl', 'Green Fury Goblins', 'GoblinWarriors1/GoblinWarrior2.png', '2015-01-02', '2015-01-02'),
-    ('GoblinWarriors1/GoblinWarrior3.stl', 'Green Fury Goblins', 'GoblinWarriors1/GoblinWarrior3.png', '2015-01-02', '2015-01-02'),
-
-    ('HumanWarriors1/HumanWarrior1.stl', 'Humans Settled', 'HumanWarriors1/HumanWarrior1.png', '2015-01-04', '2015-01-04'),
-    ('HumanWarriors1/HumanWarrior2.stl', 'Humans Settled', 'HumanWarriors1/HumanWarrior2.png', '2015-01-04', '2015-01-04'),
-    ('HumanWarriors1/HumanWarrior3.stl', 'Humans Settled', 'HumanWarriors1/HumanWarrior3.png', '2015-01-04', '2015-01-04'),
-
-    ('HumanWarriors2/HumanWarrior1.stl', 'Humans Settled', 'HumanWarriors2/HumanWarrior1.png', '2015-01-04', '2015-01-04'),
-    ('HumanWarriors2/HumanWarrior2.stl', 'Humans Settled', 'HumanWarriors2/HumanWarrior2.png', '2015-01-04', '2015-01-04'),
-    ('HumanWarriors2/HumanWarrior3.stl', 'Humans Settled', 'HumanWarriors2/HumanWarrior3.png', '2015-01-04', '2015-01-04'),
-
-    ('OrcWarriors1/OrcWarrior1.stl', 'Angry Orcs', 'OrcWarriors1/OrcWarrior1.png', '2015-01-03', '2015-01-03'),
-    ('OrcWarriors1/OrcWarrior2.stl', 'Angry Orcs', 'OrcWarriors1/OrcWarrior2.png', '2015-01-03', '2015-01-03'),
-    ('OrcWarriors1/OrcWarrior3.stl', 'Angry Orcs', 'OrcWarriors1/OrcWarrior3.png', '2015-01-03', '2015-01-03');
+    ('D&D/Goblin/Goblin.stl', 'D&D', 'D&D/Goblin/Goblin.png', '2014-09-15', '2014-09-16'),
+    ('D&D/Goblin/Goblin2.stl', 'D&D', 'D&D/Goblin/Goblin2.png', '2014-09-15', '2014-09-16'),
+    ('D&D/Goblin/Goblin3.stl', 'D&D', 'D&D/Goblin/Goblin3.png', '2014-09-15', '2014-09-16'),
+    ('D&D/Goblin/Goblin4.stl', 'D&D', 'D&D/Goblin/Goblin4.png', '2014-09-15', '2014-09-16'),
+    ('D&D/Goblin/Goblin5.stl', 'D&D', 'D&D/Goblin/Goblin5.png', '2014-09-15', '2014-09-16'),
+    ('D&D/Goblin/Goblin6.stl', 'D&D', 'D&D/Goblin/Goblin6.png', '2014-09-15', '2014-09-16'),
+    ('Bladesmith/Goblin/Goblin.stl', 'Bladesmith', 'Bladesmith/Goblin/Goblin.png', '2015-02-13', '2015-03-13'),
+    ('Bladesmith/Goblin/Goblin2.stl', 'Bladesmith', 'Bladesmith/Goblin/Goblin2.png', '2015-02-13', '2015-03-13'),
+    ('Bladesmith/Goblin/Goblin3.stl', 'Bladesmith', 'Bladesmith/Goblin/Goblin3.png', '2015-02-13', '2015-03-13'),
+    ('Bladesmith/Goblin/Goblin4.stl', 'Bladesmith', 'Bladesmith/Goblin/Goblin4.png', '2015-02-13', '2015-03-13'),
+    ('Bladesmith/Goblin/Goblin5.stl', 'Bladesmith', 'Bladesmith/Goblin/Goblin5.png', '2015-02-13', '2015-03-13'),
+    ('Bladesmith/Goblin/Goblin6.stl', 'Bladesmith', 'Bladesmith/Goblin/Goblin6.png', '2015-02-13', '2015-03-13'),
+    ('Green Fury Goblins/Goblin/Goblin.stl', 'Green Fury Goblins', 'Green Fury Goblins/Goblin/Goblin.png', '2018-09-11', '2018-010-15'),
+    ('Green Fury Goblins/Goblin/Goblin2.stl', 'Green Fury Goblins', 'Green Fury Goblins/Goblin/Goblin2.png', '2018-09-11', '2018-010-15'),
+    ('Green Fury Goblins/Goblin/Goblin3.stl', 'Green Fury Goblins', 'Green Fury Goblins/Goblin/Goblin3.png', '2018-09-11', '2018-010-15'),
+    ('Green Fury Goblins/Goblin/Goblin4.stl', 'Green Fury Goblins', 'Green Fury Goblins/Goblin/Goblin4.png', '2018-09-11', '2018-010-15'),
+    ('Green Fury Goblins/Goblin/Goblin5.stl', 'Green Fury Goblins', 'Green Fury Goblins/Goblin/Goblin5.png', '2018-09-11', '2018-010-15'),
+    ('Green Fury Goblins/Goblin/Goblin6.stl', 'Green Fury Goblins', 'Green Fury Goblins/Goblin/Goblin6.png', '2018-09-11', '2018-010-15'),
+    ('WhiteWolf/Goblin/Goblin.stl', 'WhiteWolf', 'WhiteWolf/Goblin/Goblin.png', '2014-04-13', '2014-04-16'),
+    ('WhiteWolf/Goblin/Goblin2.stl', 'WhiteWolf', 'WhiteWolf/Goblin/Goblin2.png', '2014-04-13', '2014-04-16'),
+    ('WhiteWolf/Goblin/Goblin3.stl', 'WhiteWolf', 'WhiteWolf/Goblin/Goblin3.png', '2014-04-13', '2014-04-16'),
+    ('WhiteWolf/Goblin/Goblin4.stl', 'WhiteWolf', 'WhiteWolf/Goblin/Goblin4.png', '2014-04-13', '2014-04-16'),
+    ('WhiteWolf/Goblin/Goblin5.stl', 'WhiteWolf', 'WhiteWolf/Goblin/Goblin5.png', '2014-04-13', '2014-04-16'),
+    ('WhiteWolf/Goblin/Goblin6.stl', 'WhiteWolf', 'WhiteWolf/Goblin/Goblin6.png', '2014-04-13', '2014-04-16')
 
 INSERT INTO Asset
 VALUES
-    ('GoblinWarriors1/GoblinWarrior1.stl', 'Goblin', 'Goblin Warriors 1', 'Green Fury Goblins', '1:1'),
-    ('GoblinWarriors1/GoblinWarrior2.stl', 'Goblin', 'Goblin Warriors 1', 'Green Fury Goblins', '1:1'),
-    ('GoblinWarriors1/GoblinWarrior3.stl', 'Goblin', 'Goblin Warriors 1', 'Green Fury Goblins', '1:1'),
+    ('D&D/Goblin/Goblin.stl', 'Goblin', 'Goblin Warrior 1', '1:1'),
+    ('D&D/Goblin/Goblin2.stl', 'Goblin', 'Goblin Warrior 2', '1:1'),
+    ('D&D/Goblin/Goblin3.stl', 'Goblin', 'Goblin Warrior 3', '1:1'),
+    ('D&D/Goblin/Goblin4.stl', 'Goblin', 'Goblin Warrior 4', '1:1'),
+    ('D&D/Goblin/Goblin5.stl', 'Goblin', 'Goblin Warrior 5', '1:1'),
+    ('D&D/Goblin/Goblin6.stl', 'Goblin', 'Goblin Warrior 6', '1:1'),
+    ('Bladesmith/Goblin/Goblin.stl', 'Goblin', 'Goblin Warrior 1', '1:1'),
+    ('Bladesmith/Goblin/Goblin2.stl', 'Goblin', 'Goblin Warrior 2', '1:1'),
+    ('Bladesmith/Goblin/Goblin3.stl', 'Goblin', 'Goblin Warrior 3', '1:1'),
+    ('Bladesmith/Goblin/Goblin4.stl', 'Goblin', 'Goblin Warrior 4', '1:1'),
+    ('Bladesmith/Goblin/Goblin5.stl', 'Goblin', 'Goblin Warrior 5', '1:1'),
+    ('Bladesmith/Goblin/Goblin6.stl', 'Goblin', 'Goblin Warrior 6', '1:1'),
+    ('Green Fury Goblins/Goblin/Goblin.stl', 'Goblin', 'Goblin Warrior 1', '1:1'),
+    ('Green Fury Goblins/Goblin/Goblin2.stl', 'Goblin', 'Goblin Warrior 2', '1:1'),
+    ('Green Fury Goblins/Goblin/Goblin3.stl', 'Goblin', 'Goblin Warrior 3', '1:1'),
+    ('Green Fury Goblins/Goblin/Goblin4.stl', 'Goblin', 'Goblin Warrior 4', '1:1'),
+    ('Green Fury Goblins/Goblin/Goblin5.stl', 'Goblin', 'Goblin Warrior 5', '1:1'),
+    ('Green Fury Goblins/Goblin/Goblin6.stl', 'Goblin', 'Goblin Warrior 6', '1:1'),
+    ('WhiteWolf/Goblin/Goblin.stl', 'Goblin', 'Goblin Warrior 1', '1:1'),
+    ('WhiteWolf/Goblin/Goblin2.stl', 'Goblin', 'Goblin Warrior 2', '1:1'),
+    ('WhiteWolf/Goblin/Goblin3.stl', 'Goblin', 'Goblin Warrior 3', '1:1'),
+    ('WhiteWolf/Goblin/Goblin4.stl', 'Goblin', 'Goblin Warrior 4', '1:1'),
+    ('WhiteWolf/Goblin/Goblin5.stl', 'Goblin', 'Goblin Warrior 5', '1:1'),
+    ('WhiteWolf/Goblin/Goblin6.stl', 'Goblin', 'Goblin Warrior 6', '1:1')
 
-    ('HumanWarriors1/HumanWarrior1.stl', 'Human', 'Human Warriors 1', 'Humans Settled', '1:1'),
-    ('HumanWarriors1/HumanWarrior2.stl', 'Human', 'Human Warriors 1', 'Humans Settled', '1:1'),
-    ('HumanWarriors1/HumanWarrior3.stl', 'Human', 'Human Warriors 1', 'Humans Settled', '1:1'),
-
-    ('HumanWarriors2/HumanWarrior1.stl', 'Human', 'Human Warriors 2', 'Humans Settled', '1:1'),
-    ('HumanWarriors2/HumanWarrior2.stl', 'Human', 'Human Warriors 2', 'Humans Settled', '1:1'),
-    ('HumanWarriors2/HumanWarrior3.stl', 'Human', 'Human Warriors 2', 'Humans Settled', '1:1'),
-
-    ('OrcWarriors1/OrcWarrior1.stl', 'Orc', 'Orc Warriors 1', 'Angry Orcs', '1:1'),
-    ('OrcWarriors1/OrcWarrior2.stl', 'Orc', 'Orc Warriors 1', 'Angry Orcs', '1:1'),
-    ('OrcWarriors1/OrcWarrior3.stl', 'Orc', 'Orc Warriors 1', 'Angry Orcs', '1:1');
-
-
-INSERT INTO AppUser
-VALUES
-    (MD5("user1"), MD5("pass1")),
-    (MD5("user2"), MD5("pass2")),
-    (MD5("user3"), MD5("pass3"));
-
-INSERT INTO Admin
-VALUES
-    (MD5("user2"));

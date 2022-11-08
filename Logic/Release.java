@@ -73,7 +73,7 @@ public class Release {
         try {
             String query = "SELECT Name FROM AssetRelease WHERE Publisher = ?";
 
-            for (int i = 0; i < pubs.length; i++) {
+            for (int i = 1; i < pubs.length; i++) {
                 query += " OR Publisher = ?";
             }
 
