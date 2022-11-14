@@ -1,5 +1,3 @@
--- Insert test data into tables
-
 INSERT INTO Attribute
 VALUES
     ('Goblin', 'Little green man'),
@@ -96,3 +94,28 @@ VALUES
     ('WhiteWolf/Goblin/Goblin5.stl', 'Goblin', 'Goblin Warrior 5', '1:1'),
     ('WhiteWolf/Goblin/Goblin6.stl', 'Goblin', 'Goblin Warrior 6', '1:1')
 
+INSERT INTO AppUser
+VALUES
+    ("john123", "123456"),
+    ("jane123", "1234"),
+    ("joe123", "123"),
+    ("jill123", "4321"),
+    ("jack123", "12345"),
+    ("jim123", "1234567"),
+    ("jessica123", "12345678"),
+    ("jennifer123", "123456789"),
+    ("josh123", "654321")
+
+INSERT INTO Admin
+VALUES
+    ("josh123"),
+    ("jessica123"),
+    ("jennifer123")
+
+INSERT INTO AuditLog
+VALUES
+    ("josh123", "INSERT INTO Asset", "2018-10-15:12:00:00"),
+    ("josh123", "INSERT INTO Asset", "2018-10-15:12:14:00"),
+    ("josh123", "INSERT INTO Asset", "2018-10-15:12:18:00"),
+    ("jessica123", "INSERT INTO Asset", "2018-10-16:13:23:12"),
+    ("jessica123", "INSERT INTO Asset", "2018-10-16:13:23:15")

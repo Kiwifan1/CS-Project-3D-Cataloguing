@@ -82,7 +82,7 @@ CREATE TABLE AuditLog
 (
     Username VARCHAR(50) NOT NULL,
     Action VARCHAR(50) NOT NULL,
-    Date DATETIME NOT NULL,
-    PRIMARY KEY (Username, Action, Date),
+    Time DATETIME NOT NULL,
+    PRIMARY KEY (Username, Action, Time),
     FOREIGN KEY (Username) REFERENCES AppUser(Username)
 );
