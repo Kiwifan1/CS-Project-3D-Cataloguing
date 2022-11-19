@@ -1,88 +1,69 @@
 DROP TABLE IF EXISTS Asset;
-DROP TABLE IF EXISTS AssetFile;
-DROP TABLE IF EXISTS AssetGroup;
-DROP TABLE IF EXISTS AssetRelease;
-DROP TABLE IF EXISTS Attribute;
 DROP TABLE IF EXISTS AuditLog;
 DROP TABLE IF EXISTS Admin;
+DROP TABLE IF EXISTS AssetRelease;
+DROP TABLE IF EXISTS Publisher;
+DROP TABLE IF EXISTS Attribute;
 DROP TABLE IF EXISTS AppUser;
 
-
--- An attribute is a property of an asset, such as 'Goblin' or 'Humanoid'
 CREATE TABLE Attribute
 (
-    Name VARCHAR(50) NOT NULL,
-    Description TINYTEXT,
-    PRIMARY KEY (Name)
+    name VARCHAR(50) NOT NULL,
+    description TINYTEXT,
+    PRIMARY KEY(name)
 );
 
--- An asset release is a collection of assets that are released together
+CREATE TABLE Publisher
+(
+    name VARCHAR(50) NOT NULL,
+    source VARCHAR(50) NOT NULL,
+    PRIMARY KEY(name)
+);
+
 CREATE TABLE AssetRelease
 (
-    Publisher VARCHAR(50) NOT NULL,
-    Name VARCHAR(50) NOT NULL,
-    PubDate DATE NOT NULL,
-    Source VARCHAR(50) NOT NULL,
-    PRIMARY KEY (Publisher)
+    id INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    publisher VARCHAR(50) NOT NULL,
+    description TINYTEXT,
+    PRIMARY KEY (id),
+    FOREIGN KEY(publisher) REFERENCES Publisher(name)
 );
 
--- An asset group is a collection of assets that are related to each other, there can be multiple asset groups per release
-CREATE TABLE AssetGroup
-(
-    Name VARCHAR(50) NOT NULL,
-    Publisher VARCHAR(50) NOT NULL,
-    Description TINYTEXT,
-    PRIMARY KEY (Name, Publisher),
-    FOREIGN KEY (Publisher) REFERENCES AssetRelease(Publisher)
-);
-
--- An asset file is the metadata for an asset
-CREATE TABLE AssetFile
-(
-    Path VARCHAR(100) NOT NULL,
-    Publisher VARCHAR(50) NOT NULL,
-    ImagePath VARCHAR(100),
-    DownloadDate DATE NOT NULL,
-    EditDate DATE CHECK (EditDate >= DownloadDate OR EditDate IS NULL),
-    PRIMARY KEY (Path),
-    FOREIGN KEY (Publisher) REFERENCES AssetRelease(Publisher)
-);
-
--- An asset is the actual asset object
-CREATE TABLE Asset
-(
-    FilePath VARCHAR(100) NOT NULL,
-    AttributeName VARCHAR(50) NOT NULL,
-    Name VARCHAR(50) NOT NULL,
-    Scale VARCHAR(10) NOT NULL,
-    -- TODO: Fix format for scale
-    PRIMARY KEY (FilePath, AttributeName),
-    FOREIGN KEY (FilePath) REFERENCES AssetFile(Path),
-    FOREIGN KEY (AttributeName) REFERENCES Attribute(Name)
-);
-
--- An App user is a user of the application
 CREATE TABLE AppUser
 (
-    Username VARCHAR(50) NOT NULL,
-    Pass VARCHAR(50) NOT NULL,
-    PRIMARY KEY(Username, Pass)
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    PRIMARY KEY(username)
 );
 
--- An admin is a user that has admin privileges
 CREATE TABLE Admin
 (
-    Username VARCHAR(50) NOT NULL,
-    PRIMARY KEY (Username),
-    FOREIGN KEY (Username) REFERENCES AppUser(Username)
+    username VARCHAR(50) NOT NULL,
+    PRIMARY KEY(username),
+    FOREIGN KEY (username) REFERENCES AppUser(username)
 );
 
--- An audit log is a log of all actions performed by a user
 CREATE TABLE AuditLog
 (
-    Username VARCHAR(50) NOT NULL,
-    Action VARCHAR(50) NOT NULL,
-    Time DATETIME NOT NULL,
-    PRIMARY KEY (Username, Action, Time),
-    FOREIGN KEY (Username) REFERENCES AppUser(Username)
+    username VARCHAR(50) NOT NULL,
+    time DATETIME NOT NULL,
+    action TINYTEXT NOT NULL,
+    PRIMARY KEY(username, time),
+    FOREIGN KEY (username) REFERENCES AppUser(username)
+);
+
+CREATE TABLE Asset
+(
+    filepath VARCHAR(255) NOT NULL,
+    attribute VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    r_id INT NOT NULL,
+    scale VARCHAR(10) NOT NULL,
+    description TINYTEXT,
+    PRIMARY KEY(filepath, attribute),
+    FOREIGN KEY(attribute) REFERENCES Attribute(name),
+    FOREIGN KEY(r_id) REFERENCES AssetRelease(id),
+    FOREIGN KEY(username) REFERENCES AppUser(username)
 );
