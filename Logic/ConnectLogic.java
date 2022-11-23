@@ -8,9 +8,10 @@ import java.io.*;
 public class ConnectLogic {
 
     private Connection cn;
+    private boolean connected;
 
     public ConnectLogic() {
-        makeConnection();
+        connected = makeConnection();
     }
 
     public Connection getConnection() {
@@ -21,10 +22,12 @@ public class ConnectLogic {
         this.cn = cn;
     }
 
+    public boolean isConnected() { return connected; }
+
     /**
      * Creates a connection to the database
      */
-    public void makeConnection() {
+    public boolean makeConnection() {
         try {
             // TODO: FIX ABSOLUTE PATH
             FileInputStream fis = new FileInputStream("C:/Users/joshu/OneDrive/Apps/Documents/GitHub/CS-Project-3D-Cataloguing/Logic/config.properties");
@@ -36,8 +39,10 @@ public class ConnectLogic {
             String password = prop.getProperty("password");
 
             this.cn = DriverManager.getConnection(url, user, password);
+            return true;
         } catch (Exception e) {
             System.out.println(e);
+            return false;
         }
     }
 }

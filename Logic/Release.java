@@ -13,23 +13,25 @@ public class Release {
     }
 
     /**
-     * Adds a release to the database.
+     * Adds a Release to the database. Must have a publisher already in database:
+     * See {@link Publisher#addPublisher(String, String)}
      * 
-     * @param name    The name of the release
-     * @param pubDate The date of the release
-     * @param pub     The publisher of the release
-     * @param src     The source of the release
-     * @return Returns true if the release was added successfully
+     * @param id
+     * @param name
+     * @param publisher
+     * @param description
+     * @return true if release is successfully added, false otherwise.
      */
-    public boolean addRelease(String name, String pubDate, String pub, String src) {
+    public boolean addRelease(int id, String name, String publisher, String description) {
         try {
             String query = "INSERT INTO AssetRelease VALUES (?, ?, ?, ?)";
+
             PreparedStatement ps = cn.prepareStatement(query);
 
-            ps.setString(1, name);
-            ps.setString(2, pubDate);
-            ps.setString(3, pub);
-            ps.setString(4, src);
+            ps.setInt(1, id);
+            ps.setString(2, name);
+            ps.setString(3, publisher);
+            ps.setString(4, description);
 
             ps.executeUpdate();
             return true;
@@ -71,7 +73,7 @@ public class Release {
      */
     public ArrayList<String> getReleaseFromPub(String[] pubs) {
         try {
-            String query = "SELECT Name FROM AssetRelease WHERE Publisher = ?";
+            String query = "SELECT name FROM AssetRelease WHERE Publisher = ?";
 
             for (int i = 1; i < pubs.length; i++) {
                 query += " OR Publisher = ?";

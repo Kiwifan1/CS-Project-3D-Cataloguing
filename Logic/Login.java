@@ -2,6 +2,9 @@ package Logic;
 
 import java.sql.*;
 import java.util.*;
+
+import com.mysql.cj.xdevapi.Result;
+
 import java.io.*;
 
 public class Login {
@@ -77,6 +80,31 @@ public class Login {
             ps.executeUpdate();
 
             return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Checks if a user is an admin
+     * @param username username of potential admin
+     * @return true if admin, false otherwise
+     */
+    public boolean isAdmin(String username) {
+        try {
+            String query = "SELECT username FROM Admin WHERE username = ?";
+
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, username);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()) {
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             System.out.println(e);
             return false;

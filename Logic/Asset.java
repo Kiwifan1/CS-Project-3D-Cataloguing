@@ -13,31 +13,51 @@ public class Asset {
     }
 
     /**
-     * Adds an asset to the database. This method relies that the file was already
-     * added with
-     * {@link AssetFile#addFile(int, int, String, byte[], String, String)} and it
-     * has an
-     * attribute from {@link Attribute#addAttribute(int, String)}
-     * 
-     * @param filePath The path of the file
-     * @param attrName The name of the attribute
-     * @param name     The name of the asset
-     * @param setName  The name of the set the asset belongs to
-     * @param scale    The scale of the asset
-     * @return Returns true if the asset was added successfully
+     * Adds an Asset to the SQL Database, there must be a release with the rid key in the database.
+     *  One can be added with {@link Release#addRelease(String, String, String, String)}
+     * @param filePath file path of the asset
+     * @param attribute attribute of the asset
+     * @param username username of person who added asset
+     * @param name name of asset
+     * @param rid release id of the asset
+     * @param scale scale of the asset
+     * @param description description of the asset (optional)
+     * @return true if asset successfully added, false otherwise
      */
-    public boolean addAsset(String filePath, String attrName, String name, String setName, String scale) {
+    public boolean addAsset(String filePath, String attribute, String username, String name, int rid, String scale, String description) {
         try {
-            String query = "INSERT INTO Asset VALUES (?, ?, ?, ?, ?)";
+            String query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, filePath);
-            ps.setString(2, attrName);
-            ps.setString(3, name);
-            ps.setString(4, setName);
-            ps.setString(5, scale);
+            ps.setString(2, attribute);
+            ps.setString(3, username);
+            ps.setString(4, name);
+            ps.setInt(5, rid);
+            ps.setString(6, scale);
+            ps.setString(7, description);
 
             ps.executeUpdate();
+
+            return true;
+        } catch (Exception e) { 
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Removes an asset given a filepath
+     * @param filePath filepath to be removed
+     * @return true if asset successfully removed, false otherwise
+     */
+    public boolean removeAsset(String filePath) {
+        try {
+            String query = "DELETE FROM Asset WHERE filepath = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
+
+            ps.executeQuery();
             return true;
         } catch (Exception e) {
             System.out.println(e);
@@ -46,73 +66,20 @@ public class Asset {
     }
 
     /**
-     * Gets all the assets from the database
-     * 
-     * @return An ArrayList of all Assets
-     */
-    public ArrayList<String[]> getAllAssets() {
-        ArrayList<String[]> assets = new ArrayList<String[]>();
-
-        try {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT FilePath, AttributeName FROM Asset");
-
-            while (rs.next()) {
-                String[] asset = new String[2];
-                asset[0] = rs.getString("FilePath");
-                asset[1] = rs.getString("AttributeName");
-                assets.add(asset);
-            }
-
-            return assets;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    /**
-     * Gets an asset from the database
-     * 
-     * @param filePath      The path to the file
-     * @param attributeName The name of the attribute
-     * @return An array of the file path and attribute name
-     */
-    public String[] getAsset(String filePath, String attributeName) {
-        try {
-            String query = "SELECT * FROM Asset WHERE FilePath = ? AND AttributeName = ?";
-            PreparedStatement ps = cn.prepareStatement(query);
-
-            ps.setString(1, filePath);
-            ps.setString(2, attributeName);
-
-            ResultSet rs = ps.executeQuery();
-
-            String[] asset = new String[2];
-            asset[0] = rs.getString("FilePath");
-            asset[1] = rs.getString("AttributeName");
-
-            return asset;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    /**
-     * Gets all the scales from the database
-     * 
-     * @return An ArrayList of all the scales
+     * Gets all scales of all attributes
+     * @return an arraylist<String> of all attributes
      */
     public ArrayList<String> getScales() {
         try {
-            Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT DISTINCT Scale FROM Asset");
+            ArrayList<String> scales = new ArrayList<>();
+            String query = "SELECT DISTINCT scale FROM Asset";
+            PreparedStatement ps = cn.prepareStatement(query);
 
-            ArrayList<String> scales = new ArrayList<String>();
-
-            while (rs.next()) {
-                scales.add(rs.getString("Scale"));
+            ResultSet rs = ps.executeQuery();
+            String scale = rs.getString(0);
+            while(rs.next()) {
+                scales.add(scale);
+                scale = rs.getString("scale");
             }
 
             return scales;
