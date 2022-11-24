@@ -25,7 +25,7 @@ import java.awt.dnd.*;
 import java.awt.datatransfer.*;
 import java.awt.*;
 
-public class SignIn extends JFrame {
+public class LoginView extends JFrame {
 
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
@@ -40,12 +40,13 @@ public class SignIn extends JFrame {
     JPasswordField passField;
     JLabel userLabel;
     JLabel passLabel;
+    JLabel message;
 
-    public SignIn() {
+    public LoginView() {
         super("Sign In");
 
         logic = new ConnectLogic();
-        setSize(WIDTH, HEIGHT);
+        setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -56,12 +57,14 @@ public class SignIn extends JFrame {
 
     private void makeInteractables() {
 
+        // make labels for password and username
         userLabel = new JLabel("Username: ");
         passLabel = new JLabel("Password: ");
         
         userField = new JTextField(10);
         passField = new JPasswordField(10);
 
+        // make login button
         loginButton = new JButton("Login");
 
         loginButton.addActionListener(e -> {
@@ -81,27 +84,25 @@ public class SignIn extends JFrame {
                 // let know incorrect
             }
         });
+
+        // make login message
+        message = new JLabel();
     }
 
     private void makePanel() {
-        JPanel userPanel = new JPanel();
-        JPanel passPanel = new JPanel();
-        mainPanel = new JPanel();
+        mainPanel = new JPanel(new GridLayout(3, 1));
 
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS)); // need to change to different layout
         makeInteractables();
         
-        userPanel.add(userLabel, BorderLayout.WEST);
-        userPanel.add(userField, BorderLayout.EAST);
+        mainPanel.add(userLabel);
+        mainPanel.add(userField);
         
-        passPanel.add(passLabel, BorderLayout.WEST);
-        passPanel.add(passField, BorderLayout.EAST);
+        mainPanel.add(passLabel);
+        mainPanel.add(passField);
 
-        mainPanel.add(userPanel);
-        mainPanel.add(passPanel);
+        mainPanel.add(message);
+        mainPanel.add(loginButton);
 
-        mainPanel.add(loginButton, BorderLayout.CENTER);
-
-        this.setContentPane(mainPanel);
+        this.add(mainPanel, BorderLayout.CENTER);
     }
 }

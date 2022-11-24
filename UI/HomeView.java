@@ -14,7 +14,7 @@ import java.awt.dnd.*;
 import java.awt.datatransfer.*;
 import java.awt.*;
 
-public class Home extends JFrame {
+public class HomeView extends JFrame {
 
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
@@ -36,7 +36,7 @@ public class Home extends JFrame {
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
 
-    public Home() {
+    public HomeView() {
         super("Home");
 
         // SQL logic
