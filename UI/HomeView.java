@@ -10,11 +10,12 @@ import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.datatransfer.*;
-import java.awt.*;
+import java.awt.event.*;
 
-public class HomeView extends JFrame {
+public class HomeView extends JFrame implements ActionListener{
 
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
@@ -260,5 +261,15 @@ public class HomeView extends JFrame {
         }
 
         return checked.toArray(new String[checked.size()]);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == catalogueBtn) {
+            String[] publishers = getChecked(publisherScroll);
+            String[] releases = getChecked(releaseScroll);
+            String[] scales = getChecked(scaleScroll);
+            String[] attributes = getChecked(attributeScroll);
+        }
     }
 }

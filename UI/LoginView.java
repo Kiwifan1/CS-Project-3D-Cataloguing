@@ -21,11 +21,12 @@ import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.datatransfer.*;
-import java.awt.*;
+import java.awt.event.*;
 
-public class LoginView extends JFrame {
+public class LoginView extends JFrame implements ActionListener{
 
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
@@ -42,10 +43,12 @@ public class LoginView extends JFrame {
     JLabel passLabel;
     JLabel message;
 
+    HomeView homeView;
+
     public LoginView() {
         super("Sign In");
 
-        logic = new ConnectLogic();
+        // logic = new ConnectLogic();
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -67,23 +70,7 @@ public class LoginView extends JFrame {
         // make login button
         loginButton = new JButton("Login");
 
-        loginButton.addActionListener(e -> {
-            System.out.println("User pressed Login");
-            String user = userField.getText();
-            char[] pass = passField.getPassword();
-            String password = "";
-            for (int i = 0; i < pass.length; i++) {
-                password += pass[i];
-                pass[i] = '\0'; // security
-            }
-            boolean checkUser = login.login(user, password);
-            
-            if(checkUser) {
-                // go to home screen
-            } else {
-                // let know incorrect
-            }
-        });
+        loginButton.addActionListener(this);
 
         // make login message
         message = new JLabel();
@@ -104,5 +91,26 @@ public class LoginView extends JFrame {
         mainPanel.add(loginButton);
 
         this.add(mainPanel, BorderLayout.CENTER);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String user = userField.getText();
+        char[] pass = passField.getPassword();
+        String password = new String(pass);
+
+        if (user.equals("admin") && password.equals("admin")) {
+            userField.setText("");
+            passField.setText("");
+
+            message.setForeground(Color.GREEN);
+            message.setText("Login Successful");
+
+            homeView = new HomeView();
+            this.dispose();
+        } else {
+            message.setForeground(Color.RED);
+            message.setText("Login Failed");
+        }        
     }
 }
