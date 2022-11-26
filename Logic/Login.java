@@ -10,6 +10,7 @@ import java.io.*;
 public class Login {
 
     private Connection cn;
+    private String currUser;
 
     public Login(ConnectLogic logic) {
         this.cn = logic.getConnection();
@@ -57,6 +58,7 @@ public class Login {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                currUser = username;
                 return true;
             } else {
                 return false;

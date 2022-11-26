@@ -15,10 +15,7 @@ import java.awt.dnd.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 
-public class HomeView extends JFrame implements ActionListener{
-
-    public static int WIDTH = 800;
-    public static int HEIGHT = 600;
+public class HomeView extends BoilerPlateView implements ActionListener{
 
     ConnectLogic logic;
     Attribute attribute;
@@ -37,6 +34,8 @@ public class HomeView extends JFrame implements ActionListener{
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
 
+    JMenuBar menuBar;
+
     public HomeView() {
         super("Home");
 
@@ -44,10 +43,6 @@ public class HomeView extends JFrame implements ActionListener{
         logic = new ConnectLogic();
         attribute = new Attribute(logic);
         release = new Release(logic);
-
-        // set up the frame
-        setSize(WIDTH, HEIGHT);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // populate the frame
         makeHomePanel();
@@ -64,6 +59,19 @@ public class HomeView extends JFrame implements ActionListener{
         makeReleaseScroll();
         makeScaleScroll();
         makeAttributeScroll();
+
+        // make the menu bar
+        menuBar = new JMenuBar();
+        JMenu mainMenu = new JMenu();
+        JMenuItem logout = new JMenuItem("Logout");
+        JMenuItem analytics = new JMenuItem("Analytics");
+        JMenuItem library = new JMenuItem("Library");
+
+        mainMenu.add(library);
+        mainMenu.add(analytics);
+        mainMenu.add(logout);
+
+        menuBar.add(mainMenu);
 
         // catalogue button
         catalogueBtn = new JButton("Catalogue Asset");
@@ -159,6 +167,7 @@ public class HomeView extends JFrame implements ActionListener{
         makeDragPanel();
         makeCataloguePanel();
 
+        homePanel.add(menuBar);
         homePanel.add(dragPanel, BorderLayout.CENTER);
         homePanel.add(cataloguePanel, BorderLayout.SOUTH);
 

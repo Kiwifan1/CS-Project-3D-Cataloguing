@@ -43,7 +43,7 @@ public class LoginView extends JFrame implements ActionListener{
     JLabel passLabel;
     JLabel message;
 
-    HomeView homeView;
+    LibraryView libraryView;
 
     public LoginView() {
         super("Sign In");
@@ -106,8 +106,8 @@ public class LoginView extends JFrame implements ActionListener{
             message.setForeground(Color.GREEN);
             message.setText("Login Successful");
 
-            homeView = new HomeView();
-            this.dispose();
+            libraryView = new LibraryView();
+            this.setVisible(false);
         } else {
             message.setForeground(Color.RED);
             message.setText("Login Failed");
