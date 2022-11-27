@@ -68,18 +68,48 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JLabel searchParamLabel2 = new JLabel("Search Parameters: ");
         JLabel searchParamLabel3 = new JLabel("Search Parameters: ");
 
+        searchParamLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        searchParamLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        searchParamLabel3.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // create search parameters checkbox panels
+        JPanel searchParamPanel = new JPanel();
+        searchParamPanel.setLayout(new BoxLayout(searchParamPanel, BoxLayout.Y_AXIS));
+        searchParamPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel searchParamPanel2 = new JPanel();
+        searchParamPanel2.setLayout(new BoxLayout(searchParamPanel2, BoxLayout.Y_AXIS));
+        searchParamPanel2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel searchParamPanel3 = new JPanel();
+        searchParamPanel3.setLayout(new BoxLayout(searchParamPanel3, BoxLayout.Y_AXIS));
+        searchParamPanel3.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         // create search parameters text fields
-        JTextField searchParamField = new JTextField(10);
-        JTextField searchParamField2 = new JTextField(10);
-        JTextField searchParamField3 = new JTextField(10);
+        JTextField searchParamField = new JTextField(20);
+        searchParamField.setMaximumSize(searchParamField.getPreferredSize());
+        searchParamField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        searchParamField.addActionListener(this);
+
+        JTextField searchParamField2 = new JTextField(20);
+        searchParamField2.setMaximumSize(searchParamField2.getPreferredSize());
+        searchParamField2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextField searchParamField3 = new JTextField(20);
+        searchParamField3.setMaximumSize(searchParamField3.getPreferredSize());
+        searchParamField3.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        searchParamPanel.add(searchParamLabel);
+        searchParamPanel.add(searchParamField);
+        searchParamPanel2.add(searchParamLabel2);
+        searchParamPanel2.add(searchParamField2);
+        searchParamPanel3.add(searchParamLabel3);
+        searchParamPanel3.add(searchParamField3);
 
         // add search parameters components to search parameters
-        searchParams.add(searchParamLabel);
-        searchParams.add(searchParamField);
-        searchParams.add(searchParamLabel2);
-        searchParams.add(searchParamField2);
-        searchParams.add(searchParamLabel3);
-        searchParams.add(searchParamField3);
+        searchParams.add(searchParamPanel);
+        searchParams.add(searchParamPanel2);
+        searchParams.add(searchParamPanel3);
 
         // add search bar and search parameters to search panel
         searchPanel.add(searchBar);
@@ -101,7 +131,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // create display area panel where results will be displayed in a scrollable grid layout
         JPanel displayAreaPanel = new JPanel();
-        displayAreaPanel.setLayout(new GridLayout(0, 3));
+        displayAreaPanel.setLayout(new GridLayout(0, 5));
         displayAreaPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // add sample data into display area panel
@@ -125,7 +155,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // create display area scroll pane
         JScrollPane displayAreaScrollPane = new JScrollPane(displayAreaPanel);
-        displayAreaScrollPane.setPreferredSize(new Dimension(500, 350));
+        displayAreaScrollPane.setPreferredSize(new Dimension(700, 300));
 
         // make display area scroll pane scrollable
         displayAreaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

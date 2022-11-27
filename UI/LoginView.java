@@ -52,6 +52,7 @@ public class LoginView extends JFrame implements ActionListener{
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(false);
 
         makePanel();
 

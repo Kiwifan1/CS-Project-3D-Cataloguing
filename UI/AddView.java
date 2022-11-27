@@ -16,7 +16,7 @@ import java.awt.dnd.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 
-public class HomeView extends BoilerPlateView implements ActionListener{
+public class AddView extends BoilerPlateView implements ActionListener{
 
     ConnectLogic logic;
     Attribute attribute;
@@ -35,7 +35,7 @@ public class HomeView extends BoilerPlateView implements ActionListener{
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
     
-    public HomeView() {
+    public AddView() {
         super("Home");
 
         // SQL logic

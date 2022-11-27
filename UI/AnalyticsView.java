@@ -7,6 +7,7 @@ import java.util.List;
 import java.io.*;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.filechooser.FileSystemView;
@@ -24,68 +25,45 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         super("Analytics");
 
         mainPanel = new JPanel();
-        createAnalyticsPanel();
-        createGraphPanel();
-        createAuditLogPanel();
 
+        createSidePanel();
+        
         this.add(mainPanel);
 
         this.setVisible(true);
     }
 
-    // add left panel that contains analytics
-    private void createAnalyticsPanel() {
-        // create panel
-        JPanel analyticsPanel = new JPanel();
-        analyticsPanel.setLayout(new BoxLayout(analyticsPanel, BoxLayout.Y_AXIS));
-        analyticsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    // analytics view will have a list of quantitative analysis items on the left-hand side
+    private void createSidePanel() {
+        // create side panel
+        JPanel sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        sidePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // create search bar
-        JPanel searchBar = new JPanel();
-        searchBar.setLayout(new BoxLayout(searchBar, BoxLayout.X_AXIS));
-        searchBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // create search bar text field
-        JTextField searchField = new JTextField(20);
-        searchField.setMaximumSize(searchField.getPreferredSize());
-        searchField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        searchField.addActionListener(this);
-
-        // create search bar button
-        JButton searchButton = new JButton("Search");
-        searchButton.addActionListener(this);
-
-        // add search bar components to search bar
-        searchBar.add(searchField);
-        searchBar.add(searchButton);
-
-        // add search bar to panel
-        analyticsPanel.add(searchBar);
-
-        // add panel to main panel
-        mainPanel.add(analyticsPanel);
+        // add side panel to main panel
+        mainPanel.add(sidePanel, BorderLayout.WEST);
     }
 
-    // add right panel that contains graphs
-    private void createGraphPanel() {
-        // create panel
-        JPanel graphPanel = new JPanel();
-        graphPanel.setLayout(new BoxLayout(graphPanel, BoxLayout.Y_AXIS));
-        graphPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    // in the center of the screen, there will be a display area for graphs
+    private void createDisplayArea() {
+        // create display area
+        JPanel displayArea = new JPanel();
+        displayArea.setLayout(new BoxLayout(displayArea, BoxLayout.Y_AXIS));
+        displayArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // add panel to main panel
-        mainPanel.add(graphPanel);
+        // add display area to main panel
+        mainPanel.add(displayArea, BorderLayout.CENTER);
     }
+    
+    // on the bottom, there will be an audit log
+    private void createAuditLog() {
+        // create audit log
+        JPanel auditLog = new JPanel();
+        auditLog.setLayout(new BoxLayout(auditLog, BoxLayout.Y_AXIS));
+        auditLog.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-    // add bottom panel that contains audit log
-    private void createAuditLogPanel() {
-        // create panel
-        JPanel auditLogPanel = new JPanel();
-        auditLogPanel.setLayout(new BoxLayout(auditLogPanel, BoxLayout.Y_AXIS));
-        auditLogPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // add panel to main panel
-        mainPanel.add(auditLogPanel);
+        // add audit log to main panel
+        mainPanel.add(auditLog, BorderLayout.SOUTH);
     }
 
     @Override
