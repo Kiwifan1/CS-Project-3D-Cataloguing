@@ -9,6 +9,7 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.filechooser.FileSystemView;
 
 import java.awt.*;
 import java.awt.dnd.*;
@@ -33,9 +34,7 @@ public class HomeView extends BoilerPlateView implements ActionListener{
     JScrollPane publisherScroll;
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
-
-    JMenuBar menuBar;
-
+    
     public HomeView() {
         super("Home");
 
@@ -59,19 +58,6 @@ public class HomeView extends BoilerPlateView implements ActionListener{
         makeReleaseScroll();
         makeScaleScroll();
         makeAttributeScroll();
-
-        // make the menu bar
-        menuBar = new JMenuBar();
-        JMenu mainMenu = new JMenu();
-        JMenuItem logout = new JMenuItem("Logout");
-        JMenuItem analytics = new JMenuItem("Analytics");
-        JMenuItem library = new JMenuItem("Library");
-
-        mainMenu.add(library);
-        mainMenu.add(analytics);
-        mainMenu.add(logout);
-
-        menuBar.add(mainMenu);
 
         // catalogue button
         catalogueBtn = new JButton("Catalogue Asset");
@@ -167,7 +153,6 @@ public class HomeView extends BoilerPlateView implements ActionListener{
         makeDragPanel();
         makeCataloguePanel();
 
-        homePanel.add(menuBar);
         homePanel.add(dragPanel, BorderLayout.CENTER);
         homePanel.add(cataloguePanel, BorderLayout.SOUTH);
 
@@ -235,7 +220,7 @@ public class HomeView extends BoilerPlateView implements ActionListener{
                     List<File> droppedFiles = (List<File>) evt.getTransferable()
                             .getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
-                        System.out.println(file.getAbsolutePath());
+                        Icon icon = FileSystemView.getFileSystemView().getSystemIcon(file);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();

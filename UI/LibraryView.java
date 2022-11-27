@@ -99,17 +99,42 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         // create display area title
         JLabel displayAreaTitle = new JLabel("Results: ");
 
-        // create display area text area
-        JTextArea displayAreaText = new JTextArea(20, 50);
-        displayAreaText.setEditable(false);
-        displayAreaText.setLineWrap(true);
-        displayAreaText.setWrapStyleWord(true);
-        displayAreaText.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // create display area panel where results will be displayed in a scrollable grid layout
+        JPanel displayAreaPanel = new JPanel();
+        displayAreaPanel.setLayout(new GridLayout(0, 3));
+        displayAreaPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // add display area title and text area to display area
+        // add sample data into display area panel
+        for (int i = 0; i < 20; i++) {
+            JPanel result = new JPanel();
+            result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
+            result.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JLabel resultTitle = new JLabel("Title: " + i);
+            JLabel resultAuthor = new JLabel("Author: " + i);
+            JLabel resultGenre = new JLabel("Genre: " + i);
+            JLabel resultYear = new JLabel("Year: " + i);
+
+            result.add(resultTitle);
+            result.add(resultAuthor);
+            result.add(resultGenre);
+            result.add(resultYear);
+
+            displayAreaPanel.add(result);
+        }
+
+        // create display area scroll pane
+        JScrollPane displayAreaScrollPane = new JScrollPane(displayAreaPanel);
+        displayAreaScrollPane.setPreferredSize(new Dimension(500, 350));
+
+        // make display area scroll pane scrollable
+        displayAreaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        displayAreaScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // add display area title and scroll area to display area
         displayAreaTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         displayArea.add(displayAreaTitle);
-        displayArea.add(displayAreaText);
+        displayArea.add(displayAreaScrollPane);
 
         // add display area to main panel
         mainPanel.add(displayArea);

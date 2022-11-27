@@ -67,9 +67,12 @@ public class LoginView extends JFrame implements ActionListener{
         userField = new JTextField(10);
         passField = new JPasswordField(10);
 
+
         // make login button
         loginButton = new JButton("Login");
 
+        userField.addActionListener(this);
+        passField.addActionListener(this);
         loginButton.addActionListener(this);
 
         // make login message
