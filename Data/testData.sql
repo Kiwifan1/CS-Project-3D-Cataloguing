@@ -34,10 +34,6 @@ VALUES
 ('Sprite', 'Good guy'),
 ('Pixie', 'Good guy')
 
-
-
-
-
 INSERT INTO Publisher
 VALUES
 ('Bladesmith', 'MyMiniFactory'),
@@ -79,11 +75,6 @@ VALUES
 ('Dragon Creations', 'MyMiniFactory'),
 ('Giant Creations', '3DFactory'),
 ('Gnome Creations', 'Cults3D')
-
-
-
-
-
 
 INSERT INTO AssetRelease (id, name, publisher)
 VALUES
@@ -142,10 +133,6 @@ VALUES
 (52, 'Werewolf Creations 2', 'Werewolf Creations'),
 (53, 'Werewolf Creations 3', 'Werewolf Creations')
 
-
-
-
-
 INSERT INTO AppUser
 VALUES
 (MD5('JohnDoe'), MD5('pass123')),
@@ -187,10 +174,6 @@ VALUES
 (MD5('William'), MD5('pass123')),
 (MD5('Lucas'), MD5('pass123'))
 
-
-
-
-
 INSERT INTO Admin
 VALUES
 (MD5('JohnDoe')),
@@ -223,10 +206,6 @@ VALUES
 (MD5('Rafael')),
 (MD5('Novak')),
 (MD5('Andy'))
-
-
-
-
 
 INSERT INTO AuditLog
 VALUES
@@ -283,9 +262,6 @@ VALUES
 (MD5('Robert'), '2018-03-04 13:12:32', 'Remove Asset'),
 (MD5('William'), '2018-03-04 13:12:32', 'Remove Asset'),
 (MD5('Lucas'), '2018-03-04 13:12:32', 'Remove Asset')
-
-
-
 
 INSERT INTO Asset (filepath, attribute, username, name, r_id, scale)
 VALUES

@@ -88,6 +88,50 @@ public class Attribute {
     }
 
     /**
+     * Removes an attribute from the database
+     * 
+     * @param name The name of the attribute
+     * @return Returns true if the attribute was removed successfully
+     */
+    public boolean removeAttribute(String name) {
+        try {
+            String query = "DELETE FROM Attribute WHERE Name = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, name);
+
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Updates an attribute in the database
+     * 
+     * @param name        The name of the attribute
+     * @param description The description of the attribute
+     * @return Returns true if the attribute was updated successfully
+     */
+    public boolean updateAttribute(String name, String description) {
+        try {
+            String query = "UPDATE Attribute SET Description = ? WHERE Name = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, description);
+            ps.setString(2, name);
+
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
      * Removes all attributes from the database
      * 
      * @return Returns true if the attributes were removed successfully
