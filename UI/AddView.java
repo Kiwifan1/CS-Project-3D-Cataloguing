@@ -35,11 +35,10 @@ public class AddView extends BoilerPlateView implements ActionListener{
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
     
-    public AddView() {
+    public AddView(ConnectLogic logic) {
         super("Home");
 
         // SQL logic
-        logic = new ConnectLogic();
         attribute = new Attribute(logic);
         release = new Release(logic);
 
@@ -77,11 +76,6 @@ public class AddView extends BoilerPlateView implements ActionListener{
         JPanel publisherBox = new JPanel();
         publisherBox.setLayout(new BoxLayout(publisherBox, BoxLayout.Y_AXIS));
 
-        for (String publisher : publishers) {
-            JCheckBox publisherLabel = new JCheckBox(publisher);
-            publisherBox.add(publisherLabel);
-        }
-
         publisherScroll = new JScrollPane(publisherBox);
     }
 
@@ -92,15 +86,10 @@ public class AddView extends BoilerPlateView implements ActionListener{
         // release scroll pane
 
         String[] checked = getChecked(publisherScroll);
-        ArrayList<String> releases = release.getReleaseFromPub(checked);
 
         JPanel releaseBox = new JPanel();
         releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
-
-        for (String release : releases) {
-            JCheckBox releaseLabel = new JCheckBox(release);
-            releaseBox.add(releaseLabel);
-        }
+        
 
         releaseScroll = new JScrollPane(releaseBox);
     }
@@ -114,12 +103,7 @@ public class AddView extends BoilerPlateView implements ActionListener{
         JPanel scaleBox = new JPanel();
         scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
 
-        ArrayList<String> scales = asset.getScales();
-
-        for (String scale : scales) {
-            JCheckBox scaleLabel = new JCheckBox(scale);
-            scaleBox.add(scaleLabel);
-        }
+        
 
         scaleScroll = new JScrollPane(scaleBox);
     }
@@ -135,10 +119,7 @@ public class AddView extends BoilerPlateView implements ActionListener{
         JPanel attributePanel = new JPanel();
         attributePanel.setLayout(new BoxLayout(attributePanel, BoxLayout.Y_AXIS));
 
-        for (String[] tag : attributes) {
-            JCheckBox tagBox = new JCheckBox(tag[0]);
-            attributePanel.add(tagBox);
-        }
+        
 
         attributeScroll = new JScrollPane(attributePanel);
     }
@@ -173,7 +154,7 @@ public class AddView extends BoilerPlateView implements ActionListener{
         cataloguePanel.add(scaleScroll);
         cataloguePanel.add(attributeScroll);
         cataloguePanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        cataloguePanel.add(catalogueBtn);
+        cataloguePanel.add(catalogueBtn, StyleConstants.ALIGN_CENTER);
     }
 
     /**

@@ -2,6 +2,7 @@ package UI;
 
 public class Main {
     public static void main(String[] args) {
-        LoginView signIn = new LoginView();
+        BoilerPlateView view = new BoilerPlateView("Main");
+        LoginView signIn = new LoginView(view.getLogic());
     }
 }

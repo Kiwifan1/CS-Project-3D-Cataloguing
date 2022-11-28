@@ -21,7 +21,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
     JPanel mainPanel;
 
-    public AnalyticsView() {
+    public AnalyticsView(ConnectLogic logic) {
         super("Analytics");
 
         mainPanel = new JPanel();

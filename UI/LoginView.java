@@ -45,10 +45,12 @@ public class LoginView extends JFrame implements ActionListener{
 
     LibraryView libraryView;
 
-    public LoginView() {
+    public LoginView(ConnectLogic logic) {
         super("Sign In");
 
-        // logic = new ConnectLogic();
+        this.logic = logic;
+        login = new Login(logic);
+        
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -110,7 +112,7 @@ public class LoginView extends JFrame implements ActionListener{
             message.setForeground(Color.GREEN);
             message.setText("Login Successful");
 
-            libraryView = new LibraryView();
+            libraryView = new LibraryView(logic);
             this.setVisible(false);
         } else {
             message.setForeground(Color.RED);

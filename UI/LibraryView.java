@@ -20,7 +20,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
     JPanel mainPanel;
 
-    public LibraryView() {
+    public LibraryView(ConnectLogic logic) {
         super("Library");
 
         mainPanel = new JPanel();
