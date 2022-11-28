@@ -138,7 +138,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         scaleScroll.setPreferredSize(new Dimension(200, 150));
         scaleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scaleScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        
+
     }
 
     /**
@@ -269,6 +269,16 @@ public class AddView extends BoilerPlateView implements ActionListener {
         return checked.toArray(new String[checked.size()]);
     }
 
+    private int[] getReleaseIds(String[] publishers) {
+        ArrayList<Integer> ids = release.getRidsFromPublishers(publishers);
+        return ids.stream().mapToInt(i -> i).toArray();
+    }
+
+    /**
+     * Updates the release scroll based upon the publishers chosen
+     * 
+     * @param publishers The publishers that have been chosen
+     */
     private void updateReleaseScroll(String[] publishers) {
         ArrayList<String> releases = release.getReleaseFromPub(publishers);
 
@@ -284,21 +294,57 @@ public class AddView extends BoilerPlateView implements ActionListener {
         releaseScroll.setViewportView(releaseBox);
     }
 
+    /**
+     * Updates the scale scroll based upon the release chosen
+     * 
+     * @param releases The release ids that have been chosen
+     */
+    private void updateScaleScroll(int[] releaseIds) {
+        ArrayList<String> scales = asset.getScalesFromRelease(releaseIds);
+
+        JPanel scaleBox = new JPanel();
+        scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
+
+        for (String scale : scales) {
+            JCheckBox scaleCheck = new JCheckBox(scale);
+            scaleCheck.addActionListener(this);
+            scaleBox.add(scaleCheck);
+        }
+
+        scaleScroll.setViewportView(scaleBox);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
+        String[] publishers = getChecked(publisherScroll);
+
         // if the catalogue button is pressed
         if (e.getSource() == catalogueBtn) {
-            String[] publishers = getChecked(publisherScroll);
             String[] releases = getChecked(releaseScroll);
             String[] scales = getChecked(scaleScroll);
             String[] attributes = getChecked(attributeScroll);
         }
-        
-        // if the user clicks on a checkbox, update the catalogue
-        else if (e.getSource().getClass() == JCheckBox.class) {
+
+        // if the user clicks on a check box
+        else if (e.getSource() instanceof JCheckBox) {
             JCheckBox box = (JCheckBox) e.getSource();
-            String[] publishers = getChecked(publisherScroll);
-            updateReleaseScroll(publishers);
+            int[] releaseIds = getReleaseIds(publishers);
+
+            // if the publisher box is clicked
+            if (box.getParent() == publisherScroll.getViewport().getView()) {
+                updateReleaseScroll(publishers);
+                updateScaleScroll(releaseIds);
+            }
+
+            // if the release box is clickedq
+            else if (box.getParent() == releaseScroll.getViewport().getView()) {
+                updateScaleScroll(releaseIds);
+            }
+
+            // if the scale box is clicked
+            else if (box.getParent() == scaleScroll.getViewport().getView()) {
+                // TODO
+            }
         }
     }
 }

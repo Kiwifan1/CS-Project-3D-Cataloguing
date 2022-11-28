@@ -66,6 +66,44 @@ public class Release {
     }
 
     /**
+     * Get all rids given a publisher
+     * 
+     * @param pubs The publishers to search for
+     * @return An ArrayList of all rids
+     */
+    public ArrayList<Integer> getRidsFromPublishers(String[] pubs) {
+        try {
+            String query = "SELECT DISTINCT id FROM AssetRelease WHERE Publisher = ?";
+
+            if (pubs.length == 0) {
+                query = "SELECT DISTINCT id FROM AssetRelease";
+            } else {
+                for (int i = 1; i < pubs.length; i++) {
+                    query += " OR Publisher = ?";
+                }
+            }
+
+            PreparedStatement ps = cn.prepareStatement(query);
+            ArrayList<Integer> rids = new ArrayList<Integer>();
+
+            for (int i = 0; i < pubs.length; i++) {
+                ps.setString(i + 1, pubs[i]);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                rids.add(rs.getInt("id"));
+            }
+
+            return rids;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    /**
      * Gets all the releases from the database that match the publisher.
      * 
      * @param pubs The publisher(s) to search for
@@ -75,12 +113,12 @@ public class Release {
         try {
             String query = "SELECT name FROM AssetRelease WHERE Publisher = ?";
 
-            for (int i = 1; i < pubs.length; i++) {
-                query += " OR Publisher = ?";
-            }
-
-            if(pubs.length == 0) {
+            if (pubs.length == 0) {
                 query = "SELECT name FROM AssetRelease";
+            } else {
+                for (int i = 1; i < pubs.length; i++) {
+                    query += " OR Publisher = ?";
+                }
             }
 
             PreparedStatement ps = cn.prepareStatement(query);

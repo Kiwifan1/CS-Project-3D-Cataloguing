@@ -13,18 +13,22 @@ public class Asset {
     }
 
     /**
-     * Adds an Asset to the SQL Database, there must be a release with the rid key in the database.
-     *  One can be added with {@link Release#addRelease(String, String, String, String)}
-     * @param filePath file path of the asset
-     * @param attribute attribute of the asset
-     * @param username username of person who added asset
-     * @param name name of asset
-     * @param rid release id of the asset
-     * @param scale scale of the asset
+     * Adds an Asset to the SQL Database, there must be a release with the rid key
+     * in the database.
+     * One can be added with
+     * {@link Release#addRelease(String, String, String, String)}
+     * 
+     * @param filePath    file path of the asset
+     * @param attribute   attribute of the asset
+     * @param username    username of person who added asset
+     * @param name        name of asset
+     * @param rid         release id of the asset
+     * @param scale       scale of the asset
      * @param description description of the asset (optional)
      * @return true if asset successfully added, false otherwise
      */
-    public boolean addAsset(String filePath, String attribute, String username, String name, int rid, String scale, String description) {
+    public boolean addAsset(String filePath, String attribute, String username, String name, int rid, String scale,
+            String description) {
         try {
             String query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
@@ -40,7 +44,7 @@ public class Asset {
             ps.executeUpdate();
 
             return true;
-        } catch (Exception e) { 
+        } catch (Exception e) {
             System.out.println(e);
             return false;
         }
@@ -48,6 +52,7 @@ public class Asset {
 
     /**
      * Removes an asset given a filepath
+     * 
      * @param filePath filepath to be removed
      * @return true if asset successfully removed, false otherwise
      */
@@ -66,7 +71,46 @@ public class Asset {
     }
 
     /**
+     * Gets scales of assets from given release ids
+     * 
+     * @param rids rids of the releases
+     * @return
+     */
+    public ArrayList<String> getScalesFromRelease(int[] rids) {
+        try {
+            String query = "SELECT DISTINCT Scale FROM Asset WHERE rid = ?";
+
+            if (rids.length == 0) {
+                query = "SELECT DISTINCT Scale FROM Asset";
+            } else {
+                for (int i = 1; i < rids.length; i++) {
+                    query += " OR rid = ?";
+                }
+            }
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            for (int i = 0; i < rids.length; i++) {
+                ps.setInt(i + 1, rids[i]);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            ArrayList<String> scales = new ArrayList<String>();
+
+            while (rs.next()) {
+                scales.add(rs.getString("Scale"));
+            }
+
+            return scales;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    /**
      * Gets all scales of all attributes
+     * 
      * @return an arraylist<String> of all attributes
      */
     public ArrayList<String> getAllScales() {
@@ -78,7 +122,7 @@ public class Asset {
 
             ResultSet rs = ps.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 scale = rs.getString("scale");
                 scales.add(scale);
             }

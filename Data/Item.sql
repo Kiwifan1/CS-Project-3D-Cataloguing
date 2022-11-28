@@ -41,7 +41,7 @@ CREATE TABLE Admin
 (
     username VARCHAR(50) NOT NULL,
     PRIMARY KEY(username),
-    FOREIGN KEY (username) REFERENCES AppUser(username)
+    FOREIGN KEY (username) REFERENCES AppUser(username) ON DELETE CASCADE
 );
 
 CREATE TABLE AuditLog
@@ -59,11 +59,11 @@ CREATE TABLE Asset
     attribute VARCHAR(50) NOT NULL,
     username VARCHAR(50) NOT NULL,
     name VARCHAR(50) NOT NULL,
-    r_id INT NOT NULL,
+    rid INT NOT NULL,
     scale VARCHAR(10) NOT NULL,
     description TINYTEXT,
     PRIMARY KEY(filepath, attribute),
     FOREIGN KEY(attribute) REFERENCES Attribute(name),
-    FOREIGN KEY(r_id) REFERENCES AssetRelease(id),
+    FOREIGN KEY(rid) REFERENCES AssetRelease(id),
     FOREIGN KEY(username) REFERENCES AppUser(username)
 );
