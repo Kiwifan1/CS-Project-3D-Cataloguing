@@ -26,7 +26,7 @@ import java.awt.dnd.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 
-public class LoginView extends JFrame implements ActionListener{
+public class LoginView extends JFrame implements ActionListener {
 
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
@@ -45,12 +45,28 @@ public class LoginView extends JFrame implements ActionListener{
 
     LibraryView libraryView;
 
+    public LoginView() {
+        super("Sign In");
+
+        logic = new ConnectLogic();
+        login = new Login(logic);
+
+        setSize(300, 100);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
+        makePanel();
+
+        this.setVisible(true);
+    }
+
     public LoginView(ConnectLogic logic) {
         super("Sign In");
 
         this.logic = logic;
         login = new Login(logic);
-        
+
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -66,10 +82,9 @@ public class LoginView extends JFrame implements ActionListener{
         // make labels for password and username
         userLabel = new JLabel("Username: ");
         passLabel = new JLabel("Password: ");
-        
+
         userField = new JTextField(10);
         passField = new JPasswordField(10);
-
 
         // make login button
         loginButton = new JButton("Login");
@@ -86,10 +101,10 @@ public class LoginView extends JFrame implements ActionListener{
         mainPanel = new JPanel(new GridLayout(3, 1));
 
         makeInteractables();
-        
+
         mainPanel.add(userLabel);
         mainPanel.add(userField);
-        
+
         mainPanel.add(passLabel);
         mainPanel.add(passField);
 
@@ -117,6 +132,6 @@ public class LoginView extends JFrame implements ActionListener{
         } else {
             message.setForeground(Color.RED);
             message.setText("Login Failed");
-        }        
+        }
     }
 }

@@ -5,7 +5,7 @@ import java.util.*;
 import java.io.*;
 
 public class Publisher {
-    
+
     private Connection cn;
 
     public Publisher(ConnectLogic logic) {
@@ -14,7 +14,8 @@ public class Publisher {
 
     /**
      * Adds a publisher given a name and a source
-     * @param name the name of the publisher
+     * 
+     * @param name   the name of the publisher
      * @param source the source the publisher is from
      * @return true if publisher added successfully, false otherwise.
      */
@@ -31,6 +32,29 @@ public class Publisher {
         } catch (Exception e) {
             System.out.println(e);
             return false;
+        }
+    }
+
+    /**
+     * Gets all the publishers from the database
+     * 
+     * @return An ArrayList of all Publishers
+     */
+    public ArrayList<String> getAllPublishers() {
+        ArrayList<String> publishers = new ArrayList<String>();
+
+        try {
+            Statement st = cn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM Publisher");
+
+            while (rs.next()) {
+                publishers.add(rs.getString("Name"));
+            }
+
+            return publishers;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
     }
 }

@@ -4,7 +4,7 @@ import Logic.*;
 
 import javax.swing.*;
 
-public class BoilerPlateView extends JFrame {
+public abstract class BoilerPlateView extends JFrame {
 
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
@@ -46,29 +46,9 @@ public class BoilerPlateView extends JFrame {
         mainMenu.add(logout);
 
         menuBar.add(mainMenu);
-
-        // add action listeners
-
-        logout.addActionListener(e -> {
-            this.dispose();
-            new LoginView(logic);
-        });
-
-        analytics.addActionListener(e -> {
-            this.dispose();
-            new AnalyticsView(logic);
-        });
-
-        library.addActionListener(e -> {
-            this.dispose();
-            new LibraryView(logic);
-        });
-
-        addItem.addActionListener(e -> {
-            this.dispose();
-            new AddView(logic);
-        });
     }
+
+    abstract protected void addMenuListeners();
 
     public ConnectLogic getLogic() {
         return logic;

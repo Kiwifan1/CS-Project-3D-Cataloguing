@@ -19,21 +19,27 @@ import java.awt.event.*;
 
 public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
+    ConnectLogic logic;
     JPanel mainPanel;
 
     public AnalyticsView(ConnectLogic logic) {
         super("Analytics");
 
+        this.logic = logic;
+
         mainPanel = new JPanel();
 
         createSidePanel();
-        
+
         this.add(mainPanel);
+
+        addMenuListeners();
 
         this.setVisible(true);
     }
 
-    // analytics view will have a list of quantitative analysis items on the left-hand side
+    // analytics view will have a list of quantitative analysis items on the
+    // left-hand side
     private void createSidePanel() {
         // create side panel
         JPanel sidePanel = new JPanel();
@@ -54,7 +60,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         // add display area to main panel
         mainPanel.add(displayArea, BorderLayout.CENTER);
     }
-    
+
     // on the bottom, there will be an audit log
     private void createAuditLog() {
         // create audit log
@@ -67,8 +73,28 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
     }
 
     @Override
+    protected void addMenuListeners() {
+        logout.addActionListener(e -> {
+            this.dispose();
+            new LoginView(this.logic);
+        });
+
+        library.addActionListener(e -> {
+            this.dispose();
+            new LibraryView(this.logic);
+        });
+
+        addItem.addActionListener(e -> {
+            this.dispose();
+            new AddView(this.logic);
+        });
+
+    }
+
+    @Override
     public void actionPerformed(ActionEvent e) {
         // TODO Auto-generated method stub
 
     }
+
 }

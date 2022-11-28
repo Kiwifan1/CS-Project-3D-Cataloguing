@@ -20,8 +20,9 @@ import java.awt.event.*;
 public class AddView extends BoilerPlateView implements ActionListener {
 
     ConnectLogic logic;
-    Attribute attribute;
+    Publisher publisher;
     Release release;
+    Attribute attribute;
     Asset asset;
 
     JPanel homePanel;
@@ -49,12 +50,16 @@ public class AddView extends BoilerPlateView implements ActionListener {
         super("Home");
 
         // SQL logic
-        attribute = new Attribute(logic);
+        this.logic = logic;
+        publisher = new Publisher(logic);
         release = new Release(logic);
+        attribute = new Attribute(logic);
         asset = new Asset(logic);
 
         // populate the frame
         makeHomePanel();
+
+        addMenuListeners();
 
         this.setVisible(true);
     }
@@ -110,7 +115,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private void makePublisherScroll() {
         // publisher scroll pane
 
-        ArrayList<String> publishers = release.getAllPublishers();
+        ArrayList<String> publishers = publisher.getAllPublishers();
 
         JPanel publisherBox = new JPanel();
         publisherBox.setLayout(new BoxLayout(publisherBox, BoxLayout.Y_AXIS));
@@ -252,7 +257,6 @@ public class AddView extends BoilerPlateView implements ActionListener {
         attPanel.add(attributeScroll);
         attPanel.add(addAttBtn);
 
-
         cataloguePanel.add(pubPanel);
         cataloguePanel.add(relPanel);
         cataloguePanel.add(scalePanel);
@@ -323,7 +327,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
      * @return Returns an ArrayList of the text of the checked checkboxes, if
      *         nothing is checked, return ['*']
      */
-    private String[] getChecked(JScrollPane scroll) {
+    public String[] getChecked(JScrollPane scroll) {
         ArrayList<String> checked = new ArrayList<String>();
 
         JPanel panel = (JPanel) scroll.getViewport().getView();
@@ -385,6 +389,24 @@ public class AddView extends BoilerPlateView implements ActionListener {
     }
 
     @Override
+    protected void addMenuListeners() {
+        logout.addActionListener(e -> {
+            this.dispose();
+            new LoginView(this.logic);
+        });
+
+        analytics.addActionListener(e -> {
+            this.dispose();
+            new AnalyticsView(this.logic);
+        });
+
+        library.addActionListener(e -> {
+            this.dispose();
+            new LibraryView(this.logic);
+        });
+    }
+
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         // if the catalogue button is pressed
@@ -392,4 +414,5 @@ public class AddView extends BoilerPlateView implements ActionListener {
             String[] attributes = getChecked(attributeScroll);
         }
     }
+
 }

@@ -42,30 +42,6 @@ public class Release {
     }
 
     /**
-     * Gets all the publishers from the database.
-     * 
-     * @return Returns an ArrayList of all the publishers
-     */
-    public ArrayList<String> getAllPublishers() {
-        try {
-            String query = "SELECT DISTINCT Publisher FROM AssetRelease";
-            PreparedStatement ps = cn.prepareStatement(query);
-
-            ResultSet rs = ps.executeQuery();
-            ArrayList<String> publishers = new ArrayList<String>();
-
-            while (rs.next()) {
-                publishers.add(rs.getString("Publisher"));
-            }
-
-            return publishers;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    /**
      * Get all rids given a publisher
      * 
      * @param pubs The publishers to search for

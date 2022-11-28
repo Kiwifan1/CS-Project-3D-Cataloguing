@@ -17,11 +17,29 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 
 public class LibraryView extends BoilerPlateView implements ActionListener {
+    
+    ConnectLogic logic;
+    Publisher publisher;
+    Release release;
+    Asset asset;
+    Attribute attribute;
 
     JPanel mainPanel;
+    JPanel searchBar;
+
+    JScrollPane publisherScroll;
+    JScrollPane releasePane;
+    JScrollPane scalePane;
+    JScrollPane assetPane;
 
     public LibraryView(ConnectLogic logic) {
         super("Library");
+
+        this.logic = logic;
+        publisher = new Publisher(logic);
+        release = new Release(logic);
+        attribute = new Attribute(logic);
+        asset = new Asset(logic);
 
         mainPanel = new JPanel();
 
@@ -29,6 +47,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         createDisplayArea();
 
         this.add(mainPanel);
+
+        addMenuListeners();
 
         this.setVisible(true);
     }
@@ -39,8 +59,23 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        createSearchBar();
+        createScrollPanes();
+
+        // add search bar and search parameters to search panel
+        searchPanel.add(searchBar);
+
+        // add search panel to main panel
+        mainPanel.add(searchPanel);
+
+    }
+
+    /**
+     * Creates the search bar for typing in names
+     */
+    private void createSearchBar() {
         // create search bar
-        JPanel searchBar = new JPanel();
+        searchBar = new JPanel();
         searchBar.setLayout(new BoxLayout(searchBar, BoxLayout.X_AXIS));
         searchBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -57,69 +92,79 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         // add search bar components to search bar
         searchBar.add(searchField);
         searchBar.add(searchButton);
-
-        // create search parameters
-        JPanel searchParams = new JPanel();
-        searchParams.setLayout(new BoxLayout(searchParams, BoxLayout.X_AXIS));
-        searchParams.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // create search parameters labels
-        JLabel searchParamLabel = new JLabel("Search Parameters: ");
-        JLabel searchParamLabel2 = new JLabel("Search Parameters: ");
-        JLabel searchParamLabel3 = new JLabel("Search Parameters: ");
-
-        searchParamLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        searchParamLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        searchParamLabel3.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // create search parameters checkbox panels
-        JPanel searchParamPanel = new JPanel();
-        searchParamPanel.setLayout(new BoxLayout(searchParamPanel, BoxLayout.Y_AXIS));
-        searchParamPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel searchParamPanel2 = new JPanel();
-        searchParamPanel2.setLayout(new BoxLayout(searchParamPanel2, BoxLayout.Y_AXIS));
-        searchParamPanel2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel searchParamPanel3 = new JPanel();
-        searchParamPanel3.setLayout(new BoxLayout(searchParamPanel3, BoxLayout.Y_AXIS));
-        searchParamPanel3.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // create search parameters text fields
-        JTextField searchParamField = new JTextField(20);
-        searchParamField.setMaximumSize(searchParamField.getPreferredSize());
-        searchParamField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        searchParamField.addActionListener(this);
-
-        JTextField searchParamField2 = new JTextField(20);
-        searchParamField2.setMaximumSize(searchParamField2.getPreferredSize());
-        searchParamField2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JTextField searchParamField3 = new JTextField(20);
-        searchParamField3.setMaximumSize(searchParamField3.getPreferredSize());
-        searchParamField3.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        searchParamPanel.add(searchParamLabel);
-        searchParamPanel.add(searchParamField);
-        searchParamPanel2.add(searchParamLabel2);
-        searchParamPanel2.add(searchParamField2);
-        searchParamPanel3.add(searchParamLabel3);
-        searchParamPanel3.add(searchParamField3);
-
-        // add search parameters components to search parameters
-        searchParams.add(searchParamPanel);
-        searchParams.add(searchParamPanel2);
-        searchParams.add(searchParamPanel3);
-
-        // add search bar and search parameters to search panel
-        searchPanel.add(searchBar);
-        searchPanel.add(searchParams);
-
-        // add search panel to main panel
-        mainPanel.add(searchPanel);
-
     }
 
+    /**
+     * Creates the scroll panes for searching criteria
+     */
+    private void createScrollPanes() {
+        createPublisherPane();
+        createReleasePane();
+        createScalePane();
+    }
+
+    private void createPublisherPane() {
+        ArrayList<String> publishers = publisher.getAllPublishers();
+
+        JPanel publisherPanel = new JPanel();
+        publisherPanel.setLayout(new BoxLayout(publisherPanel, BoxLayout.Y_AXIS));
+
+        for (String publisher : publishers) {
+            JCheckBox publisherBox = new JCheckBox(publisher);
+            publisherBox.addActionListener(this);
+            publisherPanel.add(publisherBox);
+        }
+
+        publisherScroll = new JScrollPane(publisherPanel);
+        publisherScroll.setBorder(BorderFactory.createTitledBorder("Publishers"));
+        publisherScroll.setPreferredSize(new Dimension(200, 150));
+        publisherScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        publisherScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    }
+
+    private void createReleasePane() {
+        String[] publishers = getChecked(publisherScroll);
+
+        ArrayList<String> releases = release.getReleaseFromPub(publishers);
+
+        JPanel releasePanel = new JPanel();
+        releasePanel.setLayout(new BoxLayout(releasePanel, BoxLayout.Y_AXIS));
+
+        for (String release : releases) {
+            JCheckBox releaseBox = new JCheckBox(release);
+            releaseBox.addActionListener(this);
+            releasePanel.add(releaseBox);
+        }
+
+        releasePane = new JScrollPane(releasePanel);
+        releasePane.setBorder(BorderFactory.createTitledBorder("Releases"));
+        releasePane.setPreferredSize(new Dimension(200, 150));
+        releasePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        releasePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    }
+
+    private void createScalePane() {
+        ArrayList<String> scales = asset.getAllScales();
+
+        JPanel scalePanel = new JPanel();
+        scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.Y_AXIS));
+
+        for (String scale : scales) {
+            JCheckBox scaleBox = new JCheckBox(scale);
+            scaleBox.addActionListener(this);
+            scalePanel.add(scaleBox);
+        }
+
+        scalePane = new JScrollPane(scalePanel);
+        scalePane.setBorder(BorderFactory.createTitledBorder("Scales"));
+        scalePane.setPreferredSize(new Dimension(200, 150));
+        scalePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scalePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    }
+
+    /**
+     * Creates the display area for the search results
+     */
     private void createDisplayArea() {
         // create large display area where results will be displayed
         JPanel displayArea = new JPanel();
@@ -129,7 +174,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         // create display area title
         JLabel displayAreaTitle = new JLabel("Results: ");
 
-        // create display area panel where results will be displayed in a scrollable grid layout
+        // create display area panel where results will be displayed in a scrollable
+        // grid layout
         JPanel displayAreaPanel = new JPanel();
         displayAreaPanel.setLayout(new GridLayout(0, 5));
         displayAreaPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -168,6 +214,48 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // add display area to main panel
         mainPanel.add(displayArea);
+    }
+
+    /**
+     * Checks all the checkboxes in a scroll pane and returns the text of the ones
+     * that are checked.
+     * 
+     * @param scroll The scroll pane to check
+     * @return Returns an ArrayList of the text of the checked checkboxes, if
+     *         nothing is checked, return ['*']
+     */
+    public String[] getChecked(JScrollPane scroll) {
+        ArrayList<String> checked = new ArrayList<String>();
+
+        JPanel panel = (JPanel) scroll.getViewport().getView();
+
+        for (Component component : panel.getComponents()) {
+            JCheckBox box = (JCheckBox) component;
+
+            if (box.isSelected()) {
+                checked.add(box.getText());
+            }
+        }
+
+        return checked.toArray(new String[checked.size()]);
+    }
+
+    @Override
+    protected void addMenuListeners() {
+        logout.addActionListener(e -> {
+            this.dispose();
+            new LoginView(this.logic);
+        });
+
+        analytics.addActionListener(e -> {
+            this.dispose();
+            new AnalyticsView(this.logic);
+        });
+
+        addItem.addActionListener(e -> {
+            this.dispose();
+            new AddView(this.logic);
+        });
     }
 
     @Override
