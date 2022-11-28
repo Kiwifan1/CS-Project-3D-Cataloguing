@@ -90,7 +90,7 @@ public class Attribute {
     /**
      * Removes an attribute from the database
      * 
-     * @param name The name of the attribute
+     * @param name        The name of the attribute
      * @return Returns true if the attribute was removed successfully
      */
     public boolean removeAttribute(String name) {

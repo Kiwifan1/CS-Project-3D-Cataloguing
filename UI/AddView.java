@@ -7,6 +7,7 @@ import java.util.List;
 import java.io.*;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.filechooser.FileSystemView;
@@ -30,10 +31,19 @@ public class AddView extends BoilerPlateView implements ActionListener {
     JTextPane dragArea;
 
     JButton catalogueBtn;
+    JButton addPubBtn;
+    JButton addRelBtn;
+    JButton addScaleBtn;
+    JButton addAttBtn;
+
     JScrollPane attributeScroll;
     JScrollPane publisherScroll;
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
+
+    JList<String> publisherList;
+    JList<String> releaseList;
+    JList<String> scaleList;
 
     public AddView(ConnectLogic logic) {
         super("Home");
@@ -58,11 +68,39 @@ public class AddView extends BoilerPlateView implements ActionListener {
         makeReleaseScroll();
         makeScaleScroll();
         makeAttributeScroll();
+        makeButtons();
 
+    }
+
+    private void makeButtons() {
         // catalogue button
         catalogueBtn = new JButton("Catalogue Asset");
         catalogueBtn.addActionListener(e -> {
             System.out.println("Catalogue Asset Button Pressed");
+        });
+
+        // add publisher button
+        addPubBtn = new JButton("Add Publisher");
+        addPubBtn.addActionListener(e -> {
+            System.out.println("Add Publisher Button Pressed");
+        });
+
+        // add release button
+        addRelBtn = new JButton("Add Release");
+        addRelBtn.addActionListener(e -> {
+            System.out.println("Add Release Button Pressed");
+        });
+
+        // add scale button
+        addScaleBtn = new JButton("Add Scale");
+        addScaleBtn.addActionListener(e -> {
+            System.out.println("Add Scale Button Pressed");
+        });
+
+        // add attribute button
+        addAttBtn = new JButton("Add Attribute");
+        addAttBtn.addActionListener(e -> {
+            System.out.println("Add Attribute Button Pressed");
         });
     }
 
@@ -77,15 +115,15 @@ public class AddView extends BoilerPlateView implements ActionListener {
         JPanel publisherBox = new JPanel();
         publisherBox.setLayout(new BoxLayout(publisherBox, BoxLayout.Y_AXIS));
 
-        for (String publisher : publishers) {
-            JCheckBox publisherCheck = new JCheckBox(publisher);
-            publisherCheck.addActionListener(this);
-            publisherBox.add(publisherCheck);
-        }
+        publisherList = new JList(publishers.toArray());
+        publisherList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        publisherBox.add(publisherList);
 
         publisherScroll = new JScrollPane(publisherBox);
         publisherScroll.setBorder(BorderFactory.createTitledBorder("Publisher"));
-        publisherScroll.setPreferredSize(new Dimension(200, 150));
+        publisherScroll.setPreferredSize(new Dimension(180, 150));
+        publisherScroll.setSize(getPreferredSize());
         publisherScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         publisherScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -96,18 +134,21 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private void makeReleaseScroll() {
         // release scroll pane
 
-        String[] checked = getChecked(publisherScroll);
+        ArrayList<String> publisher = new ArrayList<String>();
 
-        ArrayList<String> releases = release.getReleaseFromPub(checked);
+        if (publisherList.getSelectedValue() != null) {
+            publisher.add(publisherList.getSelectedValue().toString());
+        }
+
+        ArrayList<String> releases = release.getReleaseFromPub(publisher.toArray(new String[publisher.size()]));
 
         JPanel releaseBox = new JPanel();
         releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
 
-        for (String release : releases) {
-            JCheckBox releaseCheck = new JCheckBox(release);
-            releaseCheck.addActionListener(this);
-            releaseBox.add(releaseCheck);
-        }
+        releaseList = new JList(releases.toArray());
+        releaseList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        releaseBox.add(releaseList);
 
         releaseScroll = new JScrollPane(releaseBox);
         releaseScroll.setBorder(BorderFactory.createTitledBorder("Release"));
@@ -127,11 +168,10 @@ public class AddView extends BoilerPlateView implements ActionListener {
         JPanel scaleBox = new JPanel();
         scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
 
-        for (String scale : scales) {
-            JCheckBox scaleCheck = new JCheckBox(scale);
-            scaleCheck.addActionListener(this);
-            scaleBox.add(scaleCheck);
-        }
+        scaleList = new JList(scales.toArray());
+        scaleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        scaleBox.add(scaleList);
 
         scaleScroll = new JScrollPane(scaleBox);
         scaleScroll.setBorder(BorderFactory.createTitledBorder("Scale"));
@@ -151,6 +191,12 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         JPanel attributePanel = new JPanel();
         attributePanel.setLayout(new BoxLayout(attributePanel, BoxLayout.Y_AXIS));
+
+        for (String[] attribute : attributes) {
+            JCheckBox attributeCheck = new JCheckBox(attribute[0]);
+            attributeCheck.addActionListener(this);
+            attributePanel.add(attributeCheck);
+        }
 
         attributeScroll = new JScrollPane(attributePanel);
         attributeScroll.setBorder(BorderFactory.createTitledBorder("Attributes"));
@@ -180,16 +226,37 @@ public class AddView extends BoilerPlateView implements ActionListener {
      */
     private void makeCataloguePanel() {
         cataloguePanel = new JPanel();
-        cataloguePanel.setLayout(new FlowLayout());
+        cataloguePanel.setLayout(new BoxLayout(cataloguePanel, BoxLayout.X_AXIS));
 
-        // create the spacing and add the buttons
-        cataloguePanel.add(Box.createHorizontalGlue());
-        cataloguePanel.add(publisherScroll);
-        cataloguePanel.add(releaseScroll);
-        cataloguePanel.add(scaleScroll);
-        cataloguePanel.add(attributeScroll);
-        cataloguePanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        cataloguePanel.add(catalogueBtn, StyleConstants.ALIGN_CENTER);
+        JPanel pubPanel = new JPanel();
+        pubPanel.setLayout(new BoxLayout(pubPanel, BoxLayout.Y_AXIS));
+
+        pubPanel.add(publisherScroll);
+        pubPanel.add(addPubBtn);
+
+        JPanel relPanel = new JPanel();
+        relPanel.setLayout(new BoxLayout(relPanel, BoxLayout.Y_AXIS));
+
+        relPanel.add(releaseScroll);
+        relPanel.add(addRelBtn);
+
+        JPanel scalePanel = new JPanel();
+        scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.Y_AXIS));
+
+        scalePanel.add(scaleScroll);
+        scalePanel.add(addScaleBtn);
+
+        JPanel attPanel = new JPanel();
+        attPanel.setLayout(new BoxLayout(attPanel, BoxLayout.Y_AXIS));
+
+        attPanel.add(attributeScroll);
+        attPanel.add(addAttBtn);
+
+
+        cataloguePanel.add(pubPanel);
+        cataloguePanel.add(relPanel);
+        cataloguePanel.add(scalePanel);
+        cataloguePanel.add(attPanel);
     }
 
     /**
@@ -203,6 +270,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         makeDragArea();
 
+        dragPanel.add(catalogueBtn);
+
         dragPanel.add(dragArea, BorderLayout.CENTER);
     }
 
@@ -215,6 +284,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private void makeDragArea() {
         dragArea = new JTextPane();
         dragArea.setText("Drag and drop files here");
+        dragArea.setEditable(false);
 
         // formatting
         dragArea.setFont(new Font("Serif", Font.BOLD, 30));
@@ -236,7 +306,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     List<File> droppedFiles = (List<File>) evt.getTransferable()
                             .getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
-                        Icon icon = FileSystemView.getFileSystemView().getSystemIcon(file);
+                        System.out.println(file.getAbsolutePath());
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -316,35 +386,10 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String[] publishers = getChecked(publisherScroll);
 
         // if the catalogue button is pressed
         if (e.getSource() == catalogueBtn) {
-            String[] releases = getChecked(releaseScroll);
-            String[] scales = getChecked(scaleScroll);
             String[] attributes = getChecked(attributeScroll);
-        }
-
-        // if the user clicks on a check box
-        else if (e.getSource() instanceof JCheckBox) {
-            JCheckBox box = (JCheckBox) e.getSource();
-            int[] releaseIds = getReleaseIds(publishers);
-
-            // if the publisher box is clicked
-            if (box.getParent() == publisherScroll.getViewport().getView()) {
-                updateReleaseScroll(publishers);
-                updateScaleScroll(releaseIds);
-            }
-
-            // if the release box is clickedq
-            else if (box.getParent() == releaseScroll.getViewport().getView()) {
-                updateScaleScroll(releaseIds);
-            }
-
-            // if the scale box is clicked
-            else if (box.getParent() == scaleScroll.getViewport().getView()) {
-                // TODO
-            }
         }
     }
 }

@@ -105,7 +105,7 @@ public class LoginView extends JFrame implements ActionListener{
         char[] pass = passField.getPassword();
         String password = new String(pass);
 
-        if (user.equals("admin") && password.equals("admin")) {
+        if (login.login(user, password)) {
             userField.setText("");
             passField.setText("");
 
