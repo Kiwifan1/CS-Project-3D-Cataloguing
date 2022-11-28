@@ -16,7 +16,7 @@ import java.awt.dnd.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 
-public class AddView extends BoilerPlateView implements ActionListener{
+public class AddView extends BoilerPlateView implements ActionListener {
 
     ConnectLogic logic;
     Attribute attribute;
@@ -34,13 +34,14 @@ public class AddView extends BoilerPlateView implements ActionListener{
     JScrollPane publisherScroll;
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
-    
+
     public AddView(ConnectLogic logic) {
         super("Home");
 
         // SQL logic
         attribute = new Attribute(logic);
         release = new Release(logic);
+        asset = new Asset(logic);
 
         // populate the frame
         makeHomePanel();
@@ -76,7 +77,16 @@ public class AddView extends BoilerPlateView implements ActionListener{
         JPanel publisherBox = new JPanel();
         publisherBox.setLayout(new BoxLayout(publisherBox, BoxLayout.Y_AXIS));
 
+        for (String publisher : publishers) {
+            JCheckBox publisherCheck = new JCheckBox(publisher);
+            publisherBox.add(publisherCheck);
+        }
+
         publisherScroll = new JScrollPane(publisherBox);
+        publisherScroll.setBorder(BorderFactory.createTitledBorder("Publisher"));
+        publisherScroll.setPreferredSize(new Dimension(200, 150));
+        publisherScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        publisherScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     /**
@@ -87,11 +97,21 @@ public class AddView extends BoilerPlateView implements ActionListener{
 
         String[] checked = getChecked(publisherScroll);
 
+        ArrayList<String> releases = release.getReleaseFromPub(checked);
+
         JPanel releaseBox = new JPanel();
         releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
-        
+
+        for (String release : releases) {
+            JCheckBox releaseCheck = new JCheckBox(release);
+            releaseBox.add(releaseCheck);
+        }
 
         releaseScroll = new JScrollPane(releaseBox);
+        releaseScroll.setBorder(BorderFactory.createTitledBorder("Release"));
+        releaseScroll.setPreferredSize(new Dimension(200, 150));
+        releaseScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        releaseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     /**
@@ -100,12 +120,22 @@ public class AddView extends BoilerPlateView implements ActionListener{
     private void makeScaleScroll() {
         // scale scroll pane
 
+        ArrayList<String> scales = asset.getAllScales();
+
         JPanel scaleBox = new JPanel();
         scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
 
-        
+        for (String scale : scales) {
+            JCheckBox scaleCheck = new JCheckBox(scale);
+            scaleBox.add(scaleCheck);
+        }
 
         scaleScroll = new JScrollPane(scaleBox);
+        scaleScroll.setBorder(BorderFactory.createTitledBorder("Scale"));
+        scaleScroll.setPreferredSize(new Dimension(200, 150));
+        scaleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scaleScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        
     }
 
     /**
@@ -119,9 +149,11 @@ public class AddView extends BoilerPlateView implements ActionListener{
         JPanel attributePanel = new JPanel();
         attributePanel.setLayout(new BoxLayout(attributePanel, BoxLayout.Y_AXIS));
 
-        
-
         attributeScroll = new JScrollPane(attributePanel);
+        attributeScroll.setBorder(BorderFactory.createTitledBorder("Attributes"));
+        attributeScroll.setPreferredSize(new Dimension(200, 150));
+        attributeScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        attributeScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     /**
@@ -229,10 +261,6 @@ public class AddView extends BoilerPlateView implements ActionListener{
             if (box.isSelected()) {
                 checked.add(box.getText());
             }
-        }
-
-        if (checked.size() == 0) {
-            checked.add("*");
         }
 
         return checked.toArray(new String[checked.size()]);

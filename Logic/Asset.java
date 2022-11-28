@@ -69,17 +69,18 @@ public class Asset {
      * Gets all scales of all attributes
      * @return an arraylist<String> of all attributes
      */
-    public ArrayList<String> getScales() {
+    public ArrayList<String> getAllScales() {
         try {
+            String scale;
             ArrayList<String> scales = new ArrayList<>();
             String query = "SELECT DISTINCT scale FROM Asset";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ResultSet rs = ps.executeQuery();
-            String scale = rs.getString(0);
+
             while(rs.next()) {
-                scales.add(scale);
                 scale = rs.getString("scale");
+                scales.add(scale);
             }
 
             return scales;

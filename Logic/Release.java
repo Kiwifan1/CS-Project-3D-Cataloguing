@@ -79,6 +79,10 @@ public class Release {
                 query += " OR Publisher = ?";
             }
 
+            if(pubs.length == 0) {
+                query = "SELECT name FROM AssetRelease";
+            }
+
             PreparedStatement ps = cn.prepareStatement(query);
 
             for (int i = 0; i < pubs.length; i++) {
