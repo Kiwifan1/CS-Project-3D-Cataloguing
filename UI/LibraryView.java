@@ -17,7 +17,12 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 
 public class LibraryView extends BoilerPlateView implements ActionListener {
-    
+
+    static final int SCROLL_WIDTH = 180;
+    static final int SCROLL_HEIGHT = 150;
+    static final int DISPLAY_WIDTH = 700;
+    static final int DISPLAY_HEIGHT = 250;
+
     ConnectLogic logic;
     Publisher publisher;
     Release release;
@@ -28,9 +33,9 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     JPanel searchBar;
 
     JScrollPane publisherScroll;
-    JScrollPane releasePane;
-    JScrollPane scalePane;
-    JScrollPane assetPane;
+    JScrollPane releaseScroll;
+    JScrollPane scaleScroll;
+    JScrollPane attributeScroll;
 
     public LibraryView(ConnectLogic logic) {
         super("Library");
@@ -61,12 +66,22 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         createSearchBar();
         createScrollPanes();
+        createScrollPanes();
 
         // add search bar and search parameters to search panel
         searchPanel.add(searchBar);
 
+        JPanel scrollPanel = new JPanel();
+        scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.X_AXIS));
+
+        scrollPanel.add(publisherScroll);
+        scrollPanel.add(releaseScroll);
+        scrollPanel.add(scaleScroll);
+        scrollPanel.add(attributeScroll);
+
         // add search panel to main panel
         mainPanel.add(searchPanel);
+        mainPanel.add(scrollPanel);
 
     }
 
@@ -101,6 +116,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         createPublisherPane();
         createReleasePane();
         createScalePane();
+        createAttributePane();
     }
 
     private void createPublisherPane() {
@@ -117,7 +133,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         publisherScroll = new JScrollPane(publisherPanel);
         publisherScroll.setBorder(BorderFactory.createTitledBorder("Publishers"));
-        publisherScroll.setPreferredSize(new Dimension(200, 150));
+        publisherScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
         publisherScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         publisherScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -136,11 +152,11 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             releasePanel.add(releaseBox);
         }
 
-        releasePane = new JScrollPane(releasePanel);
-        releasePane.setBorder(BorderFactory.createTitledBorder("Releases"));
-        releasePane.setPreferredSize(new Dimension(200, 150));
-        releasePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        releasePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        releaseScroll = new JScrollPane(releasePanel);
+        releaseScroll.setBorder(BorderFactory.createTitledBorder("Releases"));
+        releaseScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
+        releaseScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        releaseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     private void createScalePane() {
@@ -155,11 +171,30 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             scalePanel.add(scaleBox);
         }
 
-        scalePane = new JScrollPane(scalePanel);
-        scalePane.setBorder(BorderFactory.createTitledBorder("Scales"));
-        scalePane.setPreferredSize(new Dimension(200, 150));
-        scalePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scalePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scaleScroll = new JScrollPane(scalePanel);
+        scaleScroll.setBorder(BorderFactory.createTitledBorder("Scales"));
+        scaleScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
+        scaleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scaleScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    }
+
+    private void createAttributePane() {
+        ArrayList<String> attributes = attribute.getAllAttributes();
+
+        JPanel attributePanel = new JPanel();
+        attributePanel.setLayout(new BoxLayout(attributePanel, BoxLayout.Y_AXIS));
+
+        for (String attribute : attributes) {
+            JCheckBox attributeBox = new JCheckBox(attribute);
+            attributeBox.addActionListener(this);
+            attributePanel.add(attributeBox);
+        }
+
+        attributeScroll = new JScrollPane(attributePanel);
+        attributeScroll.setBorder(BorderFactory.createTitledBorder("Attributes"));
+        attributeScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
+        attributeScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        attributeScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
     /**
@@ -201,7 +236,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // create display area scroll pane
         JScrollPane displayAreaScrollPane = new JScrollPane(displayAreaPanel);
-        displayAreaScrollPane.setPreferredSize(new Dimension(700, 300));
+        displayAreaScrollPane.setPreferredSize(new Dimension(DISPLAY_WIDTH, DISPLAY_HEIGHT));
 
         // make display area scroll pane scrollable
         displayAreaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -240,6 +275,51 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         return checked.toArray(new String[checked.size()]);
     }
 
+    /**
+     * Updates the release scroll based upon the publishers chosen
+     * 
+     * @param publishers The publishers that have been chosen
+     */
+    private void updateReleaseScroll(String[] publishers) {
+        ArrayList<String> releases = release.getReleaseFromPub(publishers);
+
+        JPanel releaseBox = new JPanel();
+        releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
+
+        for (String release : releases) {
+            JCheckBox releaseCheck = new JCheckBox(release);
+            releaseCheck.addActionListener(this);
+            releaseBox.add(releaseCheck);
+        }
+
+        releaseScroll.setViewportView(releaseBox);
+    }
+
+    /**
+     * Updates the scale scroll based upon the release chosen
+     * 
+     * @param releases The release ids that have been chosen
+     */
+    private void updateScaleScroll(int[] releaseIds) {
+        ArrayList<String> scales = asset.getScalesFromRelease(releaseIds);
+
+        JPanel scaleBox = new JPanel();
+        scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
+
+        for (String scale : scales) {
+            JCheckBox scaleCheck = new JCheckBox(scale);
+            scaleCheck.addActionListener(this);
+            scaleBox.add(scaleCheck);
+        }
+
+        scaleScroll.setViewportView(scaleBox);
+    }
+
+    private int[] getReleaseIds(String[] publishers) {
+        ArrayList<Integer> ids = release.getRidsFromPublishers(publishers);
+        return ids.stream().mapToInt(i -> i).toArray();
+    }
+
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
@@ -260,7 +340,20 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
 
+        if (e.getSource() instanceof JCheckBox) {
+            JCheckBox box = (JCheckBox) e.getSource();
+            String[] publishers = getChecked(publisherScroll);
+            int[] releaseIds = getReleaseIds(publishers);
+
+            if (box.getParent() == publisherScroll.getViewport().getView()) {
+                updateReleaseScroll(publishers);
+                updateScaleScroll(releaseIds);
+            }
+
+            else if (box.getParent() == releaseScroll.getViewport().getView()) {
+                updateScaleScroll(releaseIds);
+            }
+        }
     }
 }

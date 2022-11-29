@@ -42,11 +42,11 @@ public class TestMethods {
         String description = "test";
 
         attribute.addAttribute(name, description);
-        ArrayList<String[]> attributes = attribute.getAllAttributes();
+        ArrayList<String> attributes = attribute.getAllAttributes();
 
         boolean found = false;
-        for (String[] a : attributes) {
-            if (a[0].equals(name) && a[1].equals(description)) {
+        for (String a : attributes) {
+            if (a.equals(name)) {
                 found = true;
             }
         }

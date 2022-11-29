@@ -40,18 +40,15 @@ public class Attribute {
      * 
      * @return An ArrayList of all Attributes
      */
-    public ArrayList<String[]> getAllAttributes() {
-        ArrayList<String[]> attributes = new ArrayList<String[]>();
+    public ArrayList<String> getAllAttributes() {
+        ArrayList<String> attributes = new ArrayList<String>();
 
         try {
             Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM Attribute");
+            ResultSet rs = st.executeQuery("SELECT name FROM Attribute");
 
             while (rs.next()) {
-                String[] attribute = new String[2];
-                attribute[0] = rs.getString("Name");
-                attribute[1] = rs.getString("Description");
-                attributes.add(attribute);
+                attributes.add(rs.getString("name"));
             }
 
             return attributes;

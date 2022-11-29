@@ -192,15 +192,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private void makeAttributeScroll() {
         // attribute scroll pane
 
-        ArrayList<String[]> attributes = attribute.getAllAttributes();
+        ArrayList<String> attributes = attribute.getAllAttributes();
 
         JPanel attributePanel = new JPanel();
         attributePanel.setLayout(new BoxLayout(attributePanel, BoxLayout.Y_AXIS));
 
-        for (String[] attribute : attributes) {
-            JCheckBox attributeCheck = new JCheckBox(attribute[0]);
-            attributeCheck.addActionListener(this);
-            attributePanel.add(attributeCheck);
+        for (String att : attributes) {
+            JCheckBox attBox = new JCheckBox(att);
+            attributePanel.add(attBox);
         }
 
         attributeScroll = new JScrollPane(attributePanel);
@@ -342,52 +341,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         return checked.toArray(new String[checked.size()]);
     }
-
-    private int[] getReleaseIds(String[] publishers) {
-        ArrayList<Integer> ids = release.getRidsFromPublishers(publishers);
-        return ids.stream().mapToInt(i -> i).toArray();
-    }
-
-    /**
-     * Updates the release scroll based upon the publishers chosen
-     * 
-     * @param publishers The publishers that have been chosen
-     */
-    private void updateReleaseScroll(String[] publishers) {
-        ArrayList<String> releases = release.getReleaseFromPub(publishers);
-
-        JPanel releaseBox = new JPanel();
-        releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
-
-        for (String release : releases) {
-            JCheckBox releaseCheck = new JCheckBox(release);
-            releaseCheck.addActionListener(this);
-            releaseBox.add(releaseCheck);
-        }
-
-        releaseScroll.setViewportView(releaseBox);
-    }
-
-    /**
-     * Updates the scale scroll based upon the release chosen
-     * 
-     * @param releases The release ids that have been chosen
-     */
-    private void updateScaleScroll(int[] releaseIds) {
-        ArrayList<String> scales = asset.getScalesFromRelease(releaseIds);
-
-        JPanel scaleBox = new JPanel();
-        scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
-
-        for (String scale : scales) {
-            JCheckBox scaleCheck = new JCheckBox(scale);
-            scaleCheck.addActionListener(this);
-            scaleBox.add(scaleCheck);
-        }
-
-        scaleScroll.setViewportView(scaleBox);
-    }
-
+ 
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
