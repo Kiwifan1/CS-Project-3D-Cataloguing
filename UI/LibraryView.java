@@ -344,14 +344,15 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         if (e.getSource() instanceof JCheckBox) {
             JCheckBox box = (JCheckBox) e.getSource();
             String[] publishers = getChecked(publisherScroll);
-            int[] releaseIds = getReleaseIds(publishers);
-
+            
             if (box.getParent() == publisherScroll.getViewport().getView()) {
+                int[] releaseIds = getReleaseIds(publishers);
                 updateReleaseScroll(publishers);
                 updateScaleScroll(releaseIds);
             }
 
             else if (box.getParent() == releaseScroll.getViewport().getView()) {
+                int[] releaseIds = getReleaseIds(publishers);
                 updateScaleScroll(releaseIds);
             }
         }

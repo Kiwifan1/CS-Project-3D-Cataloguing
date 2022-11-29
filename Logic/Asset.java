@@ -79,9 +79,10 @@ public class Asset {
     public ArrayList<String> getScalesFromRelease(int[] rids) {
         try {
             String query = "SELECT DISTINCT Scale FROM Asset WHERE rid = ?";
-
+            boolean noRid = false;
             if (rids.length == 0) {
                 query = "SELECT DISTINCT Scale FROM Asset";
+                noRid = true;
             } else {
                 for (int i = 1; i < rids.length; i++) {
                     query += " OR rid = ?";
@@ -97,7 +98,7 @@ public class Asset {
             ResultSet rs = ps.executeQuery();
             ArrayList<String> scales = new ArrayList<String>();
 
-            while (rs.next()) {
+            while (!noRid && rs.next()) {
                 scales.add(rs.getString("Scale"));
             }
 
