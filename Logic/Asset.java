@@ -134,4 +134,138 @@ public class Asset {
             return null;
         }
     }
+
+    public ArrayList<Entity> getAssets(String[] publishers, int[] releases, String[] scales, String[] attribute) {
+
+        try {
+            ArrayList<Entity> assets = new ArrayList<Entity>();
+            Entity entity;
+            boolean noPublisher = publishers.length == 0;
+            boolean noRelease = releases.length == 0;
+            boolean noScale = scales.length == 0;
+            boolean noAttribute = attribute.length == 0;
+            String query = "SELECT * FROM Asset WHERE";
+
+            if (noPublisher && noRelease && noScale && noAttribute) {
+                query = "SELECT * FROM Asset";
+            }
+
+            // add publisher to query
+            if (!noPublisher) {
+                for (int i = 0; i < publishers.length; i++) {
+                    if (i == 0) {
+                        query += " rid IN (SELECT id FROM AssetRelease WHERE publisher = ?)";
+                    } else {
+                        query += " OR rid IN (SELECT id FROM AssetRelease WHERE publisher = ?)";
+                    }
+                }
+            }
+
+            // add release to query
+            if (!noRelease) {
+                if (!noPublisher) {
+                    query += " AND";
+                }
+                for (int i = 0; i < releases.length; i++) {
+                    if (i == 0) {
+                        query += " rid = ?";
+                    } else {
+                        query += " OR rid = ?";
+                    }
+                }
+            }
+
+            // add scale to query
+            if (!noScale) {
+                if (!noPublisher || !noRelease) {
+                    query += " AND";
+                }
+                for (int i = 0; i < scales.length; i++) {
+                    if (i == 0) {
+                        query += " scale = ?";
+                    } else {
+                        query += " OR scale = ?";
+                    }
+                }
+            }
+
+            // add attribute to query
+            if (!noAttribute) {
+                if (!noPublisher || !noRelease || !noScale) {
+                    query += " AND";
+                }
+                for (int i = 0; i < attribute.length; i++) {
+                    if (i == 0) {
+                        query += " attribute = ?";
+                    } else {
+                        query += " AND attribute = ?";
+                    }
+                }
+            }
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            // set all query parameters
+            int index = 1;
+            if (!noPublisher) {
+                for (int i = 0; i < publishers.length; i++) {
+                    ps.setString(index, publishers[i]);
+                    index++;
+                }
+            }
+
+            if (!noRelease) {
+                for (int i = 0; i < releases.length; i++) {
+                    ps.setInt(index, releases[i]);
+                    index++;
+                }
+            }
+
+            if (!noScale) {
+                for (int i = 0; i < scales.length; i++) {
+                    ps.setString(index, scales[i]);
+                    index++;
+                }
+            }
+
+            if (!noAttribute) {
+                for (int i = 0; i < attribute.length; i++) {
+                    ps.setString(index, attribute[i]);
+                    index++;
+                }
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            // add all assets to arraylist
+            while (rs.next()) {
+                entity = new Entity();
+                entity.setFilePath(rs.getString("filepath"));
+                entity.setRid(rs.getInt("rid"));
+                entity.setScale(rs.getString("scale"));
+                entity.addAttribute(rs.getString("attribute"));
+                entity.setDescription(rs.getString("description"));
+                entity.setName(rs.getString("name"));
+                entity.setUsername(rs.getString("username"));
+                assets.add(entity);
+            }
+
+            // remove duplicate file paths and add attributes
+            for (int i = 0; i < assets.size(); i++) {
+                for (int j = i + 1; j < assets.size(); j++) {
+                    if (assets.get(i).getFilePath().equals(assets.get(j).getFilePath())) {
+                        assets.get(i).addAttribute(assets.get(j).getAttributes().get(0));
+                        assets.remove(j);
+                        j--;
+                    }
+                }
+            }
+
+            return assets;
+
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
 }

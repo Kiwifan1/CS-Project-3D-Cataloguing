@@ -42,55 +42,17 @@ public class Release {
     }
 
     /**
-     * Get all rids given a publisher
-     * 
-     * @param pubs The publishers to search for
-     * @return An ArrayList of all rids
-     */
-    public ArrayList<Integer> getRidsFromPublishers(String[] pubs) {
-        try {
-            String query = "SELECT DISTINCT id FROM AssetRelease WHERE Publisher = ?";
-
-            if (pubs.length == 0) {
-                query = "SELECT DISTINCT id FROM AssetRelease";
-            } else {
-                for (int i = 1; i < pubs.length; i++) {
-                    query += " OR Publisher = ?";
-                }
-            }
-
-            PreparedStatement ps = cn.prepareStatement(query);
-            ArrayList<Integer> rids = new ArrayList<Integer>();
-
-            for (int i = 0; i < pubs.length; i++) {
-                ps.setString(i + 1, pubs[i]);
-            }
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                rids.add(rs.getInt("id"));
-            }
-
-            return rids;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    /**
      * Gets all the releases from the database that match the publisher.
      * 
      * @param pubs The publisher(s) to search for
      * @return Returns an ArrayList of all the releases that match the publisher
      */
-    public ArrayList<String> getReleaseFromPub(String[] pubs) {
+    public ArrayList<String[]> getReleaseFromPub(String[] pubs) {
         try {
-            String query = "SELECT name FROM AssetRelease WHERE Publisher = ?";
+            String query = "SELECT name, id FROM AssetRelease WHERE Publisher = ?";
 
             if (pubs.length == 0) {
-                query = "SELECT name FROM AssetRelease";
+                query = "SELECT name, id FROM AssetRelease";
             } else {
                 for (int i = 1; i < pubs.length; i++) {
                     query += " OR Publisher = ?";
@@ -104,10 +66,13 @@ public class Release {
             }
 
             ResultSet rs = ps.executeQuery();
-            ArrayList<String> releases = new ArrayList<String>();
+            ArrayList<String[]> releases = new ArrayList<String[]>();
 
             while (rs.next()) {
-                releases.add(rs.getString("Name"));
+                String[] release = new String[2];
+                release[0] = rs.getString("name");
+                release[1] = String.valueOf(rs.getInt("id"));
+                releases.add(release);
             }
 
             return releases;
