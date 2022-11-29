@@ -35,6 +35,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     static final int DISPLAY_HEIGHT = 250;
 
     ConnectLogic logic;
+    Login login;
     Publisher publisher;
     Release release;
     Asset asset;
@@ -49,10 +50,11 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     JScrollPane scaleScroll;
     JScrollPane attributeScroll;
 
-    public LibraryView(ConnectLogic logic) {
+    public LibraryView(ConnectLogic logic, Login login) {
         super("Library");
 
         this.logic = logic;
+        this.login = login;
         publisher = new Publisher(logic);
         release = new Release(logic);
         attribute = new Attribute(logic);
@@ -261,6 +263,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         displayAreaPanel.removeAll();
 
+        // for every entity in the results, create a new result panel and add it to the
+        // display
         for (Entity entity : results) {
             JPanel assetPanel = new JPanel();
             assetPanel.setLayout(new BoxLayout(assetPanel, BoxLayout.Y_AXIS));
@@ -283,6 +287,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPanel.add(assetScale);
             assetPanel.add(assetPath);
 
+            // if clicked twice, open asset
             assetPanel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -351,10 +356,17 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     /**
      * Updates the scale scroll based upon the release chosen
      * 
-     * @param releases The release ids that have been chosen
+     * @param publishers The publishers that have been chosen
+     * @param releases   The release ids that have been chosen
      */
-    private void updateScaleScroll(int[] releaseIds) {
-        ArrayList<String> scales = asset.getScalesFromRelease(releaseIds);
+    private void updateScaleScroll(String[] publishers, int[] releaseIds) {
+        // check if both publishers and releases are empty
+        ArrayList<String> scales;
+        if (publishers.length == 0 && releaseIds.length == 0) {
+            scales = asset.getAllScales();
+        } else {
+            scales = asset.getScalesFromRelease(releaseIds);
+        }
 
         JPanel scaleBox = new JPanel();
         scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
@@ -404,12 +416,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         analytics.addActionListener(e -> {
             this.dispose();
-            new AnalyticsView(this.logic);
+            new AnalyticsView(this.logic, this.login);
         });
 
         addItem.addActionListener(e -> {
             this.dispose();
-            new AddView(this.logic);
+            new AddView(this.logic, this.login);
         });
     }
 
@@ -423,15 +435,14 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             if (box.getParent() == publisherScroll.getViewport().getView()) {
                 int[] releaseIds = getReleaseIDs();
                 updateReleaseScroll(publishers);
-                updateScaleScroll(releaseIds);
+                updateScaleScroll(publishers, releaseIds);
             }
 
             else if (box.getParent() == releaseScroll.getViewport().getView()) {
                 int[] releaseIds = getReleaseIDs();
-                updateScaleScroll(releaseIds);
+                updateScaleScroll(publishers, releaseIds);
             }
         }
-
         createResults(displayAreaPanel);
     }
 }

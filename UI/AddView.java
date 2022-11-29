@@ -1,3 +1,14 @@
+/**
+ * Name: Joshua Venable
+ * Class: CPSC 321, Spring 2022
+ * Date: 
+ * Programming Assigment:
+ * Description: 
+ * Notes: 
+ * TODO: fix naming of file when putting into database
+ * 
+ **/
+
 package UI;
 
 import Logic.*;
@@ -20,6 +31,7 @@ import java.awt.event.*;
 public class AddView extends BoilerPlateView implements ActionListener {
 
     ConnectLogic logic;
+    Login login;
     Publisher publisher;
     Release release;
     Attribute attribute;
@@ -43,18 +55,22 @@ public class AddView extends BoilerPlateView implements ActionListener {
     JScrollPane scaleScroll;
 
     JList<String> publisherList;
-    JList<String> releaseList;
+    ReleaseList releaseList;
     JList<String> scaleList;
 
-    public AddView(ConnectLogic logic) {
+    ArrayList<String> filePathList;
+
+    public AddView(ConnectLogic logic, Login login) {
         super("Home");
 
         // SQL logic
         this.logic = logic;
+        this.login = login;
         publisher = new Publisher(logic);
         release = new Release(logic);
         attribute = new Attribute(logic);
         asset = new Asset(logic);
+        filePathList = new ArrayList<String>();
 
         // populate the frame
         makeHomePanel();
@@ -81,12 +97,41 @@ public class AddView extends BoilerPlateView implements ActionListener {
         // catalogue button
         catalogueBtn = new JButton("Catalogue Asset");
         catalogueBtn.addActionListener(e -> {
-            System.out.println("Catalogue Asset Button Pressed");
+            if (publisherList.getSelectedValue() != null && releaseList.getSelectedValue() != null
+                    && scaleList.getSelectedValue() != null) {
+                String publisher = publisherList.getSelectedValue();
+                int releaseID = releaseList.getSelectedReleaseID();
+                String scale = scaleList.getSelectedValue();
+                String attribute = attributeScroll.getVerticalScrollBar().getValue() + "";
+                String asset = dragArea.getText();
+
+                // adds the asset to the database and checks if it was successful
+                if (asset.equals("")) {
+                    JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
+                } else {
+                    if (filePathList.size() == 0) {
+                        JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
+                    } else {
+                        if (this.asset.addAsset(filePathList.get(0), attribute, login.getCurrUser(), "name", releaseID, scale, "")) {
+                            JOptionPane.showMessageDialog(null, "Asset added successfully.");
+                            dragArea.setText("");
+                            filePathList.clear();
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Asset failed to add.");
+                        }
+                    }
+                    JOptionPane.showMessageDialog(null, "Asset added to catalogue.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please select a publisher, release and scale.");
+            }
         });
 
         // add publisher button
         addPubBtn = new JButton("Add Publisher");
-        addPubBtn.addActionListener(e -> {
+        addPubBtn.addActionListener(e ->
+
+        {
             System.out.println("Add Publisher Button Pressed");
         });
 
@@ -147,16 +192,24 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         ArrayList<String[]> releases = release.getReleaseFromPub(publisher.toArray(new String[publisher.size()]));
 
+
+        // convert the releases to a string and int array
+
         String[] releaseNames = new String[releases.size()];
+        int[] releaseIDs = new int[releases.size()];
 
         for (int i = 0; i < releases.size(); i++) {
             releaseNames[i] = releases.get(i)[0];
         }
-        
+
+        for (int i = 0; i < releases.size(); i++) {
+            releaseIDs[i] = Integer.parseInt(releases.get(i)[1]);
+        }
+
         JPanel releaseBox = new JPanel();
         releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
 
-        releaseList = new JList(releaseNames);
+        releaseList = new ReleaseList(releaseNames, releaseIDs);
         releaseList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         releaseBox.add(releaseList);
@@ -315,7 +368,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     List<File> droppedFiles = (List<File>) evt.getTransferable()
                             .getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
-                        System.out.println(file.getAbsolutePath());
+                        filePathList.add(file.getAbsolutePath());
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -347,7 +400,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         return checked.toArray(new String[checked.size()]);
     }
- 
+
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
@@ -357,12 +410,12 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         analytics.addActionListener(e -> {
             this.dispose();
-            new AnalyticsView(this.logic);
+            new AnalyticsView(this.logic, this.login);
         });
 
         library.addActionListener(e -> {
             this.dispose();
-            new LibraryView(this.logic);
+            new LibraryView(this.logic, this.login);
         });
     }
 

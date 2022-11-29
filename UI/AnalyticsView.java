@@ -20,12 +20,14 @@ import java.awt.event.*;
 public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
     ConnectLogic logic;
+    Login login;
     JPanel mainPanel;
 
-    public AnalyticsView(ConnectLogic logic) {
+    public AnalyticsView(ConnectLogic logic, Login login) {
         super("Analytics");
 
         this.logic = logic;
+        this.login = login;
 
         mainPanel = new JPanel();
 
@@ -81,12 +83,12 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
         library.addActionListener(e -> {
             this.dispose();
-            new LibraryView(this.logic);
+            new LibraryView(this.logic, this.login);
         });
 
         addItem.addActionListener(e -> {
             this.dispose();
-            new AddView(this.logic);
+            new AddView(this.logic, this.login);
         });
 
     }

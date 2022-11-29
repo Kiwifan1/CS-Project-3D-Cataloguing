@@ -127,7 +127,7 @@ public class LoginView extends JFrame implements ActionListener {
             message.setForeground(Color.GREEN);
             message.setText("Login Successful");
 
-            libraryView = new LibraryView(logic);
+            libraryView = new LibraryView(logic, this.login);
             this.setVisible(false);
         } else {
             message.setForeground(Color.RED);
