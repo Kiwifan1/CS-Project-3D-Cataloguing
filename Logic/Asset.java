@@ -19,7 +19,7 @@ public class Asset {
      * {@link Release#addRelease(String, String, String, String)}
      * 
      * @param filePath    file path of the asset
-     * @param attribute   attribute of the asset
+     * @param attributes  attributes of the asset
      * @param username    username of person who added asset
      * @param name        name of asset
      * @param rid         release id of the asset
@@ -27,21 +27,23 @@ public class Asset {
      * @param description description of the asset (optional)
      * @return true if asset successfully added, false otherwise
      */
-    public boolean addAsset(String filePath, String attribute, String username, String name, int rid, String scale,
+    public boolean addAsset(String filePath, String[] attributes, String username, String name, int rid, String scale,
             String description) {
         try {
-            String query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
-
-            ps.setString(1, filePath);
-            ps.setString(2, attribute);
-            ps.setString(3, username);
-            ps.setString(4, name);
-            ps.setInt(5, rid);
-            ps.setString(6, scale);
-            ps.setString(7, description);
-
-            ps.executeUpdate();
+            
+            for (int i = 0; i < attributes.length; i++) {
+                ps.setString(1, filePath);
+                ps.setString(2, attributes[i]);
+                ps.setString(3, username);
+                ps.setString(4, name);
+                ps.setInt(5, rid);
+                ps.setString(6, scale);
+                ps.setString(7, description);
+    
+                ps.executeUpdate();
+            }
 
             return true;
         } catch (Exception e) {

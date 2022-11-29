@@ -102,7 +102,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                 String publisher = publisherList.getSelectedValue();
                 int releaseID = releaseList.getSelectedReleaseID();
                 String scale = scaleList.getSelectedValue();
-                String attribute = attributeScroll.getVerticalScrollBar().getValue() + "";
+                String[] attributes = getChecked(attributeScroll);
                 String asset = dragArea.getText();
 
                 // adds the asset to the database and checks if it was successful
@@ -112,7 +112,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     if (filePathList.size() == 0) {
                         JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
                     } else {
-                        if (this.asset.addAsset(filePathList.get(0), attribute, login.getCurrUser(), "name", releaseID, scale, "")) {
+                        if (this.asset.addAsset(filePathList.get(0), attributes, login.getCurrUser(), "name", releaseID,
+                                scale, "")) {
                             JOptionPane.showMessageDialog(null, "Asset added successfully.");
                             dragArea.setText("");
                             filePathList.clear();
@@ -120,7 +121,6 @@ public class AddView extends BoilerPlateView implements ActionListener {
                             JOptionPane.showMessageDialog(null, "Asset failed to add.");
                         }
                     }
-                    JOptionPane.showMessageDialog(null, "Asset added to catalogue.");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Please select a publisher, release and scale.");
@@ -167,6 +167,11 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         publisherList = new JList(publishers.toArray());
         publisherList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        publisherList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                updateReleaseScroll();
+            }
+        });
 
         publisherBox.add(publisherList);
 
@@ -191,7 +196,6 @@ public class AddView extends BoilerPlateView implements ActionListener {
         }
 
         ArrayList<String[]> releases = release.getReleaseFromPub(publisher.toArray(new String[publisher.size()]));
-
 
         // convert the releases to a string and int array
 
@@ -219,6 +223,37 @@ public class AddView extends BoilerPlateView implements ActionListener {
         releaseScroll.setPreferredSize(new Dimension(200, 150));
         releaseScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         releaseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    }
+
+    private void updateReleaseScroll() {
+        // release scroll pane
+
+        ArrayList<String> publisher = new ArrayList<String>();
+
+        if (publisherList.getSelectedValue() != null) {
+            publisher.add(publisherList.getSelectedValue().toString());
+        }
+
+        ArrayList<String[]> releases = release.getReleaseFromPub(publisher.toArray(new String[publisher.size()]));
+
+        // convert the releases to a string and int array
+
+        String[] releaseNames = new String[releases.size()];
+        int[] releaseIDs = new int[releases.size()];
+
+        for (int i = 0; i < releases.size(); i++) {
+            releaseNames[i] = releases.get(i)[0];
+        }
+
+        for (int i = 0; i < releases.size(); i++) {
+            releaseIDs[i] = Integer.parseInt(releases.get(i)[1]);
+        }
+
+        releaseList.setListData(releaseNames);
+        releaseList.setReleaseIDs(releaseIDs);
+
+        releaseScroll.revalidate();
+        releaseScroll.repaint();
     }
 
     /**
@@ -369,6 +404,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                             .getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
                         filePathList.add(file.getAbsolutePath());
+                        System.out.println(file.getAbsolutePath());
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();

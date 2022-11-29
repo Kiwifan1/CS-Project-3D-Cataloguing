@@ -8,6 +8,7 @@ public class ReleaseList extends JList {
     private int[] releaseIDs;
 
     public ReleaseList(String[] releases, int[] releaseIDs) {
+        super(releases);
         this.releases = releases;
         this.releaseIDs = releaseIDs;
     }
