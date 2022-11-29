@@ -1,80 +1,69 @@
 DROP TABLE IF EXISTS Asset;
-DROP TABLE IF EXISTS AssetFile;
-DROP TABLE IF EXISTS AssetRelease;
-DROP TABLE IF EXISTS AssetSet;
-DROP TABLE IF EXISTS AssetGroup;
-DROP TABLE IF EXISTS Attribute;
 DROP TABLE IF EXISTS AuditLog;
+DROP TABLE IF EXISTS Admin;
+DROP TABLE IF EXISTS AssetRelease;
+DROP TABLE IF EXISTS Publisher;
+DROP TABLE IF EXISTS Attribute;
 DROP TABLE IF EXISTS AppUser;
 
 CREATE TABLE Attribute
 (
-    Name VARCHAR(50) NOT NULL,
-    Description TINYTEXT,
-    PRIMARY KEY (Name)
+    name VARCHAR(50) NOT NULL,
+    description TINYTEXT,
+    PRIMARY KEY(name)
 );
 
-CREATE TABLE AssetGroup
+CREATE TABLE Publisher
 (
-    Name VARCHAR(50) NOT NULL,
-    Description TINYTEXT,
-    PRIMARY KEY (Name)
-);
-
-CREATE TABLE AssetSet
-(
-    Name VARCHAR(50) NOT NULL,
-    GroupName VARCHAR(50) NOT NULL,
-    Description TINYTEXT,
-    PRIMARY KEY (Name, GroupName),
-    FOREIGN KEY (GroupName) REFERENCES AssetGroup(Name)
+    name VARCHAR(50) NOT NULL,
+    source VARCHAR(50) NOT NULL,
+    PRIMARY KEY(name)
 );
 
 CREATE TABLE AssetRelease
 (
-    Name VARCHAR(50) NOT NULL,
-    PubDate DATE NOT NULL,
-    Publisher VARCHAR(50) NOT NULL,
-    Source VARCHAR(50) NOT NULL,
-    PRIMARY KEY (Name)
-);
-
-CREATE TABLE AssetFile
-(
-    Path VARCHAR(100) NOT NULL,
-    ReleaseName VARCHAR(50) NOT NULL,
-    ImagePath VARCHAR(100),
-    DownloadDate DATE NOT NULL,
-    EditDate DATETIME CHECK (EditDate >= DownloadDate OR EditDate IS NULL),
-    PRIMARY KEY (Path),
-    FOREIGN KEY (ReleaseName) REFERENCES AssetRelease(Name)
-);
-
-CREATE TABLE Asset
-(
-    FilePath VARCHAR(100) NOT NULL,
-    AttributeName VARCHAR(50) NOT NULL,
-    Name VARCHAR(50) NOT NULL,
-    SetName VARCHAR(5) NOT NULL,
-    Scale VARCHAR(10) NOT NULL,
-    -- TODO: Fix format for scale
-    PRIMARY KEY (FilePath, AttributeName),
-    FOREIGN KEY (FilePath) REFERENCES AssetFile(Path),
-    FOREIGN KEY (AttributeName) REFERENCES Attribute(Name)
+    id INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    publisher VARCHAR(50) NOT NULL,
+    description TINYTEXT,
+    PRIMARY KEY (id),
+    FOREIGN KEY(publisher) REFERENCES Publisher(name)
 );
 
 CREATE TABLE AppUser
 (
-    Username VARCHAR(50) NOT NULL,
-    Pass VARCHAR(50) NOT NULL,
-    PRIMARY KEY(Username, Pass)
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    PRIMARY KEY(username)
+);
+
+CREATE TABLE Admin
+(
+    username VARCHAR(50) NOT NULL,
+    PRIMARY KEY(username),
+    FOREIGN KEY (username) REFERENCES AppUser(username) ON DELETE CASCADE
 );
 
 CREATE TABLE AuditLog
 (
-    Username VARCHAR(50) NOT NULL,
-    Action VARCHAR(50) NOT NULL,
-    Date DATETIME NOT NULL,
-    PRIMARY KEY (Username, Action, Date),
-    FOREIGN KEY (Username) REFERENCES AppUser(Username)
+    username VARCHAR(50) NOT NULL,
+    time DATETIME NOT NULL,
+    action TINYTEXT NOT NULL,
+    PRIMARY KEY(username, time),
+    FOREIGN KEY (username) REFERENCES AppUser(username)
+);
+
+CREATE TABLE Asset
+(
+    filepath VARCHAR(255) NOT NULL,
+    attribute VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    rid INT NOT NULL,
+    scale VARCHAR(10) NOT NULL,
+    description TINYTEXT,
+    PRIMARY KEY(filepath, attribute),
+    FOREIGN KEY(attribute) REFERENCES Attribute(name),
+    FOREIGN KEY(rid) REFERENCES AssetRelease(id),
+    FOREIGN KEY(username) REFERENCES AppUser(username)
 );

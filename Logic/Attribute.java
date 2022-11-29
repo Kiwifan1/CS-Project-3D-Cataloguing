@@ -40,18 +40,15 @@ public class Attribute {
      * 
      * @return An ArrayList of all Attributes
      */
-    public ArrayList<String[]> getAllAttributes() {
-        ArrayList<String[]> attributes = new ArrayList<String[]>();
+    public ArrayList<String> getAllAttributes() {
+        ArrayList<String> attributes = new ArrayList<String>();
 
         try {
             Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM Attribute");
+            ResultSet rs = st.executeQuery("SELECT name FROM Attribute");
 
             while (rs.next()) {
-                String[] attribute = new String[2];
-                attribute[0] = rs.getString("Name");
-                attribute[1] = rs.getString("Description");
-                attributes.add(attribute);
+                attributes.add(rs.getString("name"));
             }
 
             return attributes;
@@ -84,6 +81,66 @@ public class Attribute {
         } catch (Exception e) {
             System.out.println(e);
             return null;
+        }
+    }
+
+    /**
+     * Removes an attribute from the database
+     * 
+     * @param name        The name of the attribute
+     * @return Returns true if the attribute was removed successfully
+     */
+    public boolean removeAttribute(String name) {
+        try {
+            String query = "DELETE FROM Attribute WHERE Name = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, name);
+
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Updates an attribute in the database
+     * 
+     * @param name        The name of the attribute
+     * @param description The description of the attribute
+     * @return Returns true if the attribute was updated successfully
+     */
+    public boolean updateAttribute(String name, String description) {
+        try {
+            String query = "UPDATE Attribute SET Description = ? WHERE Name = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, description);
+            ps.setString(2, name);
+
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Removes all attributes from the database
+     * 
+     * @return Returns true if the attributes were removed successfully
+     */
+    public boolean removeAllAttributes() {
+        try {
+            Statement st = cn.createStatement();
+            st.executeUpdate("DELETE FROM Attribute");
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
         }
     }
 }

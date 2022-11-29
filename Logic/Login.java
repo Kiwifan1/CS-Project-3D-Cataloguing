@@ -2,14 +2,26 @@ package Logic;
 
 import java.sql.*;
 import java.util.*;
+
+import com.mysql.cj.xdevapi.Result;
+
 import java.io.*;
 
 public class Login {
 
     private Connection cn;
+    private String currUser;
 
     public Login(ConnectLogic logic) {
         this.cn = logic.getConnection();
+    }
+
+    public void setCurrentUser(String username) {
+        this.currUser = username;
+    }
+
+    public String getCurrUser() {
+        return currUser;
     }
 
     /**
@@ -45,7 +57,7 @@ public class Login {
      */
     public boolean login(String username, String password) {
         try {
-            String query = "SELECT * FROM AppUser WHERE Username = MD5(?) AND Pass = MD5(?)";
+            String query = "SELECT * FROM AppUser WHERE Username = MD5(?) AND Password = MD5(?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, username);
@@ -54,10 +66,74 @@ public class Login {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                currUser = username;
                 return true;
             } else {
                 return false;
             }
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Checks if a user is an admin
+     * 
+     * @param username username of potential admin
+     * @return true if admin, false otherwise
+     */
+    public boolean isAdmin(String username) {
+        try {
+            String query = "SELECT username FROM Admin WHERE username = ?";
+
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, username);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Updates the password of the current user
+     */
+    public void updatePassword(String password) {
+        try {
+            String query = "UPDATE AppUser SET Pass = MD5(?) WHERE Username = MD5(?)";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, password);
+            ps.setString(2, currUser);
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * Removes the current user from the database
+     * 
+     * @return
+     */
+    public boolean removeUser() {
+        try {
+            String query = "DELETE FROM AppUser WHERE Username = MD5(?)";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, currUser);
+
+            ps.executeUpdate();
+            return true;
         } catch (Exception e) {
             System.out.println(e);
             return false;

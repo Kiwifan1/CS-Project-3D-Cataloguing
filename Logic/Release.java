@@ -13,29 +13,107 @@ public class Release {
     }
 
     /**
-     * Adds a release to the database.
+     * Adds a Release to the database. Must have a publisher already in database:
+     * See {@link Publisher#addPublisher(String, String)}
      * 
-     * @param name    The name of the release
-     * @param pubDate The date of the release
-     * @param pub     The publisher of the release
-     * @param src     The source of the release
-     * @return Returns true if the release was added successfully
+     * @param id
+     * @param name
+     * @param publisher
+     * @param description
+     * @return true if release is successfully added, false otherwise.
      */
-    public boolean addRelease(String name, String pubDate, String pub, String src) {
+    public boolean addRelease(int id, String name, String publisher, String description) {
         try {
             String query = "INSERT INTO AssetRelease VALUES (?, ?, ?, ?)";
+
             PreparedStatement ps = cn.prepareStatement(query);
 
-            ps.setString(1, name);
-            ps.setString(2, pubDate);
-            ps.setString(3, pub);
-            ps.setString(4, src);
+            ps.setInt(1, id);
+            ps.setString(2, name);
+            ps.setString(3, publisher);
+            ps.setString(4, description);
 
             ps.executeUpdate();
             return true;
         } catch (Exception e) {
             System.out.println(e);
             return false;
+        }
+    }
+
+    /**
+     * Get all rids given a publisher
+     * 
+     * @param pubs The publishers to search for
+     * @return An ArrayList of all rids
+     */
+    public ArrayList<Integer> getRidsFromPublishers(String[] pubs) {
+        try {
+            String query = "SELECT DISTINCT id FROM AssetRelease WHERE Publisher = ?";
+
+            if (pubs.length == 0) {
+                query = "SELECT DISTINCT id FROM AssetRelease";
+            } else {
+                for (int i = 1; i < pubs.length; i++) {
+                    query += " OR Publisher = ?";
+                }
+            }
+
+            PreparedStatement ps = cn.prepareStatement(query);
+            ArrayList<Integer> rids = new ArrayList<Integer>();
+
+            for (int i = 0; i < pubs.length; i++) {
+                ps.setString(i + 1, pubs[i]);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                rids.add(rs.getInt("id"));
+            }
+
+            return rids;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    /**
+     * Gets all the releases from the database that match the publisher.
+     * 
+     * @param pubs The publisher(s) to search for
+     * @return Returns an ArrayList of all the releases that match the publisher
+     */
+    public ArrayList<String> getReleaseFromPub(String[] pubs) {
+        try {
+            String query = "SELECT name FROM AssetRelease WHERE Publisher = ?";
+
+            if (pubs.length == 0) {
+                query = "SELECT name FROM AssetRelease";
+            } else {
+                for (int i = 1; i < pubs.length; i++) {
+                    query += " OR Publisher = ?";
+                }
+            }
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            for (int i = 0; i < pubs.length; i++) {
+                ps.setString(i + 1, pubs[i]);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            ArrayList<String> releases = new ArrayList<String>();
+
+            while (rs.next()) {
+                releases.add(rs.getString("Name"));
+            }
+
+            return releases;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
     }
 }
