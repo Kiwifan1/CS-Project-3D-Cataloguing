@@ -248,6 +248,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
     /**
      * Creates the results for the display area panel
+     * 
      * @param displayAreaPanel the panel to add the results to
      */
     private void createResults(JPanel displayAreaPanel) {
@@ -256,7 +257,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         String[] scales = getChecked(scaleScroll);
         String[] attributes = getChecked(attributeScroll);
 
-        
         ArrayList<Entity> results = asset.getAssets(publishers, releaseIDs, scales, attributes);
 
         displayAreaPanel.removeAll();
@@ -267,14 +267,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
             String path = entity.getFilePath();
-            if(path.length() > 10) {
+            if (path.length() > 10) {
                 path = path.substring(0, 10) + "...";
             }
 
             JLabel assetName = new JLabel(entity.getName());
             JLabel assetScale = new JLabel(entity.getScale());
             JLabel assetPath = new JLabel(path);
-
 
             assetName.setAlignmentX(Component.CENTER_ALIGNMENT);
             assetScale.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -283,6 +282,20 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPanel.add(assetName);
             assetPanel.add(assetScale);
             assetPanel.add(assetPath);
+
+            assetPanel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        // open path in file explorer
+                        try {
+                            Desktop.getDesktop().open(new File(entity.getFilePath()));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            });
 
             displayAreaPanel.add(assetPanel);
         }
@@ -357,6 +370,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
     /**
      * Gets the release ids from the release scroll that have been selected
+     * 
      * @return Returns an array of the release ids that have been selected
      */
     private int[] getReleaseIDs() {
