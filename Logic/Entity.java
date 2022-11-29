@@ -1,9 +1,11 @@
 package Logic;
 
+import java.util.ArrayList;
+
 // Simple Entity class to hold asset information for the UI
 public class Entity {
     private String filePath;
-    private String attribute;
+    private ArrayList<String> attributes;
     private String username;
     private String name;
     private int rid;
@@ -12,7 +14,7 @@ public class Entity {
 
     public Entity() {
         filePath = "";
-        attribute = "";
+        attributes = new ArrayList<String>();
         username = "";
         name = "";
         rid = 0;
@@ -22,8 +24,9 @@ public class Entity {
 
     public Entity(String filePath, String attribute, String username, String name, int rid, String scale,
             String description) {
+        attributes = new ArrayList<String>();
         this.filePath = filePath;
-        this.attribute = attribute;
+        attributes.add(attribute);
         this.username = username;
         this.name = name;
         this.rid = rid;
@@ -35,8 +38,8 @@ public class Entity {
         return filePath;
     }
 
-    public String getAttribute() {
-        return attribute;
+    public ArrayList<String> getAttributes() {
+        return attributes;
     }
 
     public String getUsername() {
@@ -63,8 +66,12 @@ public class Entity {
         this.filePath = filePath;
     }
 
-    public void setAttribute(String attribute) {
-        this.attribute = attribute;
+    public void setAttributes(ArrayList<String> attributes) {
+        this.attributes = attributes;
+    }
+
+    public void addAttribute(String attribute) {
+        attributes.add(attribute);
     }
 
     public void setUsername(String username) {

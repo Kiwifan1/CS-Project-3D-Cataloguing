@@ -243,17 +243,18 @@ public class Asset {
                 entity.setFilePath(rs.getString("filepath"));
                 entity.setRid(rs.getInt("rid"));
                 entity.setScale(rs.getString("scale"));
-                entity.setAttribute(rs.getString("attribute"));
+                entity.addAttribute(rs.getString("attribute"));
                 entity.setDescription(rs.getString("description"));
                 entity.setName(rs.getString("name"));
                 entity.setUsername(rs.getString("username"));
                 assets.add(entity);
             }
 
-            // remove duplicate file paths
+            // remove duplicate file paths and add attributes
             for (int i = 0; i < assets.size(); i++) {
                 for (int j = i + 1; j < assets.size(); j++) {
                     if (assets.get(i).getFilePath().equals(assets.get(j).getFilePath())) {
+                        assets.get(i).addAttribute(assets.get(j).getAttributes().get(0));
                         assets.remove(j);
                         j--;
                     }

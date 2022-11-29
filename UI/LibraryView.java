@@ -266,20 +266,23 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPanel.setLayout(new BoxLayout(assetPanel, BoxLayout.Y_AXIS));
             assetPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
+            String path = entity.getFilePath();
+            if(path.length() > 10) {
+                path = path.substring(0, 10) + "...";
+            }
+
             JLabel assetName = new JLabel(entity.getName());
             JLabel assetScale = new JLabel(entity.getScale());
-            // JLabel assetPublisher = new JLabel(entity.getPublisher());
-            JLabel assetRelease = new JLabel("" + entity.getRid());
+            JLabel assetPath = new JLabel(path);
+
 
             assetName.setAlignmentX(Component.CENTER_ALIGNMENT);
             assetScale.setAlignmentX(Component.CENTER_ALIGNMENT);
-            // assetPublisher.setAlignmentX(Component.CENTER_ALIGNMENT);
-            assetRelease.setAlignmentX(Component.CENTER_ALIGNMENT);
+            assetPath.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             assetPanel.add(assetName);
             assetPanel.add(assetScale);
-            // assetPanel.add(assetPublisher);
-            assetPanel.add(assetRelease);
+            assetPanel.add(assetPath);
 
             displayAreaPanel.add(assetPanel);
         }
