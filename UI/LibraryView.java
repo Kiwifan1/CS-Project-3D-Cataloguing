@@ -1,3 +1,14 @@
+/**
+ * Name: Joshua Venable
+ * Class: CPSC 321, Spring 2022
+ * Date: 11/28/2022
+ * Programming Assigment: 3D Cataloguing Software
+ * Description: 
+ * Notes: 
+ * TODO: Fix issue where selecting release does not change scales available, if publisher with scales available also chosen
+ * 
+ **/
+
 package UI;
 
 import Logic.*;
@@ -31,6 +42,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
     JPanel mainPanel;
     JPanel searchBar;
+    JPanel displayAreaPanel;
 
     JScrollPane publisherScroll;
     JScrollPane releaseScroll;
@@ -141,13 +153,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private void createReleasePane() {
         String[] publishers = getChecked(publisherScroll);
 
-        ArrayList<String> releases = release.getReleaseFromPub(publishers);
+        ArrayList<String[]> releases = release.getReleaseFromPub(publishers);
 
         JPanel releasePanel = new JPanel();
         releasePanel.setLayout(new BoxLayout(releasePanel, BoxLayout.Y_AXIS));
 
-        for (String release : releases) {
-            JCheckBox releaseBox = new JCheckBox(release);
+        for (String[] release : releases) {
+            ReleaseCheckBox releaseBox = new ReleaseCheckBox(release[0], Integer.parseInt(release[1]));
             releaseBox.addActionListener(this);
             releasePanel.add(releaseBox);
         }
@@ -211,28 +223,11 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // create display area panel where results will be displayed in a scrollable
         // grid layout
-        JPanel displayAreaPanel = new JPanel();
+        displayAreaPanel = new JPanel();
         displayAreaPanel.setLayout(new GridLayout(0, 5));
         displayAreaPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // add sample data into display area panel
-        for (int i = 0; i < 20; i++) {
-            JPanel result = new JPanel();
-            result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
-            result.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-            JLabel resultTitle = new JLabel("Title: " + i);
-            JLabel resultAuthor = new JLabel("Author: " + i);
-            JLabel resultGenre = new JLabel("Genre: " + i);
-            JLabel resultYear = new JLabel("Year: " + i);
-
-            result.add(resultTitle);
-            result.add(resultAuthor);
-            result.add(resultGenre);
-            result.add(resultYear);
-
-            displayAreaPanel.add(result);
-        }
+        createResults(displayAreaPanel);
 
         // create display area scroll pane
         JScrollPane displayAreaScrollPane = new JScrollPane(displayAreaPanel);
@@ -249,6 +244,48 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // add display area to main panel
         mainPanel.add(displayArea);
+    }
+
+    /**
+     * Creates the results for the display area panel
+     * @param displayAreaPanel the panel to add the results to
+     */
+    private void createResults(JPanel displayAreaPanel) {
+        String[] publishers = getChecked(publisherScroll);
+        int[] releaseIDs = getReleaseIDs();
+        String[] scales = getChecked(scaleScroll);
+        String[] attributes = getChecked(attributeScroll);
+
+        
+        ArrayList<Entity> results = asset.getAssets(publishers, releaseIDs, scales, attributes);
+
+        displayAreaPanel.removeAll();
+
+        for (Entity entity : results) {
+            JPanel assetPanel = new JPanel();
+            assetPanel.setLayout(new BoxLayout(assetPanel, BoxLayout.Y_AXIS));
+            assetPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+            JLabel assetName = new JLabel(entity.getName());
+            JLabel assetScale = new JLabel(entity.getScale());
+            // JLabel assetPublisher = new JLabel(entity.getPublisher());
+            JLabel assetRelease = new JLabel("" + entity.getRid());
+
+            assetName.setAlignmentX(Component.CENTER_ALIGNMENT);
+            assetScale.setAlignmentX(Component.CENTER_ALIGNMENT);
+            // assetPublisher.setAlignmentX(Component.CENTER_ALIGNMENT);
+            assetRelease.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            assetPanel.add(assetName);
+            assetPanel.add(assetScale);
+            // assetPanel.add(assetPublisher);
+            assetPanel.add(assetRelease);
+
+            displayAreaPanel.add(assetPanel);
+        }
+
+        displayAreaPanel.revalidate();
+        displayAreaPanel.repaint();
     }
 
     /**
@@ -281,13 +318,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * @param publishers The publishers that have been chosen
      */
     private void updateReleaseScroll(String[] publishers) {
-        ArrayList<String> releases = release.getReleaseFromPub(publishers);
+        ArrayList<String[]> releases = release.getReleaseFromPub(publishers);
 
         JPanel releaseBox = new JPanel();
         releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
 
-        for (String release : releases) {
-            JCheckBox releaseCheck = new JCheckBox(release);
+        for (String[] release : releases) {
+            ReleaseCheckBox releaseCheck = new ReleaseCheckBox(release[0], Integer.parseInt(release[1]));
             releaseCheck.addActionListener(this);
             releaseBox.add(releaseCheck);
         }
@@ -315,9 +352,30 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         scaleScroll.setViewportView(scaleBox);
     }
 
-    private int[] getReleaseIds(String[] publishers) {
-        ArrayList<Integer> ids = release.getRidsFromPublishers(publishers);
-        return ids.stream().mapToInt(i -> i).toArray();
+    /**
+     * Gets the release ids from the release scroll that have been selected
+     * @return Returns an array of the release ids that have been selected
+     */
+    private int[] getReleaseIDs() {
+        JPanel releaseBox = (JPanel) releaseScroll.getViewport().getView();
+
+        ArrayList<Integer> releaseIDs = new ArrayList<Integer>();
+
+        for (Component component : releaseBox.getComponents()) {
+            ReleaseCheckBox box = (ReleaseCheckBox) component;
+
+            if (box.isSelected()) {
+                releaseIDs.add(box.getReleaseID());
+            }
+        }
+
+        int[] ids = new int[releaseIDs.size()];
+
+        for (int i = 0; i < releaseIDs.size(); i++) {
+            ids[i] = releaseIDs.get(i);
+        }
+
+        return ids;
     }
 
     @Override
@@ -344,17 +402,19 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         if (e.getSource() instanceof JCheckBox) {
             JCheckBox box = (JCheckBox) e.getSource();
             String[] publishers = getChecked(publisherScroll);
-            
+
             if (box.getParent() == publisherScroll.getViewport().getView()) {
-                int[] releaseIds = getReleaseIds(publishers);
+                int[] releaseIds = getReleaseIDs();
                 updateReleaseScroll(publishers);
                 updateScaleScroll(releaseIds);
             }
 
             else if (box.getParent() == releaseScroll.getViewport().getView()) {
-                int[] releaseIds = getReleaseIds(publishers);
+                int[] releaseIds = getReleaseIDs();
                 updateScaleScroll(releaseIds);
             }
         }
+
+        createResults(displayAreaPanel);
     }
 }

@@ -145,12 +145,18 @@ public class AddView extends BoilerPlateView implements ActionListener {
             publisher.add(publisherList.getSelectedValue().toString());
         }
 
-        ArrayList<String> releases = release.getReleaseFromPub(publisher.toArray(new String[publisher.size()]));
+        ArrayList<String[]> releases = release.getReleaseFromPub(publisher.toArray(new String[publisher.size()]));
 
+        String[] releaseNames = new String[releases.size()];
+
+        for (int i = 0; i < releases.size(); i++) {
+            releaseNames[i] = releases.get(i)[0];
+        }
+        
         JPanel releaseBox = new JPanel();
         releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
 
-        releaseList = new JList(releases.toArray());
+        releaseList = new JList(releaseNames);
         releaseList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         releaseBox.add(releaseList);
