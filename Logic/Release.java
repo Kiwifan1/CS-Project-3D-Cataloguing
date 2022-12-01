@@ -81,4 +81,24 @@ public class Release {
             return null;
         }
     }
+
+    /**
+     * Gets the last release ID from the database
+     * 
+     * @return The last release ID
+     */
+    public int getLastRID() {
+        try {
+            String query = "SELECT MAX(id) FROM AssetRelease";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+
+            return rs.getInt(1);
+        } catch (Exception e) {
+            System.out.println(e);
+            return -1;
+        }
+    }
 }

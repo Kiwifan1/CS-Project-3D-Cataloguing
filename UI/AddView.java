@@ -36,12 +36,15 @@ public class AddView extends BoilerPlateView implements ActionListener {
     Release release;
     Attribute attribute;
     Asset asset;
+    Scale scale;
 
     JPanel homePanel;
     JPanel cataloguePanel;
     JPanel dragPanel;
 
     JTextPane dragArea;
+    JTextField nameField;
+    JTextField descriptionField;
 
     JButton catalogueBtn;
     JButton addPubBtn;
@@ -70,6 +73,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         release = new Release(logic);
         attribute = new Attribute(logic);
         asset = new Asset(logic);
+        scale = new Scale(logic);
         filePathList = new ArrayList<String>();
 
         // populate the frame
@@ -96,62 +100,65 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private void makeButtons() {
         // catalogue button
         catalogueBtn = new JButton("Catalogue Asset");
-        catalogueBtn.addActionListener(e -> {
-            if (publisherList.getSelectedValue() != null && releaseList.getSelectedValue() != null
-                    && scaleList.getSelectedValue() != null) {
-                String publisher = publisherList.getSelectedValue();
-                int releaseID = releaseList.getSelectedReleaseID();
-                String scale = scaleList.getSelectedValue();
-                String[] attributes = getChecked(attributeScroll);
-                String asset = dragArea.getText();
-
-                // adds the asset to the database and checks if it was successful
-                if (asset.equals("")) {
-                    JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
-                } else {
-                    if (filePathList.size() == 0) {
-                        JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
-                    } else {
-                        if (this.asset.addAsset(filePathList.get(0), attributes, login.getCurrUser(), "name", releaseID,
-                                scale, "")) {
-                            JOptionPane.showMessageDialog(null, "Asset added successfully.");
-                            dragArea.setText("");
-                            filePathList.clear();
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Asset failed to add.");
-                        }
-                    }
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "Please select a publisher, release and scale.");
-            }
-        });
+        catalogueBtn.addActionListener(this);
 
         // add publisher button
         addPubBtn = new JButton("Add Publisher");
-        addPubBtn.addActionListener(e ->
-
-        {
-            System.out.println("Add Publisher Button Pressed");
+        addPubBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the publisher");
+            String source = JOptionPane.showInputDialog("Enter the source of the publisher");
+            if (name != null && source != null) {
+                publisher.addPublisher(name, source);
+                updatePublisherScroll();
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name and source for the publisher");
+            }
         });
 
         // add release button
         addRelBtn = new JButton("Add Release");
-        addRelBtn.addActionListener(e -> {
-            System.out.println("Add Release Button Pressed");
+        addRelBtn.addActionListener(e ->
+
+        {
+            String publisher = JOptionPane.showInputDialog("Enter the name of the publisher");
+            String name = JOptionPane.showInputDialog("Enter the name of the release");
+            String description = JOptionPane.showInputDialog("Enter the description of the release");
+            if (name != null && publisher != null) {
+                int lastRID = release.getLastRID();
+                if (lastRID == -1) {
+                    JOptionPane.showMessageDialog(null, "Error getting last RID");
+                } else {
+                    release.addRelease(lastRID + 1, name, publisher, description);
+                    updateReleaseScroll();
+                }
+            }
         });
 
         // add scale button
         addScaleBtn = new JButton("Add Scale");
-        addScaleBtn.addActionListener(e -> {
-            System.out.println("Add Scale Button Pressed");
+        addScaleBtn.addActionListener(e ->
+
+        {
+            String name = JOptionPane.showInputDialog("Enter the name of the scale");
+            if (name != null) {
+                scaleScroll.add(new JLabel(name));
+                updateScaleScroll();
+            }
         });
 
         // add attribute button
         addAttBtn = new JButton("Add Attribute");
-        addAttBtn.addActionListener(e -> {
-            System.out.println("Add Attribute Button Pressed");
+        addAttBtn.addActionListener(e ->
+
+        {
+            String name = JOptionPane.showInputDialog("Enter the name of the attribute");
+            String description = JOptionPane.showInputDialog("Enter the description of the attribute");
+            if (name != null) {
+                attribute.addAttribute(name, description);
+                updateAttributeScroll();
+            }
         });
+
     }
 
     /**
@@ -225,35 +232,43 @@ public class AddView extends BoilerPlateView implements ActionListener {
         releaseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
 
+    /**
+     * Updates the publisher scroll
+     */
+    private void updatePublisherScroll() {
+        makePublisherScroll();
+        homePanel.remove(publisherScroll);
+        homePanel.add(publisherScroll, 0);
+        homePanel.revalidate();
+        homePanel.repaint();
+    }
+
+    /**
+     * Updates the release scroll pane.
+     */
     private void updateReleaseScroll() {
-        // release scroll pane
+        makeReleaseScroll();
+        homePanel.remove(releaseScroll);
+        homePanel.add(releaseScroll, 1);
+        homePanel.revalidate();
+        homePanel.repaint();
+    }
 
-        ArrayList<String> publisher = new ArrayList<String>();
+    /**
+     * Updates the scale scroll pane.
+     */
+    private void updateScaleScroll() {
+        scaleScroll.revalidate();
+        scaleScroll.repaint();
+    }
 
-        if (publisherList.getSelectedValue() != null) {
-            publisher.add(publisherList.getSelectedValue().toString());
-        }
-
-        ArrayList<String[]> releases = release.getReleaseFromPub(publisher.toArray(new String[publisher.size()]));
-
-        // convert the releases to a string and int array
-
-        String[] releaseNames = new String[releases.size()];
-        int[] releaseIDs = new int[releases.size()];
-
-        for (int i = 0; i < releases.size(); i++) {
-            releaseNames[i] = releases.get(i)[0];
-        }
-
-        for (int i = 0; i < releases.size(); i++) {
-            releaseIDs[i] = Integer.parseInt(releases.get(i)[1]);
-        }
-
-        releaseList.setListData(releaseNames);
-        releaseList.setReleaseIDs(releaseIDs);
-
-        releaseScroll.revalidate();
-        releaseScroll.repaint();
+    /**
+     * Updates the attribute scroll pane.
+     */
+    private void updateAttributeScroll() {
+        makeAttributeScroll();
+        attributeScroll.revalidate();
+        attributeScroll.repaint();
     }
 
     /**
@@ -262,7 +277,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private void makeScaleScroll() {
         // scale scroll pane
 
-        ArrayList<String> scales = asset.getAllScales();
+        ArrayList<String> scales = scale.getAllScales();
 
         JPanel scaleBox = new JPanel();
         scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
@@ -365,9 +380,32 @@ public class AddView extends BoilerPlateView implements ActionListener {
         dragPanel.setLayout(new BoxLayout(dragPanel, BoxLayout.Y_AXIS));
         dragPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
+        JPanel cataloguPanel = new JPanel();
+        cataloguPanel.setLayout(new BoxLayout(cataloguPanel, BoxLayout.X_AXIS));
+
+        JLabel nameLabel = new JLabel("Name: ");
+        nameLabel.setSize(50, 20);
+
+        JLabel descriptionLabel = new JLabel("Description: ");
+        descriptionLabel.setSize(50, 20);
+
+        nameField = new JTextField();
+        nameField.setPreferredSize(new Dimension(100, 25));
+        nameField.setMaximumSize(nameField.getPreferredSize());
+
+        descriptionField = new JTextField();
+        descriptionField.setPreferredSize(new Dimension(200, 25));
+        descriptionField.setMaximumSize(descriptionField.getPreferredSize());
+
         makeDragArea();
 
-        dragPanel.add(catalogueBtn);
+        cataloguPanel.add(nameLabel);
+        cataloguPanel.add(nameField);
+        cataloguPanel.add(descriptionLabel);
+        cataloguPanel.add(descriptionField);
+        cataloguPanel.add(catalogueBtn);
+
+        dragPanel.add(cataloguPanel);
 
         dragPanel.add(dragArea, BorderLayout.CENTER);
     }
@@ -402,12 +440,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> droppedFiles = (List<File>) evt.getTransferable()
                             .getTransferData(DataFlavor.javaFileListFlavor);
-                    for (File file : droppedFiles) {
-                        filePathList.add(file.getAbsolutePath());
-                        System.out.println(file.getAbsolutePath());
+                    if (droppedFiles.size() > 1) {
+                        JOptionPane.showMessageDialog(null,
+                                "Only one file can be dropped at a time, first file dropped will be added");
                     }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                    File file = droppedFiles.get(0);
+                    filePathList.add(file.getAbsolutePath());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -460,8 +500,35 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         // if the catalogue button is pressed
         if (e.getSource() == catalogueBtn) {
-            String[] attributes = getChecked(attributeScroll);
+            if (publisherList.getSelectedValue() != null && releaseList.getSelectedValue() != null
+                    && scaleList.getSelectedValue() != null) {
+                String publisher = publisherList.getSelectedValue();
+                int releaseID = releaseList.getSelectedReleaseID();
+                String scale = scaleList.getSelectedValue();
+                String[] attributes = getChecked(attributeScroll);
+                String asset = dragArea.getText();
+
+                // adds the asset to the database and checks if it was successful
+                if (asset.equals("")) {
+                    JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
+                } else if (filePathList.size() == 0) {
+                    JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
+                } else if (nameField.getText() == null || nameField.getText().equals("")) {
+                    JOptionPane.showMessageDialog(null, "Please enter a name for the asset.");
+                } else {
+                    String filePath = filePathList.get(0);
+                    String name = nameField.getText();
+                    boolean success = this.asset.addAsset(filePath, attributes, login.getCurrUser(), name, releaseID,
+                            scale, descriptionField.getText());
+                    if (success) {
+                        JOptionPane.showMessageDialog(null, "Asset added successfully");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Asset failed to add");
+                    }
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Please select a publisher, release and scale.");
         }
     }
-
 }

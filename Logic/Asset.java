@@ -111,32 +111,6 @@ public class Asset {
         }
     }
 
-    /**
-     * Gets all scales of all attributes
-     * 
-     * @return an arraylist<String> of all attributes
-     */
-    public ArrayList<String> getAllScales() {
-        try {
-            String scale;
-            ArrayList<String> scales = new ArrayList<>();
-            String query = "SELECT DISTINCT scale FROM Asset";
-            PreparedStatement ps = cn.prepareStatement(query);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                scale = rs.getString("scale");
-                scales.add(scale);
-            }
-
-            return scales;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
     public ArrayList<Entity> getAssets(String[] publishers, int[] releases, String[] scales, String[] attribute) {
 
         try {

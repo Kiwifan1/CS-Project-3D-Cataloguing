@@ -5,11 +5,18 @@ DROP TABLE IF EXISTS AssetRelease;
 DROP TABLE IF EXISTS Publisher;
 DROP TABLE IF EXISTS Attribute;
 DROP TABLE IF EXISTS AppUser;
+DROP TABLE IF EXISTS Scale;
 
 CREATE TABLE Attribute
 (
     name VARCHAR(50) NOT NULL,
     description TINYTEXT,
+    PRIMARY KEY(name)
+);
+
+CREATE TABLE Scale
+(
+    name VARCHAR(50) NOT NULL,
     PRIMARY KEY(name)
 );
 
@@ -65,5 +72,6 @@ CREATE TABLE Asset
     PRIMARY KEY(filepath, attribute),
     FOREIGN KEY(attribute) REFERENCES Attribute(name),
     FOREIGN KEY(rid) REFERENCES AssetRelease(id),
-    FOREIGN KEY(username) REFERENCES AppUser(username)
+    FOREIGN KEY(username) REFERENCES AppUser(username),
+    FOREIGN KEY(scale) REFERENCES Scale(name)
 );

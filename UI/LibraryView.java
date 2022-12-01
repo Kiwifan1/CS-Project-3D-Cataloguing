@@ -39,6 +39,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     Publisher publisher;
     Release release;
     Asset asset;
+    Scale scale;
     Attribute attribute;
 
     JPanel mainPanel;
@@ -59,6 +60,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         release = new Release(logic);
         attribute = new Attribute(logic);
         asset = new Asset(logic);
+        scale = new Scale(logic);
 
         mainPanel = new JPanel();
 
@@ -174,7 +176,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     }
 
     private void createScalePane() {
-        ArrayList<String> scales = asset.getAllScales();
+        ArrayList<String> scales = scale.getAllScales();
 
         JPanel scalePanel = new JPanel();
         scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.Y_AXIS));
@@ -363,7 +365,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         // check if both publishers and releases are empty
         ArrayList<String> scales;
         if (publishers.length == 0 && releaseIds.length == 0) {
-            scales = asset.getAllScales();
+            scales = scale.getAllScales();
         } else {
             scales = asset.getScalesFromRelease(releaseIds);
         }
