@@ -366,6 +366,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         ArrayList<String> scales;
         if (publishers.length == 0 && releaseIds.length == 0) {
             scales = scale.getAllScales();
+        } else if(releaseIds.length == 0) {
+            scales = asset.getScalesFromPub(publishers);
         } else {
             scales = asset.getScalesFromRelease(releaseIds);
         }

@@ -32,7 +32,7 @@ public class Asset {
         try {
             String query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
-            
+
             for (int i = 0; i < attributes.length; i++) {
                 ps.setString(1, filePath);
                 ps.setString(2, attributes[i]);
@@ -41,7 +41,7 @@ public class Asset {
                 ps.setInt(5, rid);
                 ps.setString(6, scale);
                 ps.setString(7, description);
-    
+
                 ps.executeUpdate();
             }
 
@@ -70,6 +70,40 @@ public class Asset {
             System.out.println(e);
             return false;
         }
+    }
+
+    /**
+     * Gets all scales from the database from a given publisher
+     * 
+     * @param publishers The publisher(s) to search for
+     * @return Returns an ArrayList of all the scales that match the publisher
+     */
+    public ArrayList<String> getScalesFromPub(String[] publishers) {
+        try {
+            String query = "SELECT DISTINCT scale FROM Asset WHERE rid IN (SELECT id FROM AssetRelease WHERE publisher = ?)";
+            if (publishers.length == 0) {
+                query = "SELECT DISTINCT scale FROM Asset";
+            } else {
+                for (int i = 1; i < publishers.length; i++) {
+                    query += " OR rid IN (SELECT id FROM AssetRelease WHERE publisher = ?)";
+                }
+            }
+            PreparedStatement ps = cn.prepareStatement(query);
+            for (int i = 0; i < publishers.length; i++) {
+                ps.setString(i + 1, publishers[i]);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            ArrayList<String> scales = new ArrayList<String>();
+            while (rs.next()) {
+                scales.add(rs.getString("scale"));
+            }
+            return scales;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
     }
 
     /**
@@ -111,6 +145,15 @@ public class Asset {
         }
     }
 
+    /**
+     * Gets all the assets that match the given attributes
+     * 
+     * @param publishers publishers to search for
+     * @param releases   releases to search for
+     * @param scales     scales to search for
+     * @param attribute  attribute to search for
+     * @return ArrayList of assets that match the given attributes
+     */
     public ArrayList<Entity> getAssets(String[] publishers, int[] releases, String[] scales, String[] attribute) {
 
         try {
