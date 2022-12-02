@@ -446,6 +446,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     }
                     File file = droppedFiles.get(0);
                     filePathList.add(file.getAbsolutePath());
+
+                    nameField.setText(file.getName());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -513,11 +515,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
                 } else if (filePathList.size() == 0) {
                     JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
-                } else if (nameField.getText() == null || nameField.getText().equals("")) {
-                    JOptionPane.showMessageDialog(null, "Please enter a name for the asset.");
                 } else {
                     String filePath = filePathList.get(0);
                     String name = nameField.getText();
+
+                    if(name == null || name == "") {
+                        name = filePath.split("/")[filePath.split("/").length - 1];
+                    }
+
                     boolean success = this.asset.addAsset(filePath, attributes, login.getCurrUser(), name, releaseID,
                             scale, descriptionField.getText());
                     if (success) {

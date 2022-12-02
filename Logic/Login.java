@@ -67,10 +67,32 @@ public class Login {
 
             if (rs.next()) {
                 currUser = username;
+                changeLastLogin();
                 return true;
             } else {
                 return false;
             }
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Edits the last login of the current user to the current datetime
+     * 
+     * @return True if the last login was updated, false otherwise
+     */
+    private boolean changeLastLogin() {
+        try {
+            String query = "UPDATE AppUser SET LastLogin = CURRENT_TIMESTAMP WHERE Username = MD5(?)";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, currUser);
+
+            ps.executeUpdate();
+
+            return true;
         } catch (Exception e) {
             System.out.println(e);
             return false;

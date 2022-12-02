@@ -41,6 +41,7 @@ CREATE TABLE AppUser
 (
     username VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL,
+    last_login DATETIME,
     PRIMARY KEY(username)
 );
 
