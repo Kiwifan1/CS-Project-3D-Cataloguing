@@ -7,7 +7,7 @@ import javax.swing.*;
 public abstract class BoilerPlateView extends JFrame {
 
     public static int WIDTH = 800;
-    public static int HEIGHT = 600;
+    public static int HEIGHT = 650;
 
     private ConnectLogic logic;
 

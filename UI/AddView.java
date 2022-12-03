@@ -33,48 +33,48 @@ import java.awt.event.*;
 
 public class AddView extends BoilerPlateView implements ActionListener {
 
-    ConnectLogic logic;
-    Login login;
-    Publisher publisher;
-    Release release;
-    Attribute attribute;
-    Asset asset;
-    Scale scale;
+    private ConnectLogic logic;
+    private Login login;
+    private Publisher publisher;
+    private Release release;
+    private Attribute attribute;
+    private Asset asset;
+    private Scale scale;
 
-    JPanel homePanel;
-    JPanel cataloguePanel;
-    JPanel dragPanel;
-    JPanel pubPanel;
-    JPanel relPanel;
-    JPanel scalePanel;
-    JPanel attPanel;
+    private JPanel homePanel;
+    private JPanel cataloguePanel;
+    private JPanel dragPanel;
+    private JPanel pubPanel;
+    private JPanel relPanel;
+    private JPanel scalePanel;
+    private JPanel attPanel;
 
-    JTextPane dragArea;
+    private JTextPane dragArea;
 
-    JTextField nameField;
-    JTextField descriptionField;
-    JTextField pubSearch;
-    JTextField relSearch;
-    JTextField scaleSearch;
-    JTextField attSearch;
+    private JTextField nameField;
+    private JTextField descriptionField;
+    private JTextField pubSearch;
+    private JTextField relSearch;
+    private JTextField scaleSearch;
+    private JTextField attSearch;
 
-    JButton catalogueBtn;
-    JButton addPubBtn;
-    JButton addRelBtn;
-    JButton addScaleBtn;
-    JButton addAttBtn;
+    private JButton catalogueBtn;
+    private JButton addPubBtn;
+    private JButton addRelBtn;
+    private JButton addScaleBtn;
+    private JButton addAttBtn;
 
-    JScrollPane attributeScroll;
-    JScrollPane publisherScroll;
-    JScrollPane releaseScroll;
-    JScrollPane scaleScroll;
+    private JScrollPane attributeScroll;
+    private JScrollPane publisherScroll;
+    private JScrollPane releaseScroll;
+    private JScrollPane scaleScroll;
 
-    JList<String> publisherList;
-    JList<String> scaleList;
-    ReleaseList releaseList;
+    private JList<String> publisherList;
+    private JList<String> scaleList;
+    private ReleaseList releaseList;
 
-    List<File> droppedFiles;
-    HashMap<String, Boolean> checkedAttributes;
+    private List<File> droppedFiles;
+    private HashMap<String, Boolean> checkedAttributes;
 
     public AddView(ConnectLogic logic, Login login) {
         super("Home");
@@ -662,7 +662,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
      * Checks all the checkboxes in a scroll pane and returns the text of the ones
      * that are checked.
      * 
-     * @param map the map of checkboxes to check
+     * @param map the map of checkboxes to 
      * @return Returns an ArrayList of the text of the checked checkboxes
      */
     public ArrayList<String> getChecked(HashMap<String, Boolean> map) {

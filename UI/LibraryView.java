@@ -37,40 +37,38 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     static final int DISPLAY_WIDTH = 700;
     static final int DISPLAY_HEIGHT = 250;
 
-    ConnectLogic logic;
-    Login login;
-    Publisher publisher;
-    Release release;
-    Asset asset;
-    Scale scale;
-    Attribute attribute;
+    private ConnectLogic logic;
+    private Login login;
+    private Publisher publisher;
+    private Release release;
+    private Asset asset;
+    private Scale scale;
+    private Attribute attribute;
 
-    JPanel mainPanel;
-    JPanel searchBar;
-    JPanel displayAreaPanel;
-    JPanel scrollPanel;
+    private JPanel mainPanel;
+    private JPanel searchBar;
+    private JPanel displayAreaPanel;
+    private JPanel scrollPanel;
 
-    JPanel pubPanel;
-    JPanel relPanel;
-    JPanel scalePanel;
-    JPanel attrPanel;
+    private JPanel pubPanel;
+    private JPanel relPanel;
+    private JPanel scalePanel;
+    private JPanel attrPanel;
 
-    JScrollPane publisherScroll;
-    JScrollPane releaseScroll;
-    JScrollPane scaleScroll;
-    JScrollPane attributeScroll;
+    private JScrollPane publisherScroll;
+    private JScrollPane releaseScroll;
+    private JScrollPane scaleScroll;
+    private JScrollPane attributeScroll;
 
-    JTextField pubSearch;
-    JTextField relSearch;
-    JTextField scaleSearch;
-    JTextField attrSearch;
+    private JTextField pubSearch;
+    private JTextField relSearch;
+    private JTextField scaleSearch;
+    private JTextField attrSearch;
 
-    AddView addView;
-
-    HashMap<String, Boolean> pubSearchMap;
-    HashMap<String, Boolean> relSearchMap;
-    HashMap<String, Boolean> scaleSearchMap;
-    HashMap<String, Boolean> attrSearchMap;
+    private HashMap<String, Boolean> pubSearchMap;
+    private HashMap<String, Boolean> relSearchMap;
+    private HashMap<String, Boolean> scaleSearchMap;
+    private HashMap<String, Boolean> attrSearchMap;
 
     public LibraryView(ConnectLogic logic, Login login) {
         super("Library");
@@ -84,9 +82,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         scale = new Scale(logic);
 
         mainPanel = new JPanel();
-
-        addView = new AddView(this.logic, this.login);
-        addView.setVisible(false);
 
         createSearchBoxes();
         createSearchParams();
@@ -103,12 +98,22 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * Gets the search boxes from the addView (better than copying code)
      */
     private void createSearchBoxes() {
-        JTextField[] searchBoxes = addView.getSearchBoxes();
+        pubSearch = new JTextField();
+        pubSearch.setPreferredSize(new Dimension(120, 20));
+        pubSearch.setMaximumSize(pubSearch.getPreferredSize());
 
-        pubSearch = searchBoxes[0];
-        relSearch = searchBoxes[1];
-        scaleSearch = searchBoxes[2];
-        attrSearch = searchBoxes[3];
+        relSearch = new JTextField();
+        relSearch.setPreferredSize(new Dimension(120, 20));
+        relSearch.setMaximumSize(relSearch.getPreferredSize());
+
+        scaleSearch = new JTextField();
+        scaleSearch.setPreferredSize(new Dimension(120, 20));
+        scaleSearch.setMaximumSize(scaleSearch.getPreferredSize());
+
+        attrSearch = new JTextField();
+        attrSearch.setPreferredSize(new Dimension(120, 20));
+        attrSearch.setMaximumSize(attrSearch.getPreferredSize());
+
 
         pubSearchMap = new HashMap<String, Boolean>();
         relSearchMap = new HashMap<String, Boolean>();
@@ -123,8 +128,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void addSearchListeners() {
 
-        ArrayList<String> publishers = addView.getChecked(pubSearchMap);
-        ArrayList<String> releases = addView.getChecked(relSearchMap);
+        ArrayList<String> releases = getChecked(relSearchMap);
 
         int[] releaseIDs = new int[releases.size()];
 
@@ -264,18 +268,22 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         searchBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // create search bar text field
-        JTextField searchField = new JTextField(20);
+        JTextField searchField = new JTextField();
+        searchField.setToolTipText("Search for a model");
+
+        searchField.setPreferredSize(new Dimension(200, 20));
         searchField.setMaximumSize(searchField.getPreferredSize());
         searchField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         searchField.addActionListener(this);
 
-        // create search bar button
-        JButton searchButton = new JButton("Search");
-        searchButton.addActionListener(this);
+        JLabel searchLabel = new JLabel("Search: ");
+        searchLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        searchLabel.setFont(new Font("Arial", Font.BOLD, 20));
 
         // add search bar components to search bar
+        searchBar.add(searchLabel);
         searchBar.add(searchField);
-        searchBar.add(searchButton);
     }
 
     /**
@@ -338,7 +346,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * Creates the scroll pane for releases
      */
     private void makeReleasePane(boolean isSearch) {
-        ArrayList<String> publishers = addView.getChecked(pubSearchMap);
+        ArrayList<String> publishers = getChecked(pubSearchMap);
 
         ArrayList<String[]> releases;
 
@@ -390,8 +398,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private void makeScalePane(boolean isSearch) {
         ArrayList<String> assetScales;
         ArrayList<String> searchScales = new ArrayList<>();
-        ArrayList<String> releases = addView.getChecked(relSearchMap);
-        ArrayList<String> publisherScales = addView.getChecked(pubSearchMap);
+        ArrayList<String> releases = getChecked(relSearchMap);
+        ArrayList<String> publisherScales = getChecked(pubSearchMap);
 
         int[] releaseIDs = new int[releases.size()];
 
@@ -587,10 +595,10 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * @param displayAreaPanel the panel to add the results to
      */
     private void createResults(JPanel displayAreaPanel) {
-        ArrayList<String> publishers = addView.getChecked(pubSearchMap);
-        ArrayList<String> releaseIDs = addView.getChecked(relSearchMap);
-        ArrayList<String> scales = addView.getChecked(scaleSearchMap);
-        ArrayList<String> attributes = addView.getChecked(attrSearchMap);
+        ArrayList<String> publishers = getChecked(pubSearchMap);
+        ArrayList<String> releaseIDs = getChecked(relSearchMap);
+        ArrayList<String> scales = getChecked(scaleSearchMap);
+        ArrayList<String> attributes = getChecked(attrSearchMap);
 
         int[] releaseIDsInt = new int[releaseIDs.size()];
 
@@ -653,6 +661,25 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         displayAreaPanel.repaint();
     }
 
+    /**
+     * Checks all the checkboxes in a scroll pane and returns the text of the ones
+     * that are checked.
+     * 
+     * @param map the map of checkboxes to
+     * @return Returns an ArrayList of the text of the checked checkboxes
+     */
+    public ArrayList<String> getChecked(HashMap<String, Boolean> map) {
+        ArrayList<String> checked = new ArrayList<String>();
+
+        for (String key : map.keySet()) {
+            if (map.get(key)) {
+                checked.add(key);
+            }
+        }
+
+        return checked;
+    }
+
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
@@ -667,7 +694,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         addItem.addActionListener(e -> {
             this.dispose();
-            addView.setVisible(true);
+            new AddView(this.logic, this.login);
         });
     }
 
@@ -676,7 +703,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         if (e.getSource() instanceof JCheckBox) {
             JCheckBox box = (JCheckBox) e.getSource();
-            ArrayList<String> releases = addView.getChecked(relSearchMap);
+            ArrayList<String> releases = getChecked(relSearchMap);
 
             int[] releaseIds = new int[releases.size()];
 
