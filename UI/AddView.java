@@ -14,6 +14,7 @@ package UI;
 import Logic.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.io.*;
 
@@ -73,6 +74,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
     ReleaseList releaseList;
 
     List<File> droppedFiles;
+    HashMap<String, Boolean> checkedAttributes;
 
     public AddView(ConnectLogic logic, Login login) {
         super("Home");
@@ -98,7 +100,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
      * Makes the interactable components for the home panel.
      */
     private void makeInteractables() {
-
+        checkedAttributes = new HashMap<String, Boolean>();
         makePublisherScroll(false);
         makeReleaseScroll(false);
         makeScaleScroll(false);
@@ -294,7 +296,6 @@ public class AddView extends BoilerPlateView implements ActionListener {
         scaleScroll.setPreferredSize(new Dimension(200, 150));
         scaleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scaleScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
     }
 
     /**
@@ -304,7 +305,6 @@ public class AddView extends BoilerPlateView implements ActionListener {
      */
     private void makeAttributeScroll(boolean isSearch) {
         // attribute scroll pane
-
         ArrayList<String> attributes = new ArrayList<String>();
 
         if (isSearch) {
@@ -318,6 +318,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         for (String att : attributes) {
             JCheckBox attBox = new JCheckBox(att);
+            if (!checkedAttributes.containsKey(att)) {
+                checkedAttributes.put(att, false);
+            }
+
+            attBox.addActionListener(e -> {
+                checkedAttributes.put(att, attBox.isSelected());
+            });
+
             attributePanel.add(attBox);
         }
 
@@ -326,6 +334,16 @@ public class AddView extends BoilerPlateView implements ActionListener {
         attributeScroll.setPreferredSize(new Dimension(200, 150));
         attributeScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         attributeScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // set all previously checked attributes to checked
+        for (String att : checkedAttributes.keySet()) {
+            for (Component c : attributePanel.getComponents()) {
+                JCheckBox box = (JCheckBox) c;
+                if (box.getText().equals(att)) {
+                    box.setSelected(checkedAttributes.get(att));
+                }
+            }
+        }
     }
 
     /**
@@ -643,10 +661,9 @@ public class AddView extends BoilerPlateView implements ActionListener {
      * that are checked.
      * 
      * @param scroll The scroll pane to check
-     * @return Returns an ArrayList of the text of the checked checkboxes, if
-     *         nothing is checked, return ['*']
+     * @return Returns an ArrayList of the text of the checked checkboxes
      */
-    public String[] getChecked(JScrollPane scroll) {
+    public ArrayList<String> getChecked(JScrollPane scroll) {
         ArrayList<String> checked = new ArrayList<String>();
 
         JPanel panel = (JPanel) scroll.getViewport().getView();
@@ -659,7 +676,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
             }
         }
 
-        return checked.toArray(new String[checked.size()]);
+        return checked;
     }
 
     @Override
@@ -685,12 +702,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         // if the catalogue button is pressed
         if (e.getSource() == catalogueBtn) {
+            ArrayList<Boolean> successes = new ArrayList<Boolean>();
+
             if (publisherList.getSelectedValue() != null && releaseList.getSelectedValue() != null
                     && scaleList.getSelectedValue() != null) {
-                String publisher = publisherList.getSelectedValue();
                 int releaseID = releaseList.getSelectedReleaseID();
                 String scale = scaleList.getSelectedValue();
-                String[] attributes = getChecked(attributeScroll);
+                ArrayList<String> attList = getChecked(attributeScroll);
+                String[] attributes = attList.toArray(new String[attList.size()]);
                 String asset = dragArea.getText();
 
                 // adds the asset to the database and checks if it was successful
@@ -708,13 +727,16 @@ public class AddView extends BoilerPlateView implements ActionListener {
                                 name,
                                 releaseID,
                                 scale, description);
-                        if (success) {
-                            JOptionPane.showMessageDialog(null, "Asset added successfully");
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Asset: " + name +  " failed to add");
-                        }
+
+                        successes.add(success);
                     }
 
+                    for (int i = 0; i < successes.size(); i++) {
+                        if (!successes.get(i)) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Asset: " + droppedFiles.get(i).getName() + " was not added.");
+                        }
+                    }
                 }
             }
         } else {
