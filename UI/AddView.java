@@ -662,23 +662,29 @@ public class AddView extends BoilerPlateView implements ActionListener {
      * Checks all the checkboxes in a scroll pane and returns the text of the ones
      * that are checked.
      * 
-     * @param scroll The scroll pane to check
+     * @param map the map of checkboxes to check
      * @return Returns an ArrayList of the text of the checked checkboxes
      */
-    public ArrayList<String> getChecked(JScrollPane scroll) {
+    public ArrayList<String> getChecked(HashMap<String, Boolean> map) {
         ArrayList<String> checked = new ArrayList<String>();
 
-        JPanel panel = (JPanel) scroll.getViewport().getView();
-
-        for (Component component : panel.getComponents()) {
-            JCheckBox box = (JCheckBox) component;
-
-            if (box.isSelected()) {
-                checked.add(box.getText());
+        for (String key : map.keySet()) {
+            if (map.get(key)) {
+                checked.add(key);
             }
         }
 
         return checked;
+    }
+
+    /**
+     * Returns the search boxes
+     * 
+     * @return Returns an ArrayList of the search boxes
+     */
+    public JTextField[] getSearchBoxes() {
+        JTextField[] boxes = { pubSearch, relSearch, scaleSearch, attSearch };
+        return boxes;
     }
 
     @Override
@@ -710,7 +716,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     && scaleList.getSelectedValue() != null) {
                 int releaseID = releaseList.getSelectedReleaseID();
                 String scale = scaleList.getSelectedValue();
-                ArrayList<String> attList = getChecked(attributeScroll);
+                ArrayList<String> attList = getChecked(checkedAttributes);
                 String[] attributes = attList.toArray(new String[attList.size()]);
                 String asset = dragArea.getText();
 

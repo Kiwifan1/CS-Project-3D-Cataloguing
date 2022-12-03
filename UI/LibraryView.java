@@ -14,11 +14,14 @@ package UI;
 import Logic.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.io.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -45,11 +48,29 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     JPanel mainPanel;
     JPanel searchBar;
     JPanel displayAreaPanel;
+    JPanel scrollPanel;
+
+    JPanel pubPanel;
+    JPanel relPanel;
+    JPanel scalePanel;
+    JPanel attrPanel;
 
     JScrollPane publisherScroll;
     JScrollPane releaseScroll;
     JScrollPane scaleScroll;
     JScrollPane attributeScroll;
+
+    JTextField pubSearch;
+    JTextField relSearch;
+    JTextField scaleSearch;
+    JTextField attrSearch;
+
+    AddView addView;
+
+    HashMap<String, Boolean> pubSearchMap;
+    HashMap<String, Boolean> relSearchMap;
+    HashMap<String, Boolean> scaleSearchMap;
+    HashMap<String, Boolean> attrSearchMap;
 
     public LibraryView(ConnectLogic logic, Login login) {
         super("Library");
@@ -64,6 +85,10 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         mainPanel = new JPanel();
 
+        addView = new AddView(this.logic, this.login);
+        addView.setVisible(false);
+
+        createSearchBoxes();
         createSearchParams();
         createDisplayArea();
 
@@ -74,6 +99,107 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         this.setVisible(true);
     }
 
+    /**
+     * Gets the search boxes from the addView (better than copying code)
+     */
+    private void createSearchBoxes() {
+        JTextField[] searchBoxes = addView.getSearchBoxes();
+
+        pubSearch = searchBoxes[0];
+        relSearch = searchBoxes[1];
+        scaleSearch = searchBoxes[2];
+        attrSearch = searchBoxes[3];
+
+        pubSearchMap = new HashMap<String, Boolean>();
+        relSearchMap = new HashMap<String, Boolean>();
+        scaleSearchMap = new HashMap<String, Boolean>();
+        attrSearchMap = new HashMap<String, Boolean>();
+
+        addSearchListeners();
+    }
+
+    /**
+     * Adds search box listeners to the search boxes
+     */
+    private void addSearchListeners() {
+
+        ArrayList<String> publishers = addView.getChecked(pubSearchMap);
+        ArrayList<String> releases = addView.getChecked(relSearchMap);
+
+        int[] releaseIDs = new int[releases.size()];
+
+        for (int i = 0; i < releases.size(); i++) {
+            releaseIDs[i] = Integer.parseInt(releases.get(i));
+        }
+
+        // update the publisher scroll pane as the user types
+        pubSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                updatePublisherScroll(pubSearch.getText());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                updatePublisherScroll(pubSearch.getText());
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                updatePublisherScroll(pubSearch.getText());
+            }
+        });
+
+        // update the release scroll pane as the user types
+
+        relSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                updateReleaseScroll(relSearch.getText());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                updateReleaseScroll(relSearch.getText());
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                updateReleaseScroll(relSearch.getText());
+            }
+        });
+
+        // update the scale scroll pane as the user types
+
+        scaleSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                updateScaleScroll(scaleSearch.getText());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                updateScaleScroll(scaleSearch.getText());
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                updateScaleScroll(scaleSearch.getText());
+            }
+        });
+
+        // update the attribute scroll pane as the user types
+
+        attrSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                updateAttributeScroll(attrSearch.getText());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                updateAttributeScroll(attrSearch.getText());
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                updateAttributeScroll(attrSearch.getText());
+            }
+        });
+
+    }
+
+    /**
+     * Creates the search parameters for the library view
+     */
     private void createSearchParams() {
         // create search parameters
         JPanel searchPanel = new JPanel();
@@ -87,13 +213,40 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         // add search bar and search parameters to search panel
         searchPanel.add(searchBar);
 
-        JPanel scrollPanel = new JPanel();
+        // make search panels
+        scrollPanel = new JPanel();
         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.X_AXIS));
 
-        scrollPanel.add(publisherScroll);
-        scrollPanel.add(releaseScroll);
-        scrollPanel.add(scaleScroll);
-        scrollPanel.add(attributeScroll);
+        pubPanel = new JPanel();
+        pubPanel.setLayout(new BoxLayout(pubPanel, BoxLayout.Y_AXIS));
+
+        relPanel = new JPanel();
+        relPanel.setLayout(new BoxLayout(relPanel, BoxLayout.Y_AXIS));
+
+        scalePanel = new JPanel();
+        scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.Y_AXIS));
+
+        attrPanel = new JPanel();
+        attrPanel.setLayout(new BoxLayout(attrPanel, BoxLayout.Y_AXIS));
+
+        // add search parameters to respective panels
+        pubPanel.add(pubSearch);
+        pubPanel.add(publisherScroll);
+
+        relPanel.add(relSearch);
+        relPanel.add(releaseScroll);
+
+        scalePanel.add(scaleSearch);
+        scalePanel.add(scaleScroll);
+
+        attrPanel.add(attrSearch);
+        attrPanel.add(attributeScroll);
+
+        // add panels to scroll panel
+        scrollPanel.add(pubPanel);
+        scrollPanel.add(relPanel);
+        scrollPanel.add(scalePanel);
+        scrollPanel.add(attrPanel);
 
         // add search panel to main panel
         mainPanel.add(searchPanel);
@@ -129,21 +282,38 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * Creates the scroll panes for searching criteria
      */
     private void createScrollPanes() {
-        createPublisherPane();
-        createReleasePane();
-        createScalePane();
-        createAttributePane();
+        makePublisherPane(false);
+        makeReleasePane(false);
+        makeScalePane(false);
+        makeAttributePane(false);
     }
 
-    private void createPublisherPane() {
-        ArrayList<String> publishers = publisher.getAllPublishers();
+    /**
+     * Creates the scroll pane for publishers
+     */
+    private void makePublisherPane(boolean isSearch) {
+        ArrayList<String> publishers;
+
+        if (isSearch) {
+            publishers = publisher.getPublishers(pubSearch.getText());
+        } else {
+            publishers = publisher.getAllPublishers();
+        }
 
         JPanel publisherPanel = new JPanel();
         publisherPanel.setLayout(new BoxLayout(publisherPanel, BoxLayout.Y_AXIS));
 
         for (String publisher : publishers) {
             JCheckBox publisherBox = new JCheckBox(publisher);
-            publisherBox.addActionListener(this);
+
+            if (!pubSearchMap.containsKey(publisher)) {
+                pubSearchMap.put(publisher, false);
+            }
+
+            publisherBox.addActionListener(e -> {
+                pubSearchMap.put(publisher, publisherBox.isSelected());
+                this.actionPerformed(e);
+            });
             publisherPanel.add(publisherBox);
         }
 
@@ -152,19 +322,48 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         publisherScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
         publisherScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         publisherScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // add previously selected publishers
+        for (String publisher : pubSearchMap.keySet()) {
+            for (Component component : publisherPanel.getComponents()) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.getText().equals(publisher)) {
+                    checkBox.setSelected(pubSearchMap.get(publisher));
+                }
+            }
+        }
     }
 
-    private void createReleasePane() {
-        String[] publishers = getChecked(publisherScroll);
+    /*
+     * Creates the scroll pane for releases
+     */
+    private void makeReleasePane(boolean isSearch) {
+        ArrayList<String> publishers = addView.getChecked(pubSearchMap);
 
-        ArrayList<String[]> releases = release.getReleaseFromPub(publishers);
+        ArrayList<String[]> releases;
+
+        if (isSearch) {
+            releases = release.getReleaseFromNameAndPub(relSearch.getText(),
+                    publishers.toArray(new String[publishers.size()]));
+        } else {
+            releases = release.getReleaseFromPub(publishers.toArray(new String[publishers.size()]));
+        }
 
         JPanel releasePanel = new JPanel();
         releasePanel.setLayout(new BoxLayout(releasePanel, BoxLayout.Y_AXIS));
 
         for (String[] release : releases) {
             ReleaseCheckBox releaseBox = new ReleaseCheckBox(release[0], Integer.parseInt(release[1]));
-            releaseBox.addActionListener(this);
+
+            if (!relSearchMap.containsKey(release[1])) {
+                relSearchMap.put(release[1], false);
+            }
+
+            releaseBox.addActionListener(e -> {
+                relSearchMap.put(release[1], releaseBox.isSelected());
+                this.actionPerformed(e);
+            });
+
             releasePanel.add(releaseBox);
         }
 
@@ -173,18 +372,57 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         releaseScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
         releaseScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         releaseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // add previously selected releases
+        for (String release : relSearchMap.keySet()) {
+            for (Component component : releasePanel.getComponents()) {
+                ReleaseCheckBox checkBox = (ReleaseCheckBox) component;
+                if (checkBox.getReleaseID() == Integer.parseInt(release)) {
+                    checkBox.setSelected(relSearchMap.get(release));
+                }
+            }
+        }
     }
 
-    private void createScalePane() {
-        ArrayList<String> scales = scale.getAllScales();
+    /**
+     * Creates the scroll pane for scales
+     */
+    private void makeScalePane(boolean isSearch) {
+        ArrayList<String> assetScales;
+        ArrayList<String> searchScales = new ArrayList<>();
+        ArrayList<String> releases = addView.getChecked(relSearchMap);
+        ArrayList<String> publisherScales = addView.getChecked(pubSearchMap);
+
+        int[] releaseIDs = new int[releases.size()];
+
+        for (int i = 0; i < releases.size(); i++) {
+            releaseIDs[i] = Integer.parseInt(releases.get(i));
+        }
 
         JPanel scalePanel = new JPanel();
         scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.Y_AXIS));
 
-        for (String scale : scales) {
-            JCheckBox scaleBox = new JCheckBox(scale);
-            scaleBox.addActionListener(this);
-            scalePanel.add(scaleBox);
+        if (isSearch) {
+            searchScales = scale.getScales(scaleSearch.getText());
+        }
+
+        assetScales = asset.getScalesFromRelease(releaseIDs);
+        publisherScales = asset.getScalesFromPub(publisherScales.toArray(new String[publisherScales.size()]));
+
+        for (String scale : assetScales) {
+            if (!isSearch || searchScales.contains(scale) && publisherScales.contains(scale)) {
+                JCheckBox scaleBox = new JCheckBox(scale);
+
+                if (!scaleSearchMap.containsKey(scale)) {
+                    scaleSearchMap.put(scale, false);
+                }
+
+                scaleBox.addActionListener(e -> {
+                    scaleSearchMap.put(scale, scaleBox.isSelected());
+                    this.actionPerformed(e);
+                });
+                scalePanel.add(scaleBox);
+            }
         }
 
         scaleScroll = new JScrollPane(scalePanel);
@@ -192,17 +430,44 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         scaleScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
         scaleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scaleScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // add previously selected scales
+        for (String scale : scaleSearchMap.keySet()) {
+            for (Component component : scalePanel.getComponents()) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.getText().equals(scale)) {
+                    checkBox.setSelected(scaleSearchMap.get(scale));
+                }
+            }
+        }
     }
 
-    private void createAttributePane() {
-        ArrayList<String> attributes = attribute.getAllAttributes();
+    /**
+     * Creates the scroll pane for attributes
+     */
+    private void makeAttributePane(boolean isSearch) {
+        ArrayList<String> attributes = new ArrayList<>();
+
+        if (isSearch) {
+            attributes = attribute.getAttributes(attrSearch.getText());
+        } else {
+            attributes = attribute.getAllAttributes();
+        }
 
         JPanel attributePanel = new JPanel();
         attributePanel.setLayout(new BoxLayout(attributePanel, BoxLayout.Y_AXIS));
 
         for (String attribute : attributes) {
             JCheckBox attributeBox = new JCheckBox(attribute);
-            attributeBox.addActionListener(this);
+
+            if (!attrSearchMap.containsKey(attribute)) {
+                attrSearchMap.put(attribute, false);
+            }
+
+            attributeBox.addActionListener(e -> {
+                attrSearchMap.put(attribute, attributeBox.isSelected());
+                this.actionPerformed(e);
+            });
             attributePanel.add(attributeBox);
         }
 
@@ -211,6 +476,72 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         attributeScroll.setPreferredSize(new Dimension(SCROLL_WIDTH, SCROLL_HEIGHT));
         attributeScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         attributeScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // add previously selected attributes
+        for (String attribute : attrSearchMap.keySet()) {
+            for (Component component : attributePanel.getComponents()) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.getText().equals(attribute)) {
+                    checkBox.setSelected(attrSearchMap.get(attribute));
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates the publisher scroll
+     * 
+     * @param name the name of the publisher to search for
+     */
+    private void updatePublisherScroll(String name) {
+        boolean isSearch = (name == null || name.equals("") ? false : true);
+        makePublisherPane(isSearch);
+        pubPanel.remove(1);
+        pubPanel.add(publisherScroll, 1);
+        pubPanel.revalidate();
+        pubPanel.repaint();
+    }
+
+    /**
+     * Updates the release scroll
+     * 
+     * @param name the name of the release to search for
+     */
+    private void updateReleaseScroll(String name) {
+        boolean isSearch = (name == null || name.equals("") ? false : true);
+        makeReleasePane(isSearch);
+        relPanel.remove(1);
+        relPanel.add(releaseScroll, 1);
+        relPanel.revalidate();
+        relPanel.repaint();
+    }
+
+    /**
+     * Updates the scale scroll
+     * 
+     * @param name the name of the scale to search for
+     */
+    private void updateScaleScroll(String name) {
+        boolean isSearch = (name == null || name.equals("") ? false : true);
+        makeScalePane(isSearch);
+        scalePanel.remove(1);
+        scalePanel.add(scaleScroll, 1);
+        scalePanel.revalidate();
+        scalePanel.repaint();
+    }
+
+    /**
+     * Updates the attribute scroll
+     * 
+     * @param name the name of the attribute to search for
+     */
+    private void updateAttributeScroll(String name) {
+        boolean isSearch = (name == null || name.equals("") ? false : true);
+        makeAttributePane(isSearch);
+        attrPanel.remove(1);
+        attrPanel.add(attributeScroll, 1);
+        attrPanel.revalidate();
+        attrPanel.repaint();
     }
 
     /**
@@ -239,7 +570,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // make display area scroll pane scrollable
         displayAreaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        displayAreaScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        // displayAreaScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         // add display area title and scroll area to display area
         displayAreaTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -256,12 +587,19 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * @param displayAreaPanel the panel to add the results to
      */
     private void createResults(JPanel displayAreaPanel) {
-        String[] publishers = getChecked(publisherScroll);
-        int[] releaseIDs = getReleaseIDs();
-        String[] scales = getChecked(scaleScroll);
-        String[] attributes = getChecked(attributeScroll);
+        ArrayList<String> publishers = addView.getChecked(pubSearchMap);
+        ArrayList<String> releaseIDs = addView.getChecked(relSearchMap);
+        ArrayList<String> scales = addView.getChecked(scaleSearchMap);
+        ArrayList<String> attributes = addView.getChecked(attrSearchMap);
 
-        ArrayList<Entity> results = asset.getAssets(publishers, releaseIDs, scales, attributes);
+        int[] releaseIDsInt = new int[releaseIDs.size()];
+
+        for (int i = 0; i < releaseIDs.size(); i++) {
+            releaseIDsInt[i] = Integer.parseInt(releaseIDs.get(i));
+        }
+
+        ArrayList<Entity> results = asset.getAssets(publishers.toArray(new String[publishers.size()]), releaseIDsInt,
+                scales.toArray(new String[scales.size()]), attributes.toArray(new String[attributes.size()]));
 
         displayAreaPanel.removeAll();
 
@@ -273,11 +611,15 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
             String path = entity.getFilePath();
+            String name = entity.getName();
             if (path.length() > 10) {
                 path = path.substring(0, 10) + "...";
             }
+            if (name.length() > 20) {
+                name = name.substring(0, 20) + "...";
+            }
 
-            JLabel assetName = new JLabel(entity.getName());
+            JLabel assetName = new JLabel(name);
             JLabel assetScale = new JLabel(entity.getScale());
             JLabel assetPath = new JLabel(path);
 
@@ -311,106 +653,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         displayAreaPanel.repaint();
     }
 
-    /**
-     * Checks all the checkboxes in a scroll pane and returns the text of the ones
-     * that are checked.
-     * 
-     * @param scroll The scroll pane to check
-     * @return Returns an ArrayList of the text of the checked checkboxes, if
-     *         nothing is checked, return ['*']
-     */
-    public String[] getChecked(JScrollPane scroll) {
-        ArrayList<String> checked = new ArrayList<String>();
-
-        JPanel panel = (JPanel) scroll.getViewport().getView();
-
-        for (Component component : panel.getComponents()) {
-            JCheckBox box = (JCheckBox) component;
-
-            if (box.isSelected()) {
-                checked.add(box.getText());
-            }
-        }
-
-        return checked.toArray(new String[checked.size()]);
-    }
-
-    /**
-     * Updates the release scroll based upon the publishers chosen
-     * 
-     * @param publishers The publishers that have been chosen
-     */
-    private void updateReleaseScroll(String[] publishers) {
-        ArrayList<String[]> releases = release.getReleaseFromPub(publishers);
-
-        JPanel releaseBox = new JPanel();
-        releaseBox.setLayout(new BoxLayout(releaseBox, BoxLayout.Y_AXIS));
-
-        for (String[] release : releases) {
-            ReleaseCheckBox releaseCheck = new ReleaseCheckBox(release[0], Integer.parseInt(release[1]));
-            releaseCheck.addActionListener(this);
-            releaseBox.add(releaseCheck);
-        }
-
-        releaseScroll.setViewportView(releaseBox);
-    }
-
-    /**
-     * Updates the scale scroll based upon the release chosen
-     * 
-     * @param publishers The publishers that have been chosen
-     * @param releases   The release ids that have been chosen
-     */
-    private void updateScaleScroll(String[] publishers, int[] releaseIds) {
-        // check if both publishers and releases are empty
-        ArrayList<String> scales;
-        if (publishers.length == 0 && releaseIds.length == 0) {
-            scales = scale.getAllScales();
-        } else if(releaseIds.length == 0) {
-            scales = asset.getScalesFromPub(publishers);
-        } else {
-            scales = asset.getScalesFromRelease(releaseIds);
-        }
-
-        JPanel scaleBox = new JPanel();
-        scaleBox.setLayout(new BoxLayout(scaleBox, BoxLayout.Y_AXIS));
-
-        for (String scale : scales) {
-            JCheckBox scaleCheck = new JCheckBox(scale);
-            scaleCheck.addActionListener(this);
-            scaleBox.add(scaleCheck);
-        }
-
-        scaleScroll.setViewportView(scaleBox);
-    }
-
-    /**
-     * Gets the release ids from the release scroll that have been selected
-     * 
-     * @return Returns an array of the release ids that have been selected
-     */
-    private int[] getReleaseIDs() {
-        JPanel releaseBox = (JPanel) releaseScroll.getViewport().getView();
-
-        ArrayList<Integer> releaseIDs = new ArrayList<Integer>();
-
-        for (Component component : releaseBox.getComponents()) {
-            ReleaseCheckBox box = (ReleaseCheckBox) component;
-
-            if (box.isSelected()) {
-                releaseIDs.add(box.getReleaseID());
-            }
-        }
-
-        int[] ids = new int[releaseIDs.size()];
-
-        for (int i = 0; i < releaseIDs.size(); i++) {
-            ids[i] = releaseIDs.get(i);
-        }
-
-        return ids;
-    }
-
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
@@ -425,7 +667,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         addItem.addActionListener(e -> {
             this.dispose();
-            new AddView(this.logic, this.login);
+            addView.setVisible(true);
         });
     }
 
@@ -434,17 +676,24 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         if (e.getSource() instanceof JCheckBox) {
             JCheckBox box = (JCheckBox) e.getSource();
-            String[] publishers = getChecked(publisherScroll);
+            ArrayList<String> releases = addView.getChecked(relSearchMap);
 
-            if (box.getParent() == publisherScroll.getViewport().getView()) {
-                int[] releaseIds = getReleaseIDs();
-                updateReleaseScroll(publishers);
-                updateScaleScroll(publishers, releaseIds);
+            int[] releaseIds = new int[releases.size()];
+
+            for (int i = 0; i < releases.size(); i++) {
+                releaseIds[i] = Integer.parseInt(releases.get(i));
             }
 
-            else if (box.getParent() == releaseScroll.getViewport().getView()) {
-                int[] releaseIds = getReleaseIDs();
-                updateScaleScroll(publishers, releaseIds);
+            if (box.getParent() == publisherScroll.getViewport().getView()) {
+
+                updateReleaseScroll(relSearch.getText());
+                updateScaleScroll(scaleSearch.getText());
+            } else if (box.getParent() == releaseScroll.getViewport().getView()) {
+                updateScaleScroll(scaleSearch.getText());
+            } else if (box.getParent() == scaleScroll.getViewport().getView()) {
+                updateScaleScroll(scaleSearch.getText());
+            } else if (box.getParent() == attributeScroll.getViewport().getView()) {
+                updateScaleScroll(attrSearch.getText());
             }
         }
         createResults(displayAreaPanel);
