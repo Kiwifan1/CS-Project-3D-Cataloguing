@@ -56,4 +56,31 @@ public class Scale {
         }
     }
 
+    /**
+     * Gets the scales from the database that start with the given string
+     * 
+     * @param name The name of the scale
+     * @return An ArrayList of all Scales that start with the given string
+     */
+    public ArrayList<String> getScales(String name) {
+        ArrayList<String> scales = new ArrayList<String>();
+
+        try {
+            String query = "SELECT name FROM Scale WHERE name LIKE ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, name + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                scales.add(rs.getString("name"));
+            }
+
+            return scales;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
 }

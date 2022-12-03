@@ -57,4 +57,32 @@ public class Publisher {
             return null;
         }
     }
+
+    /**
+     * Gets all the publishers that start with the given string
+     * 
+     * @param name The name of the publisher
+     * @return An ArrayList of all Publishers that start with the given string
+     */
+    public ArrayList<String> getPublishers(String name) {
+        ArrayList<String> publishers = new ArrayList<String>();
+
+        try {
+            String query = "SELECT * FROM Publisher WHERE Name LIKE ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, name + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                publishers.add(rs.getString("Name"));
+            }
+
+            return publishers;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
 }

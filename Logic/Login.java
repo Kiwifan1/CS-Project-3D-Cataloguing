@@ -85,7 +85,7 @@ public class Login {
      */
     private boolean changeLastLogin() {
         try {
-            String query = "UPDATE AppUser SET LastLogin = CURRENT_TIMESTAMP WHERE Username = MD5(?)";
+            String query = "UPDATE AppUser SET last_login = CURRENT_TIMESTAMP WHERE Username = MD5(?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, currUser);

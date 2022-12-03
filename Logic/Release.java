@@ -83,6 +83,51 @@ public class Release {
     }
 
     /**
+     * Gets all the releases from the database that start with the given name.
+     * 
+     * @param name The name to search for
+     * @param pubs The publisher(s) to search within
+     * @return Returns an ArrayList of all the releases that start with the given
+     *         name.
+     */
+    public ArrayList<String[]> getReleaseFromNameAndPub(String name, String[] pubs) {
+        try {
+            String query = "SELECT name, id FROM AssetRelease WHERE name LIKE ? AND Publisher = ?";
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            if (pubs.length == 0) {
+                query = "SELECT name, id FROM AssetRelease WHERE name LIKE ?";
+                ps = cn.prepareStatement(query);
+            } else {
+                for (int i = 1; i < pubs.length; i++) {
+                    query += " OR Publisher = ?";
+                }
+                for (int i = 0; i < pubs.length; i++) {
+                    ps.setString(i + 2, pubs[i]);
+                }
+            }
+            
+            ps.setString(1, name + "%");
+
+            ResultSet rs = ps.executeQuery();
+            ArrayList<String[]> releases = new ArrayList<String[]>();
+
+            while (rs.next()) {
+                String[] release = new String[2];
+                release[0] = rs.getString("name");
+                release[1] = String.valueOf(rs.getInt("id"));
+                releases.add(release);
+            }
+
+            return releases;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    /**
      * Gets the last release ID from the database
      * 
      * @return The last release ID
