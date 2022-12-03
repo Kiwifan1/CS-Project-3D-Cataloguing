@@ -331,6 +331,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     /**
      * Updates the publisher scroll
+     * 
+     * @param name the name of the publisher to search
      */
     private void updatePublisherScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
@@ -343,6 +345,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     /**
      * Updates the release scroll pane.
+     * 
+     * @param name the name of the release to search
      */
     private void updateReleaseScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
@@ -355,6 +359,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     /**
      * Updates the scale scroll pane.
+     * 
+     * @param scale the scale to search
      */
     private void updateScaleScroll(String scale) {
         boolean isSearch = (scale == null || scale.equals("") ? false : true);
@@ -367,6 +373,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     /**
      * Updates the attribute scroll pane.
+     * 
+     * @param att the attribute to search
      */
     private void updateAttributeScroll(String att) {
         boolean isSearch = (att == null || att.equals("") ? false : true);
@@ -398,19 +406,19 @@ public class AddView extends BoilerPlateView implements ActionListener {
      */
     private void makeSearchBoxes() {
         pubSearch = new JTextField();
-        pubSearch.setPreferredSize(new Dimension(180, 20));
+        pubSearch.setPreferredSize(new Dimension(120, 20));
         pubSearch.setMaximumSize(pubSearch.getPreferredSize());
 
         relSearch = new JTextField();
-        relSearch.setPreferredSize(new Dimension(180, 20));
+        relSearch.setPreferredSize(new Dimension(120, 20));
         relSearch.setMaximumSize(relSearch.getPreferredSize());
 
         scaleSearch = new JTextField();
-        scaleSearch.setPreferredSize(new Dimension(180, 20));
+        scaleSearch.setPreferredSize(new Dimension(120, 20));
         scaleSearch.setMaximumSize(scaleSearch.getPreferredSize());
 
         attSearch = new JTextField();
-        attSearch.setPreferredSize(new Dimension(180, 20));
+        attSearch.setPreferredSize(new Dimension(120, 20));
         attSearch.setMaximumSize(attSearch.getPreferredSize());
 
         // update the publisher scroll pane as the user types
@@ -501,31 +509,47 @@ public class AddView extends BoilerPlateView implements ActionListener {
         cataloguePanel = new JPanel();
         cataloguePanel.setLayout(new BoxLayout(cataloguePanel, BoxLayout.X_AXIS));
 
+        // make publisher panel
         pubPanel = new JPanel();
         pubPanel.setLayout(new BoxLayout(pubPanel, BoxLayout.Y_AXIS));
 
-        pubPanel.add(pubSearch);
+        JPanel helperPanel = new JPanel();
+        helperPanel.add(pubSearch);
+    
+        pubPanel.add(helperPanel);
         pubPanel.add(publisherScroll);
         pubPanel.add(addPubBtn);
 
+        // make release panel
         relPanel = new JPanel();
         relPanel.setLayout(new BoxLayout(relPanel, BoxLayout.Y_AXIS));
 
-        relPanel.add(relSearch);
+        helperPanel = new JPanel();
+        helperPanel.add(relSearch);
+
+        relPanel.add(helperPanel);
         relPanel.add(releaseScroll);
         relPanel.add(addRelBtn);
 
+        // make scale panel
         scalePanel = new JPanel();
         scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.Y_AXIS));
 
-        scalePanel.add(scaleSearch);
+        helperPanel = new JPanel();
+        helperPanel.add(scaleSearch);
+
+        scalePanel.add(helperPanel);
         scalePanel.add(scaleScroll);
         scalePanel.add(addScaleBtn);
 
+        // make attribute panel
         attPanel = new JPanel();
         attPanel.setLayout(new BoxLayout(attPanel, BoxLayout.Y_AXIS));
 
-        attPanel.add(attSearch);
+        helperPanel = new JPanel();
+        helperPanel.add(attSearch);
+
+        attPanel.add(helperPanel);
         attPanel.add(attributeScroll);
         attPanel.add(addAttBtn);
 
