@@ -72,7 +72,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
     JList<String> scaleList;
     ReleaseList releaseList;
 
-    ArrayList<String> filePathList;
+    List<File> droppedFiles;
 
     public AddView(ConnectLogic logic, Login login) {
         super("Home");
@@ -85,7 +85,6 @@ public class AddView extends BoilerPlateView implements ActionListener {
         attribute = new Attribute(logic);
         asset = new Asset(logic);
         scale = new Scale(logic);
-        filePathList = new ArrayList<String>();
 
         // populate the frame
         makeHomePanel();
@@ -515,7 +514,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         JPanel helperPanel = new JPanel();
         helperPanel.add(pubSearch);
-    
+
         pubPanel.add(helperPanel);
         pubPanel.add(publisherScroll);
         pubPanel.add(addPubBtn);
@@ -626,16 +625,12 @@ public class AddView extends BoilerPlateView implements ActionListener {
             public synchronized void drop(DropTargetDropEvent evt) {
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    List<File> droppedFiles = (List<File>) evt.getTransferable()
+                    droppedFiles = (List<File>) evt.getTransferable()
                             .getTransferData(DataFlavor.javaFileListFlavor);
-                    if (droppedFiles.size() > 1) {
-                        JOptionPane.showMessageDialog(null,
-                                "Only one file can be dropped at a time, first file dropped will be added");
-                    }
-                    File file = droppedFiles.get(0);
-                    filePathList.add(file.getAbsolutePath());
 
-                    nameField.setText(file.getName());
+                    if (droppedFiles.size() == 1) {
+                        nameField.setText(droppedFiles.get(0).getName());
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -701,23 +696,25 @@ public class AddView extends BoilerPlateView implements ActionListener {
                 // adds the asset to the database and checks if it was successful
                 if (asset.equals("")) {
                     JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
-                } else if (filePathList.size() == 0) {
+                } else if (droppedFiles.size() == 0) {
                     JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
                 } else {
-                    String filePath = filePathList.get(0);
-                    String name = nameField.getText();
+                    for (File file : droppedFiles) {
+                        String filePath = file.getAbsolutePath();
+                        String name = file.getName();
+                        String description = descriptionField.getText();
 
-                    if (name == null || name == "") {
-                        name = filePath.split("/")[filePath.split("/").length - 1];
+                        boolean success = this.asset.addAsset(filePath, attributes, login.getCurrUser(),
+                                name,
+                                releaseID,
+                                scale, description);
+                        if (success) {
+                            JOptionPane.showMessageDialog(null, "Asset added successfully");
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Asset: " + name +  " failed to add");
+                        }
                     }
 
-                    boolean success = this.asset.addAsset(filePath, attributes, login.getCurrUser(), name, releaseID,
-                            scale, descriptionField.getText());
-                    if (success) {
-                        JOptionPane.showMessageDialog(null, "Asset added successfully");
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Asset failed to add");
-                    }
                 }
             }
         } else {
