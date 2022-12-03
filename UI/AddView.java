@@ -649,6 +649,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     if (droppedFiles.size() == 1) {
                         nameField.setText(droppedFiles.get(0).getName());
                     }
+
+                    dragArea.setText("Files dropped: " + droppedFiles.size() + "\nDrag and drop files here");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
