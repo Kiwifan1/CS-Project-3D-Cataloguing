@@ -45,6 +45,9 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private Scale scale;
     private Attribute attribute;
 
+    private Entity selectedAsset;
+    private JPanel selectedPanel;
+
     private JPanel mainPanel;
     private JPanel searchBar;
     private JPanel displayAreaPanel;
@@ -60,6 +63,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private JScrollPane scaleScroll;
     private JScrollPane attributeScroll;
 
+    private JTextField searchField;
     private JTextField pubSearch;
     private JTextField relSearch;
     private JTextField scaleSearch;
@@ -113,7 +117,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         attrSearch = new JTextField();
         attrSearch.setPreferredSize(new Dimension(120, 20));
         attrSearch.setMaximumSize(attrSearch.getPreferredSize());
-
 
         pubSearchMap = new HashMap<String, Boolean>();
         relSearchMap = new HashMap<String, Boolean>();
@@ -268,12 +271,11 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         searchBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // create search bar text field
-        JTextField searchField = new JTextField();
+        searchField = new JTextField(20);
         searchField.setToolTipText("Search for a model");
 
-        searchField.setPreferredSize(new Dimension(200, 20));
+        searchField.setPreferredSize(new Dimension(110, 20));
         searchField.setMaximumSize(searchField.getPreferredSize());
-        searchField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         searchField.addActionListener(this);
 
@@ -643,8 +645,16 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPanel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if (e.getClickCount() == 2) {
-                        // open path in file explorer
+                    // if single clicked, select asset, and highlight it
+                    if (e.getClickCount() == 1) {
+                        if (selectedPanel != null) {
+                            selectedPanel.setBackground(Color.WHITE);
+                        }
+                        selectedAsset = entity;
+                        selectedPanel = assetPanel;
+                        assetPanel.setBackground(Color.YELLOW);
+                    } else if (e.getClickCount() == 2) {
+                        // open asset
                         try {
                             Desktop.getDesktop().open(new File(entity.getFilePath()));
                         } catch (IOException e1) {

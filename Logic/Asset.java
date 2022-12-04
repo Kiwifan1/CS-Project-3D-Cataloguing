@@ -144,6 +144,31 @@ public class Asset {
     }
 
     /**
+     * Gets all assets from the database with a name containing the given string
+     * 
+     * @param name name to search for
+     * @return ArrayList of all assets with a name containing the given string
+     */
+    ArrayList<Entity> getAssetFromName(String name) {
+        try {
+            String query = "SELECT * FROM Asset WHERE name LIKE ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, name + "%");
+
+            ResultSet rs = ps.executeQuery();
+            ArrayList<Entity> assets = new ArrayList<Entity>();
+            while (rs.next()) {
+                assets.add(new Entity(rs.getString("filepath"), rs.getString("attribute"), rs.getString("username"),
+                        rs.getString("name"), rs.getInt("rid"), rs.getString("scale"), rs.getString("description")));
+            }
+            return assets;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    /**
      * Gets all the assets that match the given attributes
      * 
      * @param publishers publishers to search for
