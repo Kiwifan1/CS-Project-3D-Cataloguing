@@ -7,18 +7,18 @@ import java.io.*;
 public class Asset {
 
     private Connection cn;
-    private Release releaseLogic;
+    private AssetRelease releaseLogic;
 
     public Asset(ConnectLogic logic) {
         this.cn = logic.getConnection();
-        this.releaseLogic = new Release(logic);
+        this.releaseLogic = new AssetRelease(logic);
     }
 
     /**
      * Adds an Asset to the SQL Database, there must be a release with the rid key
      * in the database.
      * One can be added with
-     * {@link Release#addRelease(String, String, String, String)}
+     * {@link AssetRelease#addRelease(String, String, String, String)}
      * 
      * @param filePath    file path of the asset
      * @param attributes  attributes of the asset
@@ -226,9 +226,9 @@ public class Asset {
             ResultSet rs = ps.executeQuery();
             ArrayList<Entity> assets = new ArrayList<Entity>();
             while (rs.next()) {
+                Release release = releaseLogic.getRelease(rs.getInt("rid"));
                 assets.add(new Entity(rs.getString("filepath"), rs.getString("attribute"), rs.getString("username"),
-                        rs.getString("name"), rs.getInt("rid"), rs.getString("scale"), rs.getString("description"),
-                        releaseLogic));
+                        rs.getString("name"), rs.getString("scale"), rs.getString("description"), release));
             }
             return assets;
         } catch (Exception e) {
@@ -376,7 +376,11 @@ public class Asset {
                 int rid = rs.getInt("rid");
                 String scale = rs.getString("scale");
                 String description = rs.getString("description");
-                entity = new Entity(filepath, attr, username, name, rid, scale, description, releaseLogic);
+
+                // make a release object
+                Release release = releaseLogic.getRelease(rid);
+
+                entity = new Entity(filepath, attr, username, name, scale, description, release);
 
                 // add entity to assets, if it is already in the list, add the attribute to it
                 if (assets.contains(entity)) {

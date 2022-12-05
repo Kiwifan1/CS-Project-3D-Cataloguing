@@ -36,7 +36,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private ConnectLogic logic;
     private Login login;
     private Publisher publisher;
-    private Release release;
+    private AssetRelease release;
     private Attribute attribute;
     private Asset asset;
     private Scale scale;
@@ -83,7 +83,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         this.logic = logic;
         this.login = login;
         publisher = new Publisher(logic);
-        release = new Release(logic);
+        release = new AssetRelease(logic);
         attribute = new Attribute(logic);
         asset = new Asset(logic);
         scale = new Scale(logic);
@@ -230,7 +230,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         // release scroll pane
 
         ArrayList<String> publisher = new ArrayList<String>();
-        ArrayList<String[]> releases = new ArrayList<String[]>();
+        ArrayList<Release> releases = new ArrayList<Release>();
 
         if (publisherList.getSelectedValue() != null) {
             publisher.add(publisherList.getSelectedValue().toString());
@@ -256,11 +256,11 @@ public class AddView extends BoilerPlateView implements ActionListener {
         int[] releaseIDs = new int[releases.size()];
 
         for (int i = 0; i < releases.size(); i++) {
-            releaseNames[i] = releases.get(i)[0];
+            releaseNames[i] = releases.get(i).getName();
         }
 
         for (int i = 0; i < releases.size(); i++) {
-            releaseIDs[i] = Integer.parseInt(releases.get(i)[1]);
+            releaseIDs[i] = releases.get(i).getId();
         }
 
         JPanel releaseBox = new JPanel();

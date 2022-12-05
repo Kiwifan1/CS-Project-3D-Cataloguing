@@ -40,7 +40,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private ConnectLogic logic;
     private Login login;
     private Publisher publisher;
-    private Release release;
+    private AssetRelease release;
     private Asset asset;
     private Scale scale;
     private Attribute attribute;
@@ -83,7 +83,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         this.logic = logic;
         this.login = login;
         publisher = new Publisher(logic);
-        release = new Release(logic);
+        release = new AssetRelease(logic);
         attribute = new Attribute(logic);
         asset = new Asset(logic);
         scale = new Scale(logic);
@@ -365,7 +365,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private void makeReleasePane(boolean isSearch) {
         ArrayList<String> publishers = getChecked(pubSearchMap);
 
-        ArrayList<String[]> releases;
+        ArrayList<Release> releases;
 
         if (isSearch) {
             releases = release.getReleaseFromNameAndPub(relSearch.getText(),
@@ -377,15 +377,15 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JPanel releasePanel = new JPanel();
         releasePanel.setLayout(new BoxLayout(releasePanel, BoxLayout.Y_AXIS));
 
-        for (String[] release : releases) {
-            ReleaseCheckBox releaseBox = new ReleaseCheckBox(release[0], Integer.parseInt(release[1]));
+        for (Release release : releases) {
+            ReleaseCheckBox releaseBox = new ReleaseCheckBox(release.getName(), release.getId());
 
-            if (!relSearchMap.containsKey(release[1])) {
-                relSearchMap.put(release[1], false);
+            if (!relSearchMap.containsKey(release.getId() + "")) {
+                relSearchMap.put(release.getId() + "", false);
             }
 
             releaseBox.addActionListener(e -> {
-                relSearchMap.put(release[1], releaseBox.isSelected());
+                relSearchMap.put(release.getId() + "", releaseBox.isSelected());
                 this.actionPerformed(e);
             });
 
@@ -430,9 +430,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         if (isSearch) {
             searchScales = scale.getScales(scaleSearch.getText());
         }
-
-        assetScales = asset.getScalesFromRelease(releaseIDs);
-        publisherScales = asset.getScalesFromPub(publisherScales.toArray(new String[publisherScales.size()]));
+        if (releaseIDs.length > 0) {
+            assetScales = asset.getScalesFromRelease(releaseIDs);
+            publisherScales = asset.getScalesFromPub(publisherScales.toArray(new String[publisherScales.size()]));
+        } else {
+            assetScales = scale.getAllScales();
+        }
 
         for (String scale : assetScales) {
             if (!isSearch || searchScales.contains(scale) && publisherScales.contains(scale)) {
@@ -520,9 +523,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updatePublisherScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = publisherScroll.getVerticalScrollBar().getValue();
+
         makePublisherPane(isSearch);
+
         pubPanel.remove(1);
         pubPanel.add(publisherScroll, 1);
+        publisherScroll.getVerticalScrollBar().setValue(scrollPos);
         pubPanel.revalidate();
         pubPanel.repaint();
     }
@@ -534,9 +541,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updateReleaseScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = releaseScroll.getVerticalScrollBar().getValue();
+
         makeReleasePane(isSearch);
+
         relPanel.remove(1);
         relPanel.add(releaseScroll, 1);
+        releaseScroll.getVerticalScrollBar().setValue(scrollPos);
         relPanel.revalidate();
         relPanel.repaint();
     }
@@ -548,9 +559,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updateScaleScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = scaleScroll.getVerticalScrollBar().getValue();
+
         makeScalePane(isSearch);
         scalePanel.remove(1);
         scalePanel.add(scaleScroll, 1);
+        scaleScroll.getVerticalScrollBar().setValue(scrollPos);
         scalePanel.revalidate();
         scalePanel.repaint();
     }
@@ -562,9 +576,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updateAttributeScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = attributeScroll.getVerticalScrollBar().getValue();
+
         makeAttributePane(isSearch);
         attrPanel.remove(1);
         attrPanel.add(attributeScroll, 1);
+        attributeScroll.getVerticalScrollBar().setValue(scrollPos);
         attrPanel.revalidate();
         attrPanel.repaint();
     }
@@ -769,7 +786,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JTextField publisherField = new JTextField(selectedAsset.getPublisher());
 
         JLabel releaseLabel = new JLabel("Release:");
-        JTextField releaseField = new JTextField(selectedAsset.getRelease());
+        JTextField releaseField = new JTextField(selectedAsset.getRelease().getName());
 
         JLabel attributesLabel = new JLabel("Attributes:");
         JTextField attributesField = new JTextField(attributes);
@@ -845,9 +862,9 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
                 String[] publishers = { publisher };
 
-                ArrayList<String[]> releases = release.getReleaseFromNameAndPub(releaseName, publishers);
+                ArrayList<Release> releases = release.getReleaseFromNameAndPub(releaseName, publishers);
 
-                int rid = Integer.parseInt(releases.get(0)[1]);
+                int rid = releases.get(0).getId();
 
                 String[] attributeArr = attributesField.getText().split(", ");
 

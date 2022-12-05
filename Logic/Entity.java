@@ -11,8 +11,7 @@ public class Entity {
     private String username;
     private String name;
     private String publisher;
-    private String release;
-    private int rid;
+    private Release release;
     private String scale;
     private String description;
 
@@ -21,43 +20,31 @@ public class Entity {
         attributes = new ArrayList<String>();
         username = "";
         name = "";
-        rid = 0;
         scale = "";
         description = "";
         publisher = "";
-        release = "";
-
+        release = new Release();
     }
 
-    public Entity(String filePath, String attribute, String username, String name, int rid, String scale,
-            String description, Release releaseLogic) {
+    public Entity(String filePath, String attribute, String username, String name, String scale,
+            String description, Release release) {
         attributes = new ArrayList<String>();
         attributes.add(attribute);
 
         this.filePath = filePath;
         this.username = username;
         this.name = name;
-        this.rid = rid;
         this.scale = scale;
         this.description = description;
+        this.release = release;
 
-        addPublisher(releaseLogic);
-        addRelease(releaseLogic);
-    }
-
-    private void addRelease(Release releaseLogic) {
-        this.release = releaseLogic.getRelease(rid);
-    }
-
-    private void addPublisher(Release releaseLogic) {
-        this.publisher = releaseLogic.getPublisher(rid);
     }
 
     public String getPublisher() {
         return publisher;
     }
 
-    public String getRelease() {
+    public Release getRelease() {
         return release;
     }
 
@@ -65,7 +52,7 @@ public class Entity {
         this.publisher = publisher;
     }
 
-    public void setRelease(String release) {
+    public void setRelease(Release release) {
         this.release = release;
     }
 
@@ -83,10 +70,6 @@ public class Entity {
 
     public String getName() {
         return name;
-    }
-
-    public int getRid() {
-        return rid;
     }
 
     public String getScale() {
@@ -115,12 +98,6 @@ public class Entity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setRid(int rid, Release releaseLogic) {
-        this.rid = rid;
-        addPublisher(releaseLogic);
-        addRelease(releaseLogic);
     }
 
     public void setScale(String scale) {

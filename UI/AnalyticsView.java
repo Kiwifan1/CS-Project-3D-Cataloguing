@@ -38,6 +38,13 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         this.setVisible(true);
     }
 
+    /**
+     * Creates the auditt log panel
+     */
+    private void createAuditPanel() {
+        
+    }
+
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
