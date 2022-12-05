@@ -60,15 +60,81 @@ public class Asset {
      */
     public boolean removeAsset(String filePath) {
         try {
-            String query = "DELETE FROM Asset WHERE filepath = ?";
+            String query = "DELETE FROM Asset WHERE FilePath = ?";
+
             PreparedStatement ps = cn.prepareStatement(query);
+
             ps.setString(1, filePath);
 
-            ps.executeQuery();
+            ps.executeUpdate();
             return true;
         } catch (Exception e) {
             System.out.println(e);
             return false;
+        }
+    }
+
+    /**
+     * Edits an asset given a filepath
+     * 
+     * @param filePath    filepath of asset to be edited
+     * @param attributes  attributes of asset to be edited
+     * @param username    username of person who edited asset
+     * @param name        name of asset to be edited
+     * @param rid         release id of asset to be edited
+     * @param scale       scale of asset to be edited
+     * @param description description of asset to be edited
+     * @return true if asset successfully edited, false otherwise
+     */
+    public boolean editAsset(String filePath, String[] attributes, String username, String name, int rid, String scale,
+            String description) {
+        try {
+            String query = "UPDATE Asset SET attribute = ?, username = MD5(?), name = ?, rid = ?, scale = ?, description = ? WHERE filepath = ?";
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            for (int i = 0; i < attributes.length; i++) {
+                ps.setString(1, attributes[i]);
+                ps.setString(2, username);
+                ps.setString(3, name);
+                ps.setInt(4, rid);
+                ps.setString(5, scale);
+                ps.setString(6, description);
+                ps.setString(7, filePath);
+
+                ps.executeUpdate();
+            }
+
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Gets all attributes of an asset given a filepath
+     * 
+     * @param filePath filepath of asset
+     * @return array of attributes
+     */
+    public ArrayList<String> getAttributes(String filePath) {
+        try {
+            String query = "SELECT attribute FROM Asset WHERE filepath = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
+
+            ResultSet rs = ps.executeQuery();
+            ArrayList<String> attributes = new ArrayList<String>();
+
+            while (rs.next()) {
+                attributes.add(rs.getString("attribute"));
+            }
+
+            return attributes;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
     }
 

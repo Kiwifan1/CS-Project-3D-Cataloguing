@@ -101,11 +101,12 @@ public class AddView extends BoilerPlateView implements ActionListener {
      */
     private void makeInteractables() {
         checkedAttributes = new HashMap<String, Boolean>();
+        makeButtons();
+
         makePublisherScroll(false);
         makeReleaseScroll(false);
         makeScaleScroll(false);
         makeAttributeScroll(false);
-        makeButtons();
 
     }
 
@@ -174,6 +175,10 @@ public class AddView extends BoilerPlateView implements ActionListener {
             }
         });
 
+        addPubBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        addRelBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        addScaleBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        addAttBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
     /**
@@ -229,6 +234,12 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         if (publisherList.getSelectedValue() != null) {
             publisher.add(publisherList.getSelectedValue().toString());
+        }
+
+        if (publisher.size() == 0) {
+            addRelBtn.setEnabled(false);
+        } else {
+            addRelBtn.setEnabled(true);
         }
 
         String[] pubArray = publisher.toArray(new String[publisher.size()]);
@@ -662,7 +673,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
      * Checks all the checkboxes in a scroll pane and returns the text of the ones
      * that are checked.
      * 
-     * @param map the map of checkboxes to 
+     * @param map the map of checkboxes to
      * @return Returns an ArrayList of the text of the checked checkboxes
      */
     public ArrayList<String> getChecked(HashMap<String, Boolean> map) {

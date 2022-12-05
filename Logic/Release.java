@@ -42,6 +42,55 @@ public class Release {
     }
 
     /**
+     * Gets a publisher from the database, given the rid.
+     * 
+     * @param rid the rid of the release
+     * @return the publisher of the release
+     */
+    public String getPublisher(int rid) {
+        try {
+            String query = "SELECT Publisher FROM AssetRelease WHERE id = ?";
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setInt(1, rid);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("Publisher");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+
+    /**
+     * Gets a release name from the database, given the rid.
+     * @param rid the rid of the release
+     * @return the release name
+     */
+    public String getRelease(int rid) {
+        try {
+            String query = "SELECT name FROM AssetRelease WHERE id = ?";
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setInt(1, rid);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("name");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return null;
+    }
+
+    /**
      * Gets all the releases from the database that match the publisher.
      * 
      * @param pubs The publisher(s) to search for
@@ -107,7 +156,7 @@ public class Release {
                     ps.setString(i + 2, pubs[i]);
                 }
             }
-            
+
             ps.setString(1, name + "%");
 
             ResultSet rs = ps.executeQuery();

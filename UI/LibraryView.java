@@ -45,6 +45,9 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private Scale scale;
     private Attribute attribute;
 
+    private JFrame editFrame;
+    private JPanel editPanel;
+
     private Entity selectedAsset;
     private JPanel selectedPanel;
 
@@ -653,6 +656,33 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                         selectedAsset = entity;
                         selectedPanel = assetPanel;
                         assetPanel.setBackground(Color.YELLOW);
+
+                        // if right clicked, give option to edit or delete asset
+                        if (SwingUtilities.isRightMouseButton(e)) {
+                            JPopupMenu popup = new JPopupMenu();
+                            JMenuItem edit = new JMenuItem("Edit");
+                            JMenuItem delete = new JMenuItem("Delete");
+
+                            popup.add(edit);
+                            popup.add(delete);
+                            popup.show(e.getComponent(), e.getX(), e.getY());
+
+                            edit.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    editAsset();
+                                    createResults(displayAreaPanel);
+                                }
+                            });
+                            delete.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    asset.removeAsset(selectedAsset.getFilePath());
+                                    createResults(displayAreaPanel);
+                                }
+                            });
+                        }
+
                     } else if (e.getClickCount() == 2) {
                         // open asset
                         try {
@@ -669,6 +699,162 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         displayAreaPanel.revalidate();
         displayAreaPanel.repaint();
+    }
+
+    /**
+     * Edits the selected asset
+     */
+    private void editAsset() {
+        // Create a popout window to edit the asset
+        editFrame = new JFrame("Edit Asset");
+        editFrame.setSize(500, 500);
+        editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        editFrame.setLocationRelativeTo(null);
+        editFrame.setLayout(new BoxLayout(editFrame.getContentPane(), BoxLayout.Y_AXIS));
+        editFrame.setVisible(true);
+
+        // create panel to hold all the fields
+        editPanel = new JPanel();
+        editPanel.setLayout(new BoxLayout(editPanel, BoxLayout.Y_AXIS));
+        editPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        editFrame.add(editPanel);
+
+        // add fields to panel
+        String attributes = "";
+        for (String attribute : selectedAsset.getAttributes()) {
+            attributes += attribute + ", ";
+        }
+
+        attributes = attributes.substring(0, attributes.length() - 2);
+
+        JPanel namePanel = new JPanel();
+        namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
+
+        JPanel scalePanel = new JPanel();
+        scalePanel.setLayout(new BoxLayout(scalePanel, BoxLayout.X_AXIS));
+
+        JPanel pathPanel = new JPanel();
+        pathPanel.setLayout(new BoxLayout(pathPanel, BoxLayout.X_AXIS));
+
+        JPanel publisherPanel = new JPanel();
+        publisherPanel.setLayout(new BoxLayout(publisherPanel, BoxLayout.X_AXIS));
+
+        JPanel releasePanel = new JPanel();
+        releasePanel.setLayout(new BoxLayout(releasePanel, BoxLayout.X_AXIS));
+
+        JPanel attributePanel = new JPanel();
+        attributePanel.setLayout(new BoxLayout(attributePanel, BoxLayout.X_AXIS));
+
+        JPanel descriptionPanel = new JPanel();
+        descriptionPanel.setLayout(new BoxLayout(descriptionPanel, BoxLayout.X_AXIS));
+
+        JLabel nameLabel = new JLabel("Name: ");
+        JTextField nameField = new JTextField(selectedAsset.getName());
+
+        JLabel scaleLabel = new JLabel("Scale: ");
+        JTextField scaleField = new JTextField(selectedAsset.getScale());
+
+        JLabel pathLabel = new JLabel("Path: ");
+        JTextField pathField = new JTextField(selectedAsset.getFilePath());
+
+        JLabel publisherLabel = new JLabel("Publisher: ");
+        JTextField publisherField = new JTextField(selectedAsset.getPublisher());
+
+        JLabel releaseLabel = new JLabel("Release: ");
+        JTextField releaseField = new JTextField(selectedAsset.getRelease());
+
+        JLabel attributesLabel = new JLabel("Attributes: ");
+        JTextField attributesField = new JTextField(attributes);
+
+        JLabel descriptionLabel = new JLabel("Description: ");
+        JTextField descriptionField = new JTextField(selectedAsset.getDescription());
+
+        // set the size of the fields
+        nameField.setPreferredSize(new Dimension(300, 50));
+        scaleField.setPreferredSize(new Dimension(300, 50));
+        pathField.setPreferredSize(new Dimension(300, 50));
+        publisherField.setPreferredSize(new Dimension(300, 50));
+        releaseField.setPreferredSize(new Dimension(300, 50));
+        attributesField.setPreferredSize(new Dimension(300, 50));
+        descriptionField.setPreferredSize(new Dimension(300, 50));
+
+        nameField.setMaximumSize(nameField.getPreferredSize());
+        scaleField.setMaximumSize(scaleField.getPreferredSize());
+        pathField.setMaximumSize(pathField.getPreferredSize());
+        publisherField.setMaximumSize(publisherField.getPreferredSize());
+        releaseField.setMaximumSize(releaseField.getPreferredSize());
+        attributesField.setMaximumSize(attributesField.getPreferredSize());
+        descriptionField.setMaximumSize(descriptionField.getPreferredSize());
+
+        // add fields to panel
+
+        namePanel.add(nameLabel);
+        namePanel.add(nameField);
+        scalePanel.add(scaleLabel);
+        scalePanel.add(scaleField);
+        pathPanel.add(pathLabel);
+        pathPanel.add(pathField);
+        publisherPanel.add(publisherLabel);
+        publisherPanel.add(publisherField);
+        releasePanel.add(releaseLabel);
+        releasePanel.add(releaseField);
+        attributePanel.add(attributesLabel);
+        attributePanel.add(attributesField);
+        descriptionPanel.add(descriptionLabel);
+        descriptionPanel.add(descriptionField);
+
+        editPanel.add(namePanel);
+        editPanel.add(scalePanel);
+        editPanel.add(pathPanel);
+        editPanel.add(publisherPanel);
+        editPanel.add(releasePanel);
+        editPanel.add(attributePanel);
+        editPanel.add(descriptionPanel);
+
+        // add button to save changes
+
+        JButton saveButton = new JButton("Save");
+        saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        String path = pathField.getText();
+        String name = nameField.getText();
+        String scale = scaleField.getText();
+        String publisher = publisherField.getText();
+        String releaseName = releaseField.getText();
+        String description = descriptionField.getText();
+
+        String[] publishers = { publisher };
+
+        ArrayList<String[]> releases = release.getReleaseFromNameAndPub(releaseName, publishers);
+
+        int rid = Integer.parseInt(releases.get(0)[1]);
+
+        String[] attributeArr = attributesField.getText().split(", ");
+
+        // when save button is clicked, save changes
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                // update the asset
+                boolean scucess = asset.editAsset(path, attributeArr, login.getCurrUser(), name, rid, scale,
+                        description);
+
+                // if successful, update the display
+                if (scucess) {
+                    editFrame.dispose();
+                    createResults(displayAreaPanel);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Error editing asset");
+                }
+            }
+        });
+
+        editPanel.add(saveButton);
+
+        editFrame.revalidate();
+        editFrame.repaint();
     }
 
     /**
