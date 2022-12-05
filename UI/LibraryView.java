@@ -605,14 +605,17 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         ArrayList<String> scales = getChecked(scaleSearchMap);
         ArrayList<String> attributes = getChecked(attrSearchMap);
 
+        String[] pubArr = publishers.toArray(new String[publishers.size()]);
+        String[] scaleArr = scales.toArray(new String[scales.size()]);
+        String[] attrArr = attributes.toArray(new String[attributes.size()]);
+
         int[] releaseIDsInt = new int[releaseIDs.size()];
 
         for (int i = 0; i < releaseIDs.size(); i++) {
             releaseIDsInt[i] = Integer.parseInt(releaseIDs.get(i));
         }
 
-        ArrayList<Entity> results = asset.getAssets(publishers.toArray(new String[publishers.size()]), releaseIDsInt,
-                scales.toArray(new String[scales.size()]), attributes.toArray(new String[attributes.size()]));
+        ArrayList<Entity> results = asset.getAssets(pubArr, releaseIDsInt, scaleArr, attrArr);
 
         displayAreaPanel.removeAll();
 
@@ -705,20 +708,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * Edits the selected asset
      */
     private void editAsset() {
-        // Create a popout window to edit the asset
-        editFrame = new JFrame("Edit Asset");
-        editFrame.setSize(500, 500);
-        editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        editFrame.setLocationRelativeTo(null);
-        editFrame.setLayout(new BoxLayout(editFrame.getContentPane(), BoxLayout.Y_AXIS));
-        editFrame.setVisible(true);
-
-        // create panel to hold all the fields
-        editPanel = new JPanel();
-        editPanel.setLayout(new BoxLayout(editPanel, BoxLayout.Y_AXIS));
-        editPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        editFrame.add(editPanel);
-
         // add fields to panel
         String attributes = "";
         for (String attribute : selectedAsset.getAttributes()) {
@@ -768,6 +757,11 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         JLabel descriptionLabel = new JLabel("Description: ");
         JTextField descriptionField = new JTextField(selectedAsset.getDescription());
+
+        // create panel to hold all the fields
+        editPanel = new JPanel();
+        editPanel.setLayout(new BoxLayout(editPanel, BoxLayout.Y_AXIS));
+        editPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // set the size of the fields
         nameField.setPreferredSize(new Dimension(300, 50));
@@ -851,10 +845,17 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             }
         });
 
-        editPanel.add(saveButton);
+        // Create a popout window to edit the asset
+        editFrame = new JFrame("Edit Asset");
+        editFrame.setSize(500, 500);
+        editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        editFrame.setLocationRelativeTo(null);
+        editFrame.setLayout(new BoxLayout(editFrame.getContentPane(), BoxLayout.Y_AXIS));
 
-        editFrame.revalidate();
-        editFrame.repaint();
+        editPanel.add(saveButton);
+        editFrame.add(editPanel);
+
+        editFrame.setVisible(true);
     }
 
     /**

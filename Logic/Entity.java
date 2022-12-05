@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 // Simple Entity class to hold asset information for the UI
 public class Entity {
+
+    // local variables
     private String filePath;
     private ArrayList<String> attributes;
     private String username;
@@ -24,10 +26,11 @@ public class Entity {
         description = "";
         publisher = "";
         release = "";
+
     }
 
     public Entity(String filePath, String attribute, String username, String name, int rid, String scale,
-            String description) {
+            String description, Release releaseLogic) {
         attributes = new ArrayList<String>();
         attributes.add(attribute);
 
@@ -37,18 +40,17 @@ public class Entity {
         this.rid = rid;
         this.scale = scale;
         this.description = description;
-        addPublisher();
-        addRelease();
+
+        addPublisher(releaseLogic);
+        addRelease(releaseLogic);
     }
 
-    private void addPublisher() {
-        Release release = new Release(new ConnectLogic());
-        this.publisher = release.getPublisher(rid);
+    private void addRelease(Release releaseLogic) {
+        this.release = releaseLogic.getRelease(rid);
     }
 
-    private void addRelease() {
-        Release release = new Release(new ConnectLogic());
-        this.release = release.getRelease(rid);
+    private void addPublisher(Release releaseLogic) {
+        this.publisher = releaseLogic.getPublisher(rid);
     }
 
     public String getPublisher() {
@@ -57,6 +59,14 @@ public class Entity {
 
     public String getRelease() {
         return release;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public void setRelease(String release) {
+        this.release = release;
     }
 
     public String getFilePath() {
@@ -107,10 +117,10 @@ public class Entity {
         this.name = name;
     }
 
-    public void setRid(int rid) {
+    public void setRid(int rid, Release releaseLogic) {
         this.rid = rid;
-        addPublisher();
-        addRelease();
+        addPublisher(releaseLogic);
+        addRelease(releaseLogic);
     }
 
     public void setScale(String scale) {
@@ -119,5 +129,16 @@ public class Entity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Entity)) {
+            return false;
+        }
+        Entity entity = (Entity) o;
+        return filePath.equals(entity.filePath);
     }
 }

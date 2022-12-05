@@ -7,9 +7,11 @@ import java.io.*;
 public class Asset {
 
     private Connection cn;
+    private Release releaseLogic;
 
     public Asset(ConnectLogic logic) {
         this.cn = logic.getConnection();
+        this.releaseLogic = new Release(logic);
     }
 
     /**
@@ -225,7 +227,8 @@ public class Asset {
             ArrayList<Entity> assets = new ArrayList<Entity>();
             while (rs.next()) {
                 assets.add(new Entity(rs.getString("filepath"), rs.getString("attribute"), rs.getString("username"),
-                        rs.getString("name"), rs.getInt("rid"), rs.getString("scale"), rs.getString("description")));
+                        rs.getString("name"), rs.getInt("rid"), rs.getString("scale"), rs.getString("description"),
+                        releaseLogic));
             }
             return assets;
         } catch (Exception e) {
@@ -347,25 +350,20 @@ public class Asset {
 
             // add all assets to arraylist
             while (rs.next()) {
-                entity = new Entity();
-                entity.setFilePath(rs.getString("filepath"));
-                entity.setRid(rs.getInt("rid"));
-                entity.setScale(rs.getString("scale"));
-                entity.addAttribute(rs.getString("attribute"));
-                entity.setDescription(rs.getString("description"));
-                entity.setName(rs.getString("name"));
-                entity.setUsername(rs.getString("username"));
-                assets.add(entity);
-            }
+                String filepath = rs.getString("filepath");
+                String attr = rs.getString("attribute");
+                String username = rs.getString("username");
+                String name = rs.getString("name");
+                int rid = rs.getInt("rid");
+                String scale = rs.getString("scale");
+                String description = rs.getString("description");
+                entity = new Entity(filepath, attr, username, name, rid, scale, description, releaseLogic);
 
-            // remove duplicate file paths and add attributes
-            for (int i = 0; i < assets.size(); i++) {
-                for (int j = i + 1; j < assets.size(); j++) {
-                    if (assets.get(i).getFilePath().equals(assets.get(j).getFilePath())) {
-                        assets.get(i).addAttribute(assets.get(j).getAttributes().get(0));
-                        assets.remove(j);
-                        j--;
-                    }
+                // add entity to assets, if it is already in the list, add the attribute to it
+                if (assets.contains(entity)) {
+                    assets.get(assets.indexOf(entity)).addAttribute(rs.getString("attribute"));
+                } else {
+                    assets.add(entity);
                 }
             }
 
