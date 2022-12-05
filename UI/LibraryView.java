@@ -810,26 +810,27 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JButton saveButton = new JButton("Save");
         saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        String path = pathField.getText();
-        String name = nameField.getText();
-        String scale = scaleField.getText();
-        String publisher = publisherField.getText();
-        String releaseName = releaseField.getText();
-        String description = descriptionField.getText();
-
-        String[] publishers = { publisher };
-
-        ArrayList<String[]> releases = release.getReleaseFromNameAndPub(releaseName, publishers);
-
-        int rid = Integer.parseInt(releases.get(0)[1]);
-
-        String[] attributeArr = attributesField.getText().split(", ");
-
         // when save button is clicked, save changes
 
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                // get the new values
+                String path = pathField.getText();
+                String name = nameField.getText();
+                String scale = scaleField.getText();
+                String publisher = publisherField.getText();
+                String releaseName = releaseField.getText();
+                String description = descriptionField.getText();
+
+                String[] publishers = { publisher };
+
+                ArrayList<String[]> releases = release.getReleaseFromNameAndPub(releaseName, publishers);
+
+                int rid = Integer.parseInt(releases.get(0)[1]);
+
+                String[] attributeArr = attributesField.getText().split(", ");
 
                 // update the asset
                 boolean scucess = asset.editAsset(path, attributeArr, login.getCurrUser(), name, rid, scale,
