@@ -280,7 +280,19 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         searchField.setPreferredSize(new Dimension(110, 20));
         searchField.setMaximumSize(searchField.getPreferredSize());
 
-        searchField.addActionListener(this);
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                createResults(displayAreaPanel, searchField.getText());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                createResults(displayAreaPanel, searchField.getText());
+            }
+
+            public void insertUpdate(DocumentEvent e) {
+                createResults(displayAreaPanel, searchField.getText());
+            }
+        });
 
         JLabel searchLabel = new JLabel("Search: ");
         searchLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -575,7 +587,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         displayAreaPanel.setLayout(new GridLayout(0, 5));
         displayAreaPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        createResults(displayAreaPanel);
+        createResults(displayAreaPanel, searchField.getText());
 
         // create display area scroll pane
         JScrollPane displayAreaScrollPane = new JScrollPane(displayAreaPanel);
@@ -598,12 +610,15 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      * Creates the results for the display area panel
      * 
      * @param displayAreaPanel the panel to add the results to
+     * @param search           the name of the search
      */
-    private void createResults(JPanel displayAreaPanel) {
+    private void createResults(JPanel displayAreaPanel, String search) {
         ArrayList<String> publishers = getChecked(pubSearchMap);
         ArrayList<String> releaseIDs = getChecked(relSearchMap);
         ArrayList<String> scales = getChecked(scaleSearchMap);
         ArrayList<String> attributes = getChecked(attrSearchMap);
+
+        ArrayList<Entity> results;
 
         String[] pubArr = publishers.toArray(new String[publishers.size()]);
         String[] scaleArr = scales.toArray(new String[scales.size()]);
@@ -615,7 +630,11 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             releaseIDsInt[i] = Integer.parseInt(releaseIDs.get(i));
         }
 
-        ArrayList<Entity> results = asset.getAssets(pubArr, releaseIDsInt, scaleArr, attrArr);
+        if (search == null || search.equals("")) {
+            results = asset.getAssets(pubArr, releaseIDsInt, scaleArr, attrArr);
+        } else {
+            results = asset.getAssets(pubArr, releaseIDsInt, scaleArr, attrArr, search);
+        }
 
         displayAreaPanel.removeAll();
 
@@ -674,14 +693,14 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     editAsset();
-                                    createResults(displayAreaPanel);
+                                    createResults(displayAreaPanel, searchField.getText());
                                 }
                             });
                             delete.addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
                                     asset.removeAsset(selectedAsset.getFilePath());
-                                    createResults(displayAreaPanel);
+                                    createResults(displayAreaPanel, searchField.getText());
                                 }
                             });
                         }
@@ -737,25 +756,25 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JPanel descriptionPanel = new JPanel();
         descriptionPanel.setLayout(new BoxLayout(descriptionPanel, BoxLayout.X_AXIS));
 
-        JLabel nameLabel = new JLabel("Name: ");
+        JLabel nameLabel = new JLabel("Name:");
         JTextField nameField = new JTextField(selectedAsset.getName());
 
-        JLabel scaleLabel = new JLabel("Scale: ");
+        JLabel scaleLabel = new JLabel("Scale:");
         JTextField scaleField = new JTextField(selectedAsset.getScale());
 
-        JLabel pathLabel = new JLabel("Path: ");
+        JLabel pathLabel = new JLabel("Path:");
         JTextField pathField = new JTextField(selectedAsset.getFilePath());
 
-        JLabel publisherLabel = new JLabel("Publisher: ");
+        JLabel publisherLabel = new JLabel("Publisher:");
         JTextField publisherField = new JTextField(selectedAsset.getPublisher());
 
-        JLabel releaseLabel = new JLabel("Release: ");
+        JLabel releaseLabel = new JLabel("Release:");
         JTextField releaseField = new JTextField(selectedAsset.getRelease());
 
-        JLabel attributesLabel = new JLabel("Attributes: ");
+        JLabel attributesLabel = new JLabel("Attributes:");
         JTextField attributesField = new JTextField(attributes);
 
-        JLabel descriptionLabel = new JLabel("Description: ");
+        JLabel descriptionLabel = new JLabel("Description:");
         JTextField descriptionField = new JTextField(selectedAsset.getDescription());
 
         // create panel to hold all the fields
@@ -839,7 +858,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                 // if successful, update the display
                 if (scucess) {
                     editFrame.dispose();
-                    createResults(displayAreaPanel);
+                    createResults(displayAreaPanel, searchField.getText());
                 } else {
                     JOptionPane.showMessageDialog(null, "Error editing asset");
                 }
@@ -848,10 +867,11 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // Create a popout window to edit the asset
         editFrame = new JFrame("Edit Asset");
-        editFrame.setSize(500, 500);
+        editFrame.setSize(500, 450);
         editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         editFrame.setLocationRelativeTo(null);
         editFrame.setLayout(new BoxLayout(editFrame.getContentPane(), BoxLayout.Y_AXIS));
+        editFrame.setResizable(false);
 
         editPanel.add(saveButton);
         editFrame.add(editPanel);
@@ -909,18 +929,17 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                 releaseIds[i] = Integer.parseInt(releases.get(i));
             }
 
-            if (box.getParent() == publisherScroll.getViewport().getView()) {
-
+            if (box.getParent() == publisherScroll.getViewport().getView()) { // publisher scroll
                 updateReleaseScroll(relSearch.getText());
                 updateScaleScroll(scaleSearch.getText());
-            } else if (box.getParent() == releaseScroll.getViewport().getView()) {
+            } else if (box.getParent() == releaseScroll.getViewport().getView()) { // release scroll
                 updateScaleScroll(scaleSearch.getText());
-            } else if (box.getParent() == scaleScroll.getViewport().getView()) {
+            } else if (box.getParent() == scaleScroll.getViewport().getView()) { // scale scroll
                 updateScaleScroll(scaleSearch.getText());
-            } else if (box.getParent() == attributeScroll.getViewport().getView()) {
+            } else if (box.getParent() == attributeScroll.getViewport().getView()) { // attribute scroll
                 updateScaleScroll(attrSearch.getText());
             }
         }
-        createResults(displayAreaPanel);
+        createResults(displayAreaPanel, searchField.getText());
     }
 }

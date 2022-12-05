@@ -237,16 +237,22 @@ public class Asset {
         }
     }
 
+    public ArrayList<Entity> getAssets(String[] publishers, int[] releases, String[] scales, String[] attributes) {
+        return getAssets(publishers, releases, scales, attributes, "");
+    }
+
     /**
      * Gets all the assets that match the given attributes
      * 
      * @param publishers publishers to search for
      * @param releases   releases to search for
      * @param scales     scales to search for
-     * @param attribute  attribute to search for
+     * @param attributes attribute to search for
+     * @param search     search string to search for
      * @return ArrayList of assets that match the given attributes
      */
-    public ArrayList<Entity> getAssets(String[] publishers, int[] releases, String[] scales, String[] attribute) {
+    public ArrayList<Entity> getAssets(String[] publishers, int[] releases, String[] scales, String[] attributes,
+            String search) {
 
         try {
             ArrayList<Entity> assets = new ArrayList<Entity>();
@@ -254,10 +260,10 @@ public class Asset {
             boolean noPublisher = publishers.length == 0;
             boolean noRelease = releases.length == 0;
             boolean noScale = scales.length == 0;
-            boolean noAttribute = attribute.length == 0;
+            boolean noAttribute = attributes.length == 0;
             String query = "SELECT * FROM Asset WHERE";
 
-            if (noPublisher && noRelease && noScale && noAttribute) {
+            if (noPublisher && noRelease && noScale && noAttribute && search.equals("")) {
                 query = "SELECT * FROM Asset";
             }
 
@@ -305,13 +311,22 @@ public class Asset {
                 if (!noPublisher || !noRelease || !noScale) {
                     query += " AND";
                 }
-                for (int i = 0; i < attribute.length; i++) {
+                for (int i = 0; i < attributes.length; i++) {
                     if (i == 0) {
                         query += " attribute = ?";
                     } else {
                         query += " AND attribute = ?";
                     }
                 }
+            }
+
+            // add search to query
+            if (!search.equals("")) {
+                boolean first = noPublisher && noRelease && noScale && noAttribute;
+                if (!first) { // if there are already attributes in the query
+                    query += " AND";
+                }
+                query += " name LIKE ?";
             }
 
             PreparedStatement ps = cn.prepareStatement(query);
@@ -340,10 +355,14 @@ public class Asset {
             }
 
             if (!noAttribute) {
-                for (int i = 0; i < attribute.length; i++) {
-                    ps.setString(index, attribute[i]);
+                for (int i = 0; i < attributes.length; i++) {
+                    ps.setString(index, attributes[i]);
                     index++;
                 }
+            }
+
+            if (!search.equals("")) {
+                ps.setString(index, "%" + search + "%");
             }
 
             ResultSet rs = ps.executeQuery();
