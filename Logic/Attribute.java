@@ -45,7 +45,7 @@ public class Attribute {
 
         try {
             Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT name FROM Attribute");
+            ResultSet rs = st.executeQuery("SELECT name FROM Attribute ORDER BY name");
 
             while (rs.next()) {
                 attributes.add(rs.getString("name"));
@@ -70,6 +70,8 @@ public class Attribute {
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, name + "%");
+
+            query += " ORDER BY name";
 
             ResultSet rs = ps.executeQuery();
 

@@ -36,6 +36,27 @@ public class Publisher {
     }
 
     /**
+     * Removes a publisher given a name
+     * 
+     * @param name the name of the publisher
+     * @return true if publisher removed successfully, false otherwise.
+     */
+    public boolean removePublisher(String name) {
+        try {
+            String query = "DELETE FROM Publisher WHERE name = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, name);
+
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
      * Gets all the publishers from the database
      * 
      * @return An ArrayList of all Publishers
@@ -45,7 +66,7 @@ public class Publisher {
 
         try {
             Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM Publisher");
+            ResultSet rs = st.executeQuery("SELECT * FROM Publisher ORDER BY name");
 
             while (rs.next()) {
                 publishers.add(rs.getString("Name"));
@@ -68,10 +89,11 @@ public class Publisher {
         ArrayList<String> publishers = new ArrayList<String>();
 
         try {
-            String query = "SELECT * FROM Publisher WHERE Name LIKE ?";
+            String query = "SELECT * FROM Publisher WHERE Name LIKE ? ORDER BY name";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, name + "%");
+
 
             ResultSet rs = ps.executeQuery();
 

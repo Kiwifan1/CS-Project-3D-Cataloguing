@@ -60,9 +60,13 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     private JButton catalogueBtn;
     private JButton addPubBtn;
+    private JButton remPubBtn;
     private JButton addRelBtn;
+    private JButton remRelBtn;
     private JButton addScaleBtn;
+    private JButton remScaleBtn;
     private JButton addAttBtn;
+    private JButton remAttBtn;
 
     private JScrollPane attributeScroll;
     private JScrollPane publisherScroll;
@@ -131,22 +135,75 @@ public class AddView extends BoilerPlateView implements ActionListener {
             }
         });
 
+        // remove publisher button
+        remPubBtn = new JButton("Remove Publisher");
+        remPubBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the publisher");
+            if (name != null) {
+                boolean success = publisher.removePublisher(name);
+                if (success) {
+                    updatePublisherScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Publisher not found");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the publisher");
+            }
+        });
+
         // add release button
         addRelBtn = new JButton("Add Release");
         addRelBtn.addActionListener(e ->
 
         {
-            String publisher = JOptionPane.showInputDialog("Enter the name of the publisher");
             String name = JOptionPane.showInputDialog("Enter the name of the release");
             String description = JOptionPane.showInputDialog("Enter the description of the release");
-            if (name != null && publisher != null) {
+            if (name != null) {
                 int lastRID = release.getLastRID();
                 if (lastRID == -1) {
                     JOptionPane.showMessageDialog(null, "Error getting last RID");
                 } else {
-                    release.addRelease(lastRID + 1, name, publisher, description);
+                    release.addRelease(lastRID + 1, name, publisherList.getSelectedValue(), description);
                     updateReleaseScroll(null);
                 }
+            }
+        });
+
+        // remove release button
+        remRelBtn = new JButton("Remove Release");
+        remRelBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the release");
+            String publisher = JOptionPane.showInputDialog("Enter the name of the publisher");
+
+            String[] publishers = { publisher };
+            if (name != null) {
+                ArrayList<Release> releases = release.getReleaseFromNameAndPub(name, publishers);
+
+                if (releases.size() > 1) {
+                    String[] options = new String[releases.size()];
+                    for (int i = 0; i < releases.size(); i++) {
+                        String description = releases.get(i).getDescription();
+
+                        if (description == null || description.equals("")) {
+                            description = "No description";
+                        }
+
+                        options[i] = releases.get(i).getId() + " - " + releases.get(i).getName() + " - " + description;
+                    }
+                    String releaseName = (String) JOptionPane.showInputDialog(null, "Select a release to remove",
+                            "Remove Release", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                    if (release != null) {
+                        release.removeRelease(Integer.parseInt(releaseName.split(" - ")[0]));
+                        updateReleaseScroll(null);
+                    }
+                } else if (releases.size() == 1) {
+                    release.removeRelease(releases.get(0).getId());
+                    updateReleaseScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Release not found");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the release");
             }
         });
 
@@ -546,7 +603,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         pubPanel.add(helperPanel);
         pubPanel.add(publisherScroll);
-        pubPanel.add(addPubBtn);
+
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addPubBtn);
+        helperPanel.add(remPubBtn);
+
+        pubPanel.add(helperPanel);
 
         // make release panel
         relPanel = new JPanel();
@@ -557,7 +621,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         relPanel.add(helperPanel);
         relPanel.add(releaseScroll);
-        relPanel.add(addRelBtn);
+
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addRelBtn);
+        helperPanel.add(remRelBtn);
+
+        relPanel.add(helperPanel);
 
         // make scale panel
         scalePanel = new JPanel();

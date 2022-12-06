@@ -42,6 +42,28 @@ public class AssetRelease {
     }
 
     /**
+     * Removes a Release from the database.
+     * 
+     * @param id
+     * @return true if release is successfully removed, false otherwise.
+     */
+    public boolean removeRelease(int id) {
+        try {
+            String query = "DELETE FROM AssetRelease WHERE id = ?";
+
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setInt(1, id);
+
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
      * Gets the release from the database given an rid
      * 
      * @param id the rid of the release
@@ -83,6 +105,8 @@ public class AssetRelease {
                 query = "SELECT * FROM AssetRelease";
             }
 
+            query += " ORDER BY name";
+
             PreparedStatement ps = cn.prepareStatement(query);
 
             for (int i = 0; i < pubs.length; i++) {
@@ -112,12 +136,12 @@ public class AssetRelease {
      */
     public ArrayList<Release> getReleaseFromNameAndPub(String name, String[] pubs) {
         try {
-            String query = "SELECT * FROM AssetRelease WHERE name LIKE ? AND Publisher = ?";
+            String query = "SELECT * FROM AssetRelease WHERE name LIKE ? AND Publisher = ? ORDER BY name";
 
             PreparedStatement ps = cn.prepareStatement(query);
 
             if (pubs.length == 0) {
-                query = "SELECT * FROM AssetRelease WHERE name LIKE ?";
+                query = "SELECT * FROM AssetRelease WHERE name LIKE ? ORDER BY name";
                 ps = cn.prepareStatement(query);
             } else {
                 for (int i = 1; i < pubs.length; i++) {

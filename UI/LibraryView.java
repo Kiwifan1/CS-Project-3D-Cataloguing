@@ -752,6 +752,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         attributes = attributes.substring(0, attributes.length() - 2);
 
+        attributes = attributes.substring(0, attributes.length() - 2);
+
         JPanel namePanel = new JPanel();
         namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
 
@@ -954,7 +956,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             } else if (box.getParent() == scaleScroll.getViewport().getView()) { // scale scroll
                 updateScaleScroll(scaleSearch.getText());
             } else if (box.getParent() == attributeScroll.getViewport().getView()) { // attribute scroll
-                updateScaleScroll(attrSearch.getText());
+                updateScaleScroll(scaleSearch.getText());
             }
         }
         createResults(displayAreaPanel, searchField.getText());
