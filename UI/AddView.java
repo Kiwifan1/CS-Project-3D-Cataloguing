@@ -5,7 +5,6 @@
  * Programming Assigment:
  * Description: 
  * Notes: 
- * TODO: fix naming of file when putting into database
  * 
  **/
 
@@ -219,6 +218,18 @@ public class AddView extends BoilerPlateView implements ActionListener {
             }
         });
 
+        // remove scale button
+        remScaleBtn = new JButton("Remove Scale");
+        remScaleBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the scale");
+            if (name != null) {
+                scale.removeScale(name);
+                updateScaleScroll(null);
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the scale");
+            }
+        });
+
         // add attribute button
         addAttBtn = new JButton("Add Attribute");
         addAttBtn.addActionListener(e ->
@@ -232,10 +243,46 @@ public class AddView extends BoilerPlateView implements ActionListener {
             }
         });
 
-        addPubBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addRelBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addScaleBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addAttBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // remove attribute button
+        remAttBtn = new JButton("Remove Attribute");
+        remAttBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the attribute");
+            if (name != null) {
+                attribute.removeAttribute(name);
+                updateAttributeScroll(null);
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the attribute");
+            }
+        });
+
+        addPubBtn.setPreferredSize(new Dimension(85, 30));
+        addPubBtn.setMaximumSize(addPubBtn.getPreferredSize());
+        remPubBtn.setPreferredSize(new Dimension(85, 30));
+        remPubBtn.setMaximumSize(remPubBtn.getPreferredSize());
+
+        addRelBtn.setPreferredSize(new Dimension(85, 30));
+        addRelBtn.setMaximumSize(addRelBtn.getPreferredSize());
+        remRelBtn.setPreferredSize(new Dimension(85, 30));
+        remRelBtn.setMaximumSize(remRelBtn.getPreferredSize());
+
+        addScaleBtn.setPreferredSize(new Dimension(85, 30));
+        addScaleBtn.setMaximumSize(addScaleBtn.getPreferredSize());
+        remScaleBtn.setPreferredSize(new Dimension(85, 30));
+        remScaleBtn.setMaximumSize(remScaleBtn.getPreferredSize());
+
+        addAttBtn.setPreferredSize(new Dimension(85, 30));
+        addAttBtn.setMaximumSize(addAttBtn.getPreferredSize());
+        remAttBtn.setPreferredSize(new Dimension(85, 30));
+        remAttBtn.setMaximumSize(remAttBtn.getPreferredSize());   
+        
+        addPubBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remPubBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        addRelBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remRelBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        addScaleBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remScaleBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        addAttBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remAttBtn.setFont(new Font("Arial", Font.BOLD, 10));
     }
 
     /**
@@ -272,8 +319,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         publisherScroll = new JScrollPane(publisherBox);
         publisherScroll.setBorder(BorderFactory.createTitledBorder("Publisher"));
-        publisherScroll.setPreferredSize(new Dimension(180, 150));
-        publisherScroll.setSize(getPreferredSize());
+        publisherScroll.setPreferredSize(new Dimension(170, 150));
+        publisherScroll.setMaximumSize(publisherScroll.getPreferredSize());
         publisherScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         publisherScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -330,7 +377,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         releaseScroll = new JScrollPane(releaseBox);
         releaseScroll.setBorder(BorderFactory.createTitledBorder("Release"));
-        releaseScroll.setPreferredSize(new Dimension(200, 150));
+        releaseScroll.setPreferredSize(new Dimension(170, 150));
+        releaseScroll.setMaximumSize(releaseScroll.getPreferredSize());
         releaseScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         releaseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -361,7 +409,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         scaleScroll = new JScrollPane(scaleBox);
         scaleScroll.setBorder(BorderFactory.createTitledBorder("Scale"));
-        scaleScroll.setPreferredSize(new Dimension(200, 150));
+        scaleScroll.setPreferredSize(new Dimension(170, 150));
+        scaleScroll.setMaximumSize(scaleScroll.getPreferredSize());
         scaleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scaleScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -399,7 +448,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         attributeScroll = new JScrollPane(attributePanel);
         attributeScroll.setBorder(BorderFactory.createTitledBorder("Attributes"));
-        attributeScroll.setPreferredSize(new Dimension(200, 150));
+        attributeScroll.setPreferredSize(new Dimension(170, 150));
+        attributeScroll.setMaximumSize(attributeScroll.getPreferredSize());
         attributeScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         attributeScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -639,8 +689,15 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         scalePanel.add(helperPanel);
         scalePanel.add(scaleScroll);
-        scalePanel.add(addScaleBtn);
 
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addScaleBtn);
+        helperPanel.add(remScaleBtn);
+        
+        scalePanel.add(helperPanel);
+        
         // make attribute panel
         attPanel = new JPanel();
         attPanel.setLayout(new BoxLayout(attPanel, BoxLayout.Y_AXIS));
@@ -650,7 +707,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         attPanel.add(helperPanel);
         attPanel.add(attributeScroll);
-        attPanel.add(addAttBtn);
+
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addAttBtn);
+        helperPanel.add(remAttBtn);
+
+        attPanel.add(helperPanel);
 
         cataloguePanel.add(pubPanel);
         cataloguePanel.add(relPanel);
