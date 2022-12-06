@@ -846,6 +846,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JButton saveButton = new JButton("Save");
         saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        String[] oldAttributes = attributesField.getText().split(", ");
+
         // when save button is clicked, save changes
 
         saveButton.addActionListener(new ActionListener() {
@@ -866,10 +868,10 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
                 int rid = releases.get(0).getId();
 
-                String[] attributeArr = attributesField.getText().split(", ");
+                String[] newAttributes = attributesField.getText().split(", ");
 
                 // update the asset
-                boolean scucess = asset.editAsset(path, attributeArr, login.getCurrUser(), name, rid, scale,
+                boolean scucess = asset.editAsset(path, oldAttributes, newAttributes, login.getCurrUser(), name, rid, scale,
                         description);
 
                 // if successful, update the display
