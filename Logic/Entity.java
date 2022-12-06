@@ -27,7 +27,7 @@ public class Entity {
     }
 
     public Entity(String filePath, String attribute, String username, String name, String scale,
-            String description, Release release) {
+            String description, String publisher, Release release) {
         attributes = new ArrayList<String>();
         attributes.add(attribute);
 
@@ -37,7 +37,7 @@ public class Entity {
         this.scale = scale;
         this.description = description;
         this.release = release;
-
+        this.publisher = publisher;
     }
 
     public String getPublisher() {

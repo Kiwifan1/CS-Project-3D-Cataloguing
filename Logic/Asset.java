@@ -227,8 +227,11 @@ public class Asset {
             ArrayList<Entity> assets = new ArrayList<Entity>();
             while (rs.next()) {
                 Release release = releaseLogic.getRelease(rs.getInt("rid"));
-                assets.add(new Entity(rs.getString("filepath"), rs.getString("attribute"), rs.getString("username"),
-                        rs.getString("name"), rs.getString("scale"), rs.getString("description"), release));
+                String publisher = release.getPublisher();
+                Entity entity = new Entity(rs.getString("filepath"), rs.getString("attribute"),
+                        rs.getString("username"),
+                        rs.getString("name"), rs.getString("scale"), rs.getString("description"), publisher, release);
+                assets.add(entity);
             }
             return assets;
         } catch (Exception e) {
@@ -379,8 +382,9 @@ public class Asset {
 
                 // make a release object
                 Release release = releaseLogic.getRelease(rid);
+                String publisher = release.getPublisher();
 
-                entity = new Entity(filepath, attr, username, name, scale, description, release);
+                entity = new Entity(filepath, attr, username, name, scale, description, publisher, release);
 
                 // add entity to assets, if it is already in the list, add the attribute to it
                 if (assets.contains(entity)) {

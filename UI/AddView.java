@@ -821,11 +821,17 @@ public class AddView extends BoilerPlateView implements ActionListener {
                         successes.add(success);
                     }
 
+                    boolean flag = true;
+
                     for (int i = 0; i < successes.size(); i++) {
                         if (!successes.get(i)) {
                             JOptionPane.showMessageDialog(null,
                                     "Asset: " + droppedFiles.get(i).getName() + " was not added.");
+                            flag = false;
                         }
+                    }
+                    if (flag) {
+                        JOptionPane.showMessageDialog(null, "Asset(s) added successfully.");
                     }
                 }
             }

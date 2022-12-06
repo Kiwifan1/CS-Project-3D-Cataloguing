@@ -667,8 +667,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             if (path.length() > 10) {
                 path = path.substring(0, 10) + "...";
             }
-            if (name.length() > 20) {
-                name = name.substring(0, 20) + "...";
+            if (name.length() > 15) {
+                name = name.substring(0, 15) + "...";
             }
 
             JLabel assetName = new JLabel(name);
@@ -680,8 +680,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPath.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             assetPanel.add(assetName);
-            assetPanel.add(assetScale);
             assetPanel.add(assetPath);
+            assetPanel.add(assetScale);
 
             // if clicked twice, open asset
             assetPanel.addMouseListener(new MouseAdapter() {
@@ -749,8 +749,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         for (String attribute : selectedAsset.getAttributes()) {
             attributes += attribute + ", ";
         }
-
-        attributes = attributes.substring(0, attributes.length() - 2);
 
         attributes = attributes.substring(0, attributes.length() - 2);
 
