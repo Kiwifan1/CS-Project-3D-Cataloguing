@@ -34,6 +34,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     private ConnectLogic logic;
     private Login login;
+    private AuditLog auditLog;
     private Publisher publisher;
     private AssetRelease release;
     private Attribute attribute;
@@ -79,12 +80,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private List<File> droppedFiles;
     private HashMap<String, Boolean> checkedAttributes;
 
-    public AddView(ConnectLogic logic, Login login) {
+    public AddView(ConnectLogic logic, Login login, AuditLog auditLog) {
         super("Home");
 
         // SQL logic
         this.logic = logic;
         this.login = login;
+        this.auditLog = auditLog;
+
         publisher = new Publisher(logic);
         release = new AssetRelease(logic);
         attribute = new Attribute(logic);
@@ -127,6 +130,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
             String name = JOptionPane.showInputDialog("Enter the name of the publisher");
             String source = JOptionPane.showInputDialog("Enter the source of the publisher");
             if (name != null && source != null) {
+                auditLog.log("Publisher Added " + name, login.getCurrUser());
                 publisher.addPublisher(name, source);
                 updatePublisherScroll(null);
             } else {
@@ -141,6 +145,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
             if (name != null) {
                 boolean success = publisher.removePublisher(name);
                 if (success) {
+                    auditLog.log("Publisher Removed " + name, login.getCurrUser());
                     updatePublisherScroll(null);
                 } else {
                     JOptionPane.showMessageDialog(null, "Publisher not found");
@@ -162,6 +167,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                 if (lastRID == -1) {
                     JOptionPane.showMessageDialog(null, "Error getting last RID");
                 } else {
+                    auditLog.log("Release Added " + (lastRID + 1), login.getCurrUser());
                     release.addRelease(lastRID + 1, name, publisherList.getSelectedValue(), description);
                     updateReleaseScroll(null);
                 }
@@ -192,6 +198,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     String releaseName = (String) JOptionPane.showInputDialog(null, "Select a release to remove",
                             "Remove Release", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
                     if (release != null) {
+                        auditLog.log("Release Removed " + (options[0]), login.getCurrUser());
                         release.removeRelease(Integer.parseInt(releaseName.split(" - ")[0]));
                         updateReleaseScroll(null);
                     }
@@ -213,6 +220,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         {
             String name = JOptionPane.showInputDialog("Enter the name of the scale");
             if (name != null) {
+                auditLog.log("Scale Added " + name, login.getCurrUser());
                 scaleScroll.add(new JLabel(name));
                 updateScaleScroll(null);
             }
@@ -223,6 +231,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         remScaleBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the scale");
             if (name != null) {
+                auditLog.log("Scale Removed " + name, login.getCurrUser());
                 scale.removeScale(name);
                 updateScaleScroll(null);
             } else {
@@ -238,6 +247,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
             String name = JOptionPane.showInputDialog("Enter the name of the attribute");
             String description = JOptionPane.showInputDialog("Enter the description of the attribute");
             if (name != null) {
+                auditLog.log("Attribute Added " + name, login.getCurrUser());
                 attribute.addAttribute(name, description);
                 updateAttributeScroll(null);
             }
@@ -248,6 +258,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         remAttBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the attribute");
             if (name != null) {
+                auditLog.log("Attribute Removed " + name, login.getCurrUser());
                 attribute.removeAttribute(name);
                 updateAttributeScroll(null);
             } else {
@@ -273,8 +284,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
         addAttBtn.setPreferredSize(new Dimension(85, 30));
         addAttBtn.setMaximumSize(addAttBtn.getPreferredSize());
         remAttBtn.setPreferredSize(new Dimension(85, 30));
-        remAttBtn.setMaximumSize(remAttBtn.getPreferredSize());   
-        
+        remAttBtn.setMaximumSize(remAttBtn.getPreferredSize());
+
         addPubBtn.setFont(new Font("Arial", Font.BOLD, 10));
         remPubBtn.setFont(new Font("Arial", Font.BOLD, 10));
         addRelBtn.setFont(new Font("Arial", Font.BOLD, 10));
@@ -695,9 +706,9 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         helperPanel.add(addScaleBtn);
         helperPanel.add(remScaleBtn);
-        
+
         scalePanel.add(helperPanel);
-        
+
         // make attribute panel
         attPanel = new JPanel();
         attPanel.setLayout(new BoxLayout(attPanel, BoxLayout.Y_AXIS));
@@ -842,12 +853,12 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         analytics.addActionListener(e -> {
             this.dispose();
-            new AnalyticsView(this.logic, this.login);
+            new AnalyticsView(this.logic, this.login, this.auditLog);
         });
 
         library.addActionListener(e -> {
             this.dispose();
-            new LibraryView(this.logic, this.login);
+            new LibraryView(this.logic, this.login, this.auditLog);
         });
     }
 
@@ -895,6 +906,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
                         }
                     }
                     if (flag) {
+                        auditLog.log(successes.size() + " asset(s) added", login.getCurrUser());
                         JOptionPane.showMessageDialog(null, "Asset(s) added successfully.");
                     }
                 }

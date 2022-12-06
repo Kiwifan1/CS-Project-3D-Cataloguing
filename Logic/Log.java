@@ -34,4 +34,9 @@ public class Log {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "Log [action=" + action + ", timestamp=" + timestamp + ", user=" + user + "]";
+    }
 }

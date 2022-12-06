@@ -39,6 +39,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
     private ConnectLogic logic;
     private Login login;
+    private AuditLog auditLog;
     private Publisher publisher;
     private AssetRelease release;
     private Asset asset;
@@ -77,11 +78,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private HashMap<String, Boolean> scaleSearchMap;
     private HashMap<String, Boolean> attrSearchMap;
 
-    public LibraryView(ConnectLogic logic, Login login) {
+    public LibraryView(ConnectLogic logic, Login login, AuditLog auditLog) {
         super("Library");
 
         this.logic = logic;
         this.login = login;
+        this.auditLog = auditLog;
+
         publisher = new Publisher(logic);
         release = new AssetRelease(logic);
         attribute = new Attribute(logic);
@@ -716,7 +719,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                             delete.addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-                                    asset.removeAsset(selectedAsset.getFilePath());
+                                    boolean success = asset.removeAsset(selectedAsset.getFilePath());
+                                    if (success) {
+                                        auditLog.log("Deleted asset " + selectedAsset.getName(), login.getCurrUser());
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Asset could not be deleted");
+                                    }
                                     createResults(displayAreaPanel, searchField.getText());
                                 }
                             });
@@ -871,11 +879,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                 String[] newAttributes = attributesField.getText().split(", ");
 
                 // update the asset
-                boolean scucess = asset.editAsset(path, oldAttributes, newAttributes, login.getCurrUser(), name, rid, scale,
+                boolean success = asset.editAsset(path, oldAttributes, newAttributes, login.getCurrUser(), name, rid,
+                        scale,
                         description);
 
                 // if successful, update the display
-                if (scucess) {
+                if (success) {
+                    auditLog.log("Edited Asset: " + selectedAsset.getName(), login.getCurrUser());
                     editFrame.dispose();
                     createResults(displayAreaPanel, searchField.getText());
                 } else {
@@ -926,12 +936,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         analytics.addActionListener(e -> {
             this.dispose();
-            new AnalyticsView(this.logic, this.login);
+            new AnalyticsView(this.logic, this.login, this.auditLog);
         });
 
         addItem.addActionListener(e -> {
             this.dispose();
-            new AddView(this.logic, this.login);
+            new AddView(this.logic, this.login, this.auditLog);
         });
     }
 

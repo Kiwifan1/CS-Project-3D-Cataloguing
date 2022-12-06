@@ -21,7 +21,7 @@ public class AuditLog {
      */
     public boolean log(String action, String user) {
         try {
-            PreparedStatement ps = cn.prepareStatement("INSERT INTO AuditLog VALUES (?, CURRENT_TIMESTAMP(), ?)");
+            PreparedStatement ps = cn.prepareStatement("INSERT INTO AuditLog VALUES (MD5(?), CURRENT_TIMESTAMP(), ?)");
             ps.setString(1, user);
             ps.setString(2, action);
             ps.executeUpdate();
@@ -46,13 +46,14 @@ public class AuditLog {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                logs.add(new Log(rs.getString("user"), rs.getString("action"), rs.getString("timestamp")));
+                logs.add(new Log(rs.getString("username"), rs.getString("action"), rs.getString("time")));
             }
+            return logs;
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         }
 
-        return logs;
     }
 
     /**
@@ -70,7 +71,7 @@ public class AuditLog {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                logs.add(new Log(rs.getString("user"), rs.getString("action"), rs.getString("timestamp")));
+                logs.add(new Log(rs.getString("username"), rs.getString("action"), rs.getString("time")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -94,7 +95,7 @@ public class AuditLog {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                logs.add(new Log(rs.getString("user"), rs.getString("action"), rs.getString("timestamp")));
+                logs.add(new Log(rs.getString("username"), rs.getString("action"), rs.getString("time")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,7 +121,7 @@ public class AuditLog {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                logs.add(new Log(rs.getString("user"), rs.getString("action"), rs.getString("timestamp")));
+                logs.add(new Log(rs.getString("username"), rs.getString("action"), rs.getString("time")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
