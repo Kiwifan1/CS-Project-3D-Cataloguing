@@ -9,8 +9,6 @@ public abstract class BoilerPlateView extends JFrame {
     public static int WIDTH = 800;
     public static int HEIGHT = 650;
 
-    private ConnectLogic logic;
-
     protected JMenuBar menuBar;
     protected JMenu mainMenu;
     protected JMenuItem logout;
@@ -20,8 +18,6 @@ public abstract class BoilerPlateView extends JFrame {
 
     public BoilerPlateView(String title) {
         super(title);
-
-        logic = new ConnectLogic();
 
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -49,8 +45,4 @@ public abstract class BoilerPlateView extends JFrame {
     }
 
     abstract protected void addMenuListeners();
-
-    public ConnectLogic getLogic() {
-        return logic;
-    }
 }

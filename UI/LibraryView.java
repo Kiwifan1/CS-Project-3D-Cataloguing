@@ -930,13 +930,19 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
+            auditLog.log("Logged out", login.getCurrUser());
             this.dispose();
             new LoginView(this.logic);
         });
 
         analytics.addActionListener(e -> {
-            this.dispose();
-            new AnalyticsView(this.logic, this.login, this.auditLog);
+            if (login.isAdmin(login.getCurrUser())) {
+                this.dispose();
+                new AnalyticsView(this.logic, this.login, this.auditLog);
+            } else {
+                JOptionPane.showMessageDialog(null, "You do not have permission to view this page");
+                auditLog.log("Attempted to view Analytics", login.getCurrUser());
+            }
         });
 
         addItem.addActionListener(e -> {

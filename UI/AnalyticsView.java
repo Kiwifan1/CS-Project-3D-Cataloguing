@@ -21,19 +21,22 @@ import java.awt.event.*;
 public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
     public static int ANALYTICS_WIDTH = 150;
-    public static int ANALYTICS_HEIGHT = 75;
+    public static int ANALYTICS_HEIGHT = 125;
 
-    ConnectLogic logic;
-    Analytics analytics;
-    AuditLog auditLog;
-    Login login;
+    private Font auditFont = new Font("Arial", Font.PLAIN, 12);
+    private Font analyticFont = new Font("Arial", Font.BOLD, 20);
 
-    JPanel mainPanel;
-    JPanel auditLogPanel;
-    JPanel auditPanel;
-    JPanel analysisPanel;
+    private ConnectLogic logic;
+    private Analytics analytics;
+    private AuditLog auditLog;
+    private Login login;
 
-    JScrollPane scrollPane;
+    private JPanel mainPanel;
+    private JPanel auditLogPanel;
+    private JPanel auditPanel;
+    private JPanel analysisPanel;
+
+    private JScrollPane scrollPane;
 
     public AnalyticsView(ConnectLogic logic, Login login, AuditLog auditLog) {
         super("Analytics");
@@ -80,7 +83,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
             JTextPane textPane = new JTextPane();
             textPane.setEditable(false);
             textPane.setText(log.toString());
-            textPane.setFont(new Font("Arial", Font.PLAIN, 12));
+            textPane.setFont(auditFont);
             textPane.setBorder(BorderFactory.createEmptyBorder(1, 1, 3, 5));
             textPane.setBackground(this.getForeground());
             auditPanel.add(textPane);
@@ -89,7 +92,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         // create an auto scrolling panel for the audit log
         scrollPane = new JScrollPane(auditPanel);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Audit Log"));
-        scrollPane.setPreferredSize(new Dimension(700, 470));
+        scrollPane.setPreferredSize(new Dimension(700, 420));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBackground(this.getForeground());
@@ -119,9 +122,10 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         // create the average file size label
         JLabel averageFileSizeLabel = new JLabel();
         averageFileSizeLabel.setText(analytics.getAverageFileSize() + "MB");
+        averageFileSizeLabel.setFont(analyticFont);
         averageFileSizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        averageFileSizePanel.add(averageFileSizeLabel);
+        averageFileSizeLabel.setBorder(BorderFactory.createEmptyBorder(ANALYTICS_HEIGHT / 4, 0, 0, 0));
+        averageFileSizePanel.add(averageFileSizeLabel, BorderLayout.CENTER);
 
         analysisPanel.add(averageFileSizePanel);
 
@@ -135,7 +139,9 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         // create the total disk space label
         JLabel totalDiskSpaceLabel = new JLabel();
         totalDiskSpaceLabel.setText(analytics.getTotalFileSize() + "MB");
+        totalDiskSpaceLabel.setFont(analyticFont);
         totalDiskSpaceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        totalDiskSpaceLabel.setBorder(BorderFactory.createEmptyBorder(ANALYTICS_HEIGHT / 4, 0, 0, 0));
         totalDiskSpacePanel.add(totalDiskSpaceLabel);
 
         analysisPanel.add(totalDiskSpacePanel);
@@ -151,8 +157,9 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         for (String publisher : analytics.getMostPopPubs(3)) {
             JLabel mostPopularPublishersLabel = new JLabel();
             mostPopularPublishersLabel.setText(publisher);
+            mostPopularPublishersLabel.setFont(analyticFont);
             mostPopularPublishersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            mostPopularPublishersLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+            mostPopularPublishersLabel.setBorder(BorderFactory.createEmptyBorder(ANALYTICS_HEIGHT / 4, 0, 0, 0));
             mostPopularPublishersPanel.add(mostPopularPublishersLabel);
         }
         analysisPanel.add(mostPopularPublishersPanel);
@@ -168,6 +175,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         for (String attribute : analytics.getMostPopAttrs(3)) {
             JLabel mostPopularAttributesLabel = new JLabel();
             mostPopularAttributesLabel.setText(attribute);
+            mostPopularAttributesLabel.setFont(analyticFont);
             mostPopularAttributesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             mostPopularAttributesLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
             mostPopularAttributesPanel.add(mostPopularAttributesLabel);
@@ -214,6 +222,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
+            auditLog.log("Logged out", login.getCurrUser());
             this.dispose();
             new LoginView(this.logic);
         });
