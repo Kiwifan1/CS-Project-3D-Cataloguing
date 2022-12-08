@@ -7,18 +7,18 @@ import java.io.*;
 public class Asset {
 
     private Connection cn;
-    private Release releaseLogic;
+    private AssetRelease releaseLogic;
 
     public Asset(ConnectLogic logic) {
         this.cn = logic.getConnection();
-        this.releaseLogic = new Release(logic);
+        this.releaseLogic = new AssetRelease(logic);
     }
 
     /**
      * Adds an Asset to the SQL Database, there must be a release with the rid key
      * in the database.
      * One can be added with
-     * {@link Release#addRelease(String, String, String, String)}
+     * {@link AssetRelease#addRelease(String, String, String, String)}
      * 
      * @param filePath    file path of the asset
      * @param attributes  attributes of the asset
@@ -79,33 +79,86 @@ public class Asset {
     /**
      * Edits an asset given a filepath
      * 
-     * @param filePath    filepath of asset to be edited
-     * @param attributes  attributes of asset to be edited
-     * @param username    username of person who edited asset
-     * @param name        name of asset to be edited
-     * @param rid         release id of asset to be edited
-     * @param scale       scale of asset to be edited
-     * @param description description of asset to be edited
+     * @param filePath      filepath of asset to be edited
+     * @param oldAttributes old attributes of asset
+     * @param newAttributes new attributes of asset
+     * @param username      username of person who edited asset
+     * @param name          name of asset to be edited
+     * @param rid           release id of asset to be edited
+     * @param scale         scale of asset to be edited
+     * @param description   description of asset to be edited
      * @return true if asset successfully edited, false otherwise
      */
-    public boolean editAsset(String filePath, String[] attributes, String username, String name, int rid, String scale,
+    public boolean editAsset(String filePath, String[] oldAttributes, String[] newAttributes, String username,
+            String name, int rid, String scale,
             String description) {
         try {
-            String query = "UPDATE Asset SET attribute = ?, username = MD5(?), name = ?, rid = ?, scale = ?, description = ? WHERE filepath = ?";
+            String query = "UPDATE Asset SET Attribute = ?, Username = MD5(?), Name = ?, rid = ?, Scale = ?, Description = ? WHERE FilePath = ? AND Attribute = ?";
 
             PreparedStatement ps = cn.prepareStatement(query);
 
-            for (int i = 0; i < attributes.length; i++) {
-                ps.setString(1, attributes[i]);
-                ps.setString(2, username);
-                ps.setString(3, name);
-                ps.setInt(4, rid);
-                ps.setString(5, scale);
-                ps.setString(6, description);
-                ps.setString(7, filePath);
+            boolean newAttrLonger = newAttributes.length > oldAttributes.length;
+            int minLength = Math.min(oldAttributes.length, newAttributes.length);
 
-                ps.executeUpdate();
+            // update all old attributes with new attributes, if there are more new
+            // attributes than old attributes, add the extra new attributes, if there are
+            // more old attributes than new attributes, remove the extra old attributes
+
+            ArrayList<String> oldAttrList = new ArrayList<String>(Arrays.asList(oldAttributes));
+            ArrayList<String> newAttrList = new ArrayList<String>(Arrays.asList(newAttributes));
+
+            ps.setString(2, username);
+            ps.setString(3, name);
+            ps.setInt(4, rid);
+            ps.setString(5, scale);
+            ps.setString(6, description);
+            ps.setString(7, filePath);
+
+            // update old attributes with new attributes
+            for (int i = 0; i < minLength; i++) {
+                // if the database already has the new attribute, don't add it
+                if (!oldAttrList.contains(newAttributes[i])) {
+                    ps.setString(1, newAttributes[i]);
+                    ps.setString(8, oldAttributes[i]);
+
+                    ps.executeUpdate();
+                }
             }
+
+            if (newAttrLonger) { // if there are more new attributes, add them
+                query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?)";
+
+                ps = cn.prepareStatement(query);
+                ps.setString(1, filePath);
+                ps.setString(3, username);
+                ps.setString(4, name);
+                ps.setInt(5, rid);
+                ps.setString(6, scale);
+                ps.setString(7, description);
+
+                for (int i = minLength; i < newAttributes.length; i++) {
+                    ps.setString(2, newAttributes[i]);
+                    ps.executeUpdate();
+                }
+
+            } else { // if there are not more new attributes, remove the extra old attributes
+                query = "DELETE FROM Asset WHERE FilePath = ? AND Attribute = ?";
+
+                ps = cn.prepareStatement(query);
+
+                ps.setString(1, filePath);
+
+                for (int i = 0; i < oldAttributes.length; i++) {
+                    // if the new attributes don't contain the old one, remove it
+                    if (!newAttrList.contains(oldAttributes[i])) {
+                        ps.setString(2, oldAttributes[i]);
+
+                        ps.executeUpdate();
+                    }
+                }
+            }
+
+            ps.close();
 
             return true;
         } catch (Exception e) {
@@ -132,6 +185,8 @@ public class Asset {
             while (rs.next()) {
                 attributes.add(rs.getString("attribute"));
             }
+
+            ps.close();
 
             return attributes;
         } catch (Exception e) {
@@ -166,6 +221,10 @@ public class Asset {
             while (rs.next()) {
                 scales.add(rs.getString("scale"));
             }
+
+            rs.close();
+            ps.close();
+
             return scales;
         } catch (Exception e) {
             System.out.println(e);
@@ -204,6 +263,9 @@ public class Asset {
                 scales.add(rs.getString("Scale"));
             }
 
+            rs.close();
+            ps.close();
+
             return scales;
         } catch (Exception e) {
             System.out.println(e);
@@ -226,9 +288,12 @@ public class Asset {
             ResultSet rs = ps.executeQuery();
             ArrayList<Entity> assets = new ArrayList<Entity>();
             while (rs.next()) {
-                assets.add(new Entity(rs.getString("filepath"), rs.getString("attribute"), rs.getString("username"),
-                        rs.getString("name"), rs.getInt("rid"), rs.getString("scale"), rs.getString("description"),
-                        releaseLogic));
+                Release release = releaseLogic.getRelease(rs.getInt("rid"));
+                String publisher = release.getPublisher();
+                Entity entity = new Entity(rs.getString("filepath"), rs.getString("attribute"),
+                        rs.getString("username"),
+                        rs.getString("name"), rs.getString("scale"), rs.getString("description"), publisher, release);
+                assets.add(entity);
             }
             return assets;
         } catch (Exception e) {
@@ -376,14 +441,23 @@ public class Asset {
                 int rid = rs.getInt("rid");
                 String scale = rs.getString("scale");
                 String description = rs.getString("description");
-                entity = new Entity(filepath, attr, username, name, rid, scale, description, releaseLogic);
+
+                // make a release object
+                Release release = releaseLogic.getRelease(rid);
+                String publisher = release.getPublisher();
+
+                entity = new Entity(filepath, attr, username, name, scale, description, publisher, release);
 
                 // add entity to assets, if it is already in the list, add the attribute to it
-                if (assets.contains(entity)) {
-                    assets.get(assets.indexOf(entity)).addAttribute(rs.getString("attribute"));
-                } else {
+                if (!assets.contains(entity)) {
                     assets.add(entity);
                 }
+            }
+
+            // set the attributes of the entities
+
+            for (Entity e : assets) {
+                e.setAttributes(getAttributes(e.getFilePath()));
             }
 
             return assets;

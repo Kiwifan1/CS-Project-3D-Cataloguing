@@ -39,8 +39,9 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
     private ConnectLogic logic;
     private Login login;
+    private AuditLog auditLog;
     private Publisher publisher;
-    private Release release;
+    private AssetRelease release;
     private Asset asset;
     private Scale scale;
     private Attribute attribute;
@@ -77,13 +78,15 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private HashMap<String, Boolean> scaleSearchMap;
     private HashMap<String, Boolean> attrSearchMap;
 
-    public LibraryView(ConnectLogic logic, Login login) {
+    public LibraryView(ConnectLogic logic, Login login, AuditLog auditLog) {
         super("Library");
 
         this.logic = logic;
         this.login = login;
+        this.auditLog = auditLog;
+
         publisher = new Publisher(logic);
-        release = new Release(logic);
+        release = new AssetRelease(logic);
         attribute = new Attribute(logic);
         asset = new Asset(logic);
         scale = new Scale(logic);
@@ -365,7 +368,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     private void makeReleasePane(boolean isSearch) {
         ArrayList<String> publishers = getChecked(pubSearchMap);
 
-        ArrayList<String[]> releases;
+        ArrayList<Release> releases;
 
         if (isSearch) {
             releases = release.getReleaseFromNameAndPub(relSearch.getText(),
@@ -377,15 +380,15 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JPanel releasePanel = new JPanel();
         releasePanel.setLayout(new BoxLayout(releasePanel, BoxLayout.Y_AXIS));
 
-        for (String[] release : releases) {
-            ReleaseCheckBox releaseBox = new ReleaseCheckBox(release[0], Integer.parseInt(release[1]));
+        for (Release release : releases) {
+            ReleaseCheckBox releaseBox = new ReleaseCheckBox(release.getName(), release.getId());
 
-            if (!relSearchMap.containsKey(release[1])) {
-                relSearchMap.put(release[1], false);
+            if (!relSearchMap.containsKey(release.getId() + "")) {
+                relSearchMap.put(release.getId() + "", false);
             }
 
             releaseBox.addActionListener(e -> {
-                relSearchMap.put(release[1], releaseBox.isSelected());
+                relSearchMap.put(release.getId() + "", releaseBox.isSelected());
                 this.actionPerformed(e);
             });
 
@@ -430,9 +433,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         if (isSearch) {
             searchScales = scale.getScales(scaleSearch.getText());
         }
-
-        assetScales = asset.getScalesFromRelease(releaseIDs);
-        publisherScales = asset.getScalesFromPub(publisherScales.toArray(new String[publisherScales.size()]));
+        if (releaseIDs.length > 0) {
+            assetScales = asset.getScalesFromRelease(releaseIDs);
+            publisherScales = asset.getScalesFromPub(publisherScales.toArray(new String[publisherScales.size()]));
+        } else {
+            assetScales = scale.getAllScales();
+        }
 
         for (String scale : assetScales) {
             if (!isSearch || searchScales.contains(scale) && publisherScales.contains(scale)) {
@@ -520,9 +526,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updatePublisherScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = publisherScroll.getVerticalScrollBar().getValue();
+
         makePublisherPane(isSearch);
+
         pubPanel.remove(1);
         pubPanel.add(publisherScroll, 1);
+        publisherScroll.getVerticalScrollBar().setValue(scrollPos);
         pubPanel.revalidate();
         pubPanel.repaint();
     }
@@ -534,9 +544,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updateReleaseScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = releaseScroll.getVerticalScrollBar().getValue();
+
         makeReleasePane(isSearch);
+
         relPanel.remove(1);
         relPanel.add(releaseScroll, 1);
+        releaseScroll.getVerticalScrollBar().setValue(scrollPos);
         relPanel.revalidate();
         relPanel.repaint();
     }
@@ -548,9 +562,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updateScaleScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = scaleScroll.getVerticalScrollBar().getValue();
+
         makeScalePane(isSearch);
         scalePanel.remove(1);
         scalePanel.add(scaleScroll, 1);
+        scaleScroll.getVerticalScrollBar().setValue(scrollPos);
         scalePanel.revalidate();
         scalePanel.repaint();
     }
@@ -562,9 +579,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void updateAttributeScroll(String name) {
         boolean isSearch = (name == null || name.equals("") ? false : true);
+        int scrollPos = attributeScroll.getVerticalScrollBar().getValue();
+
         makeAttributePane(isSearch);
         attrPanel.remove(1);
         attrPanel.add(attributeScroll, 1);
+        attributeScroll.getVerticalScrollBar().setValue(scrollPos);
         attrPanel.revalidate();
         attrPanel.repaint();
     }
@@ -650,8 +670,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             if (path.length() > 10) {
                 path = path.substring(0, 10) + "...";
             }
-            if (name.length() > 20) {
-                name = name.substring(0, 20) + "...";
+            if (name.length() > 15) {
+                name = name.substring(0, 15) + "...";
             }
 
             JLabel assetName = new JLabel(name);
@@ -663,8 +683,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             assetPath.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             assetPanel.add(assetName);
-            assetPanel.add(assetScale);
             assetPanel.add(assetPath);
+            assetPanel.add(assetScale);
 
             // if clicked twice, open asset
             assetPanel.addMouseListener(new MouseAdapter() {
@@ -699,7 +719,12 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                             delete.addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
-                                    asset.removeAsset(selectedAsset.getFilePath());
+                                    boolean success = asset.removeAsset(selectedAsset.getFilePath());
+                                    if (success) {
+                                        auditLog.log("Deleted asset " + selectedAsset.getName(), login.getCurrUser());
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Asset could not be deleted");
+                                    }
                                     createResults(displayAreaPanel, searchField.getText());
                                 }
                             });
@@ -769,7 +794,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JTextField publisherField = new JTextField(selectedAsset.getPublisher());
 
         JLabel releaseLabel = new JLabel("Release:");
-        JTextField releaseField = new JTextField(selectedAsset.getRelease());
+        JTextField releaseField = new JTextField(selectedAsset.getRelease().getName());
 
         JLabel attributesLabel = new JLabel("Attributes:");
         JTextField attributesField = new JTextField(attributes);
@@ -829,6 +854,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JButton saveButton = new JButton("Save");
         saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        String[] oldAttributes = attributesField.getText().split(", ");
+
         // when save button is clicked, save changes
 
         saveButton.addActionListener(new ActionListener() {
@@ -845,18 +872,20 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
                 String[] publishers = { publisher };
 
-                ArrayList<String[]> releases = release.getReleaseFromNameAndPub(releaseName, publishers);
+                ArrayList<Release> releases = release.getReleaseFromNameAndPub(releaseName, publishers);
 
-                int rid = Integer.parseInt(releases.get(0)[1]);
+                int rid = releases.get(0).getId();
 
-                String[] attributeArr = attributesField.getText().split(", ");
+                String[] newAttributes = attributesField.getText().split(", ");
 
                 // update the asset
-                boolean scucess = asset.editAsset(path, attributeArr, login.getCurrUser(), name, rid, scale,
+                boolean success = asset.editAsset(path, oldAttributes, newAttributes, login.getCurrUser(), name, rid,
+                        scale,
                         description);
 
                 // if successful, update the display
-                if (scucess) {
+                if (success) {
+                    auditLog.log("Edited Asset: " + selectedAsset.getName(), login.getCurrUser());
                     editFrame.dispose();
                     createResults(displayAreaPanel, searchField.getText());
                 } else {
@@ -901,18 +930,24 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
+            auditLog.log("Logged out", login.getCurrUser());
             this.dispose();
             new LoginView(this.logic);
         });
 
         analytics.addActionListener(e -> {
-            this.dispose();
-            new AnalyticsView(this.logic, this.login);
+            if (login.isAdmin(login.getCurrUser())) {
+                this.dispose();
+                new AnalyticsView(this.logic, this.login, this.auditLog);
+            } else {
+                JOptionPane.showMessageDialog(null, "You do not have permission to view this page");
+                auditLog.log("Attempted to view Analytics", login.getCurrUser());
+            }
         });
 
         addItem.addActionListener(e -> {
             this.dispose();
-            new AddView(this.logic, this.login);
+            new AddView(this.logic, this.login, this.auditLog);
         });
     }
 
@@ -937,7 +972,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             } else if (box.getParent() == scaleScroll.getViewport().getView()) { // scale scroll
                 updateScaleScroll(scaleSearch.getText());
             } else if (box.getParent() == attributeScroll.getViewport().getView()) { // attribute scroll
-                updateScaleScroll(attrSearch.getText());
+                updateScaleScroll(scaleSearch.getText());
             }
         }
         createResults(displayAreaPanel, searchField.getText());

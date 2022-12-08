@@ -34,7 +34,7 @@ CREATE TABLE AssetRelease
     publisher VARCHAR(50) NOT NULL,
     description TINYTEXT,
     PRIMARY KEY (id),
-    FOREIGN KEY(publisher) REFERENCES Publisher(name)
+    FOREIGN KEY(publisher) REFERENCES Publisher(name) ON DELETE CASCADE
 );
 
 CREATE TABLE AppUser

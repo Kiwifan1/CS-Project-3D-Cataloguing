@@ -34,6 +34,27 @@ public class Scale {
     }
 
     /**
+     * Removes a scale from the database
+     * 
+     * @param name The name of the scale
+     * @return Returns true if the scale was removed successfully
+     */
+    public boolean removeScale(String name) {
+        try {
+            String query = "DELETE FROM Scale WHERE name = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps.setString(1, name);
+
+            ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
      * Gets all the scales from the database
      * 
      * @return An ArrayList of all Scales

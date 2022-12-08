@@ -5,7 +5,6 @@
  * Programming Assigment:
  * Description: 
  * Notes: 
- * TODO: fix naming of file when putting into database
  * 
  **/
 
@@ -35,8 +34,9 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     private ConnectLogic logic;
     private Login login;
+    private AuditLog auditLog;
     private Publisher publisher;
-    private Release release;
+    private AssetRelease release;
     private Attribute attribute;
     private Asset asset;
     private Scale scale;
@@ -60,9 +60,13 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
     private JButton catalogueBtn;
     private JButton addPubBtn;
+    private JButton remPubBtn;
     private JButton addRelBtn;
+    private JButton remRelBtn;
     private JButton addScaleBtn;
+    private JButton remScaleBtn;
     private JButton addAttBtn;
+    private JButton remAttBtn;
 
     private JScrollPane attributeScroll;
     private JScrollPane publisherScroll;
@@ -76,14 +80,16 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private List<File> droppedFiles;
     private HashMap<String, Boolean> checkedAttributes;
 
-    public AddView(ConnectLogic logic, Login login) {
+    public AddView(ConnectLogic logic, Login login, AuditLog auditLog) {
         super("Home");
 
         // SQL logic
         this.logic = logic;
         this.login = login;
+        this.auditLog = auditLog;
+
         publisher = new Publisher(logic);
-        release = new Release(logic);
+        release = new AssetRelease(logic);
         attribute = new Attribute(logic);
         asset = new Asset(logic);
         scale = new Scale(logic);
@@ -124,10 +130,28 @@ public class AddView extends BoilerPlateView implements ActionListener {
             String name = JOptionPane.showInputDialog("Enter the name of the publisher");
             String source = JOptionPane.showInputDialog("Enter the source of the publisher");
             if (name != null && source != null) {
+                auditLog.log("Publisher Added " + name, login.getCurrUser());
                 publisher.addPublisher(name, source);
                 updatePublisherScroll(null);
             } else {
                 JOptionPane.showMessageDialog(null, "Please enter a name and source for the publisher");
+            }
+        });
+
+        // remove publisher button
+        remPubBtn = new JButton("Remove Publisher");
+        remPubBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the publisher");
+            if (name != null) {
+                boolean success = publisher.removePublisher(name);
+                if (success) {
+                    auditLog.log("Publisher Removed " + name, login.getCurrUser());
+                    updatePublisherScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Publisher not found");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the publisher");
             }
         });
 
@@ -136,17 +160,56 @@ public class AddView extends BoilerPlateView implements ActionListener {
         addRelBtn.addActionListener(e ->
 
         {
-            String publisher = JOptionPane.showInputDialog("Enter the name of the publisher");
             String name = JOptionPane.showInputDialog("Enter the name of the release");
             String description = JOptionPane.showInputDialog("Enter the description of the release");
-            if (name != null && publisher != null) {
+            if (name != null) {
                 int lastRID = release.getLastRID();
                 if (lastRID == -1) {
                     JOptionPane.showMessageDialog(null, "Error getting last RID");
                 } else {
-                    release.addRelease(lastRID + 1, name, publisher, description);
+                    auditLog.log("Release Added " + (lastRID + 1), login.getCurrUser());
+                    release.addRelease(lastRID + 1, name, publisherList.getSelectedValue(), description);
                     updateReleaseScroll(null);
                 }
+            }
+        });
+
+        // remove release button
+        remRelBtn = new JButton("Remove Release");
+        remRelBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the release");
+            String publisher = JOptionPane.showInputDialog("Enter the name of the publisher");
+
+            String[] publishers = { publisher };
+            if (name != null) {
+                ArrayList<Release> releases = release.getReleaseFromNameAndPub(name, publishers);
+
+                if (releases.size() > 1) {
+                    String[] options = new String[releases.size()];
+                    for (int i = 0; i < releases.size(); i++) {
+                        String description = releases.get(i).getDescription();
+
+                        if (description == null || description.equals("")) {
+                            description = "No description";
+                        }
+
+                        options[i] = releases.get(i).getId() + " - " + releases.get(i).getName() + " - " + description;
+                    }
+                    String releaseName = (String) JOptionPane.showInputDialog(null, "Select a release to remove",
+                            "Remove Release", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                    if (release != null) {
+                        auditLog.log("Release Removed " + (options[0]), login.getCurrUser());
+                        release.removeRelease(Integer.parseInt(releaseName.split(" - ")[0]));
+                        updateReleaseScroll(null);
+                    }
+                } else if (releases.size() == 1) {
+                    release.removeRelease(releases.get(0).getId());
+                    updateReleaseScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Release not found");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the release");
             }
         });
 
@@ -157,8 +220,22 @@ public class AddView extends BoilerPlateView implements ActionListener {
         {
             String name = JOptionPane.showInputDialog("Enter the name of the scale");
             if (name != null) {
+                auditLog.log("Scale Added " + name, login.getCurrUser());
                 scaleScroll.add(new JLabel(name));
                 updateScaleScroll(null);
+            }
+        });
+
+        // remove scale button
+        remScaleBtn = new JButton("Remove Scale");
+        remScaleBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the scale");
+            if (name != null) {
+                auditLog.log("Scale Removed " + name, login.getCurrUser());
+                scale.removeScale(name);
+                updateScaleScroll(null);
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the scale");
             }
         });
 
@@ -170,15 +247,53 @@ public class AddView extends BoilerPlateView implements ActionListener {
             String name = JOptionPane.showInputDialog("Enter the name of the attribute");
             String description = JOptionPane.showInputDialog("Enter the description of the attribute");
             if (name != null) {
+                auditLog.log("Attribute Added " + name, login.getCurrUser());
                 attribute.addAttribute(name, description);
                 updateAttributeScroll(null);
             }
         });
 
-        addPubBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addRelBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addScaleBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addAttBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // remove attribute button
+        remAttBtn = new JButton("Remove Attribute");
+        remAttBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog("Enter the name of the attribute");
+            if (name != null) {
+                auditLog.log("Attribute Removed " + name, login.getCurrUser());
+                attribute.removeAttribute(name);
+                updateAttributeScroll(null);
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the attribute");
+            }
+        });
+
+        addPubBtn.setPreferredSize(new Dimension(85, 30));
+        addPubBtn.setMaximumSize(addPubBtn.getPreferredSize());
+        remPubBtn.setPreferredSize(new Dimension(85, 30));
+        remPubBtn.setMaximumSize(remPubBtn.getPreferredSize());
+
+        addRelBtn.setPreferredSize(new Dimension(85, 30));
+        addRelBtn.setMaximumSize(addRelBtn.getPreferredSize());
+        remRelBtn.setPreferredSize(new Dimension(85, 30));
+        remRelBtn.setMaximumSize(remRelBtn.getPreferredSize());
+
+        addScaleBtn.setPreferredSize(new Dimension(85, 30));
+        addScaleBtn.setMaximumSize(addScaleBtn.getPreferredSize());
+        remScaleBtn.setPreferredSize(new Dimension(85, 30));
+        remScaleBtn.setMaximumSize(remScaleBtn.getPreferredSize());
+
+        addAttBtn.setPreferredSize(new Dimension(85, 30));
+        addAttBtn.setMaximumSize(addAttBtn.getPreferredSize());
+        remAttBtn.setPreferredSize(new Dimension(85, 30));
+        remAttBtn.setMaximumSize(remAttBtn.getPreferredSize());
+
+        addPubBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remPubBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        addRelBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remRelBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        addScaleBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remScaleBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        addAttBtn.setFont(new Font("Arial", Font.BOLD, 10));
+        remAttBtn.setFont(new Font("Arial", Font.BOLD, 10));
     }
 
     /**
@@ -215,8 +330,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         publisherScroll = new JScrollPane(publisherBox);
         publisherScroll.setBorder(BorderFactory.createTitledBorder("Publisher"));
-        publisherScroll.setPreferredSize(new Dimension(180, 150));
-        publisherScroll.setSize(getPreferredSize());
+        publisherScroll.setPreferredSize(new Dimension(170, 150));
+        publisherScroll.setMaximumSize(publisherScroll.getPreferredSize());
         publisherScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         publisherScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -230,7 +345,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         // release scroll pane
 
         ArrayList<String> publisher = new ArrayList<String>();
-        ArrayList<String[]> releases = new ArrayList<String[]>();
+        ArrayList<Release> releases = new ArrayList<Release>();
 
         if (publisherList.getSelectedValue() != null) {
             publisher.add(publisherList.getSelectedValue().toString());
@@ -256,11 +371,11 @@ public class AddView extends BoilerPlateView implements ActionListener {
         int[] releaseIDs = new int[releases.size()];
 
         for (int i = 0; i < releases.size(); i++) {
-            releaseNames[i] = releases.get(i)[0];
+            releaseNames[i] = releases.get(i).getName();
         }
 
         for (int i = 0; i < releases.size(); i++) {
-            releaseIDs[i] = Integer.parseInt(releases.get(i)[1]);
+            releaseIDs[i] = releases.get(i).getId();
         }
 
         JPanel releaseBox = new JPanel();
@@ -273,7 +388,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         releaseScroll = new JScrollPane(releaseBox);
         releaseScroll.setBorder(BorderFactory.createTitledBorder("Release"));
-        releaseScroll.setPreferredSize(new Dimension(200, 150));
+        releaseScroll.setPreferredSize(new Dimension(170, 150));
+        releaseScroll.setMaximumSize(releaseScroll.getPreferredSize());
         releaseScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         releaseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -304,7 +420,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         scaleScroll = new JScrollPane(scaleBox);
         scaleScroll.setBorder(BorderFactory.createTitledBorder("Scale"));
-        scaleScroll.setPreferredSize(new Dimension(200, 150));
+        scaleScroll.setPreferredSize(new Dimension(170, 150));
+        scaleScroll.setMaximumSize(scaleScroll.getPreferredSize());
         scaleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scaleScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -342,7 +459,8 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         attributeScroll = new JScrollPane(attributePanel);
         attributeScroll.setBorder(BorderFactory.createTitledBorder("Attributes"));
-        attributeScroll.setPreferredSize(new Dimension(200, 150));
+        attributeScroll.setPreferredSize(new Dimension(170, 150));
+        attributeScroll.setMaximumSize(attributeScroll.getPreferredSize());
         attributeScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         attributeScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -546,7 +664,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         pubPanel.add(helperPanel);
         pubPanel.add(publisherScroll);
-        pubPanel.add(addPubBtn);
+
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addPubBtn);
+        helperPanel.add(remPubBtn);
+
+        pubPanel.add(helperPanel);
 
         // make release panel
         relPanel = new JPanel();
@@ -557,7 +682,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         relPanel.add(helperPanel);
         relPanel.add(releaseScroll);
-        relPanel.add(addRelBtn);
+
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addRelBtn);
+        helperPanel.add(remRelBtn);
+
+        relPanel.add(helperPanel);
 
         // make scale panel
         scalePanel = new JPanel();
@@ -568,7 +700,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         scalePanel.add(helperPanel);
         scalePanel.add(scaleScroll);
-        scalePanel.add(addScaleBtn);
+
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addScaleBtn);
+        helperPanel.add(remScaleBtn);
+
+        scalePanel.add(helperPanel);
 
         // make attribute panel
         attPanel = new JPanel();
@@ -579,7 +718,14 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         attPanel.add(helperPanel);
         attPanel.add(attributeScroll);
-        attPanel.add(addAttBtn);
+
+        helperPanel = new JPanel();
+        helperPanel.setLayout(new BoxLayout(helperPanel, BoxLayout.X_AXIS));
+
+        helperPanel.add(addAttBtn);
+        helperPanel.add(remAttBtn);
+
+        attPanel.add(helperPanel);
 
         cataloguePanel.add(pubPanel);
         cataloguePanel.add(relPanel);
@@ -701,18 +847,24 @@ public class AddView extends BoilerPlateView implements ActionListener {
     @Override
     protected void addMenuListeners() {
         logout.addActionListener(e -> {
+            auditLog.log("Logged out", login.getCurrUser());
             this.dispose();
             new LoginView(this.logic);
         });
 
         analytics.addActionListener(e -> {
-            this.dispose();
-            new AnalyticsView(this.logic, this.login);
+            if (login.isAdmin(login.getCurrUser())) {
+                this.dispose();
+                new AnalyticsView(this.logic, this.login, this.auditLog);
+            } else {
+                JOptionPane.showMessageDialog(this, "You do not have permission to access this page");
+                auditLog.log("Attempted to view Analytics", login.getCurrUser());
+            }
         });
 
         library.addActionListener(e -> {
             this.dispose();
-            new LibraryView(this.logic, this.login);
+            new LibraryView(this.logic, this.login, this.auditLog);
         });
     }
 
@@ -750,11 +902,18 @@ public class AddView extends BoilerPlateView implements ActionListener {
                         successes.add(success);
                     }
 
+                    boolean flag = true;
+
                     for (int i = 0; i < successes.size(); i++) {
                         if (!successes.get(i)) {
                             JOptionPane.showMessageDialog(null,
                                     "Asset: " + droppedFiles.get(i).getName() + " was not added.");
+                            flag = false;
                         }
+                    }
+                    if (flag) {
+                        auditLog.log(successes.size() + " asset(s) added", login.getCurrUser());
+                        JOptionPane.showMessageDialog(null, "Asset(s) added successfully.");
                     }
                 }
             }
