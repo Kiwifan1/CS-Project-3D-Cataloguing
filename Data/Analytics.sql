@@ -55,8 +55,79 @@ FROM Asset a1
 SELECT a1.filepath, COUNT(*)
 FROM Asset a1
 GROUP BY a1.filepath
-HAVING COUNT(*) = (SELECT MAX(COUNT(*)) -- get the maximum count
+HAVING COUNT(*) = (SELECT MAX(COUNT(*))
+-- get the maximum count
 FROM (SELECT COUNT(*)
     FROM Asset a2
     GROUP BY a2.filepath) a3);
-    
+
+
+-- Develop an interesting and relevant query that involves an outer join.
+
+-- This query gets all assets that have multiple attributes, and the attributes that they have.
+--  It is interesting because it can be used to determine which assets have the most attributes, and which attributes are the most popular.
+-- It is relevant because a user could determine which assets they have that have the most attributes, and which attributes they have the most of.
+
+SELECT a1.filepath, a2.name
+FROM Asset a1
+    LEFT JOIN Attribute a2 ON (a1.attribute = a2.name)
+WHERE a1.attribute IS NOT NULL;
+
+-- Develop an interesting and relevant query that involves the UNION set operation
+
+-- This query gets the file paths of all assets that have the 1:10 scale, and the file paths of all assets that have the 1:20 scale.
+--  It is interesting because it can be used to determine which assets are available in both scales, and which are only available in one scale.
+-- It is relevant because a user could determine which assets they have that are available in both scales, and which assets they have that are only available in one scale.
+
+    SELECT a1.filepath
+    FROM Asset a1
+    WHERE a1.scale = '1:10'
+UNION
+    SELECT a1.filepath
+    FROM Asset a1
+    WHERE a1.scale = '1:20';
+
+-- Develop an interesting and relevant query that involves a CASE statement.
+
+-- This query gets all users and labels them as 'active' if they have downloaded an asset in the last 30 days, and 'inactive' if they have not.
+-- It is interesting because it can be used to determine which users are active, and which are inactive.
+-- It is relevant because a user could determine which users are active, and which are inactive, and then take moderation action based upon that.
+
+SELECT u1.username, CASE 
+    WHEN u1.last_login > TIMESTAMPADD(MONTH, -1, SYSDATE()) THEN 'active' 
+    ELSE 'inactive' 
+    END AS 'status'
+FROM AppUser u1;
+
+
+-- Develop an interesting and relevant query that involves a window function.
+
+-- This query gets all releases that have more than 1 asset, and the number of assets that they have.
+--  It is interesting because it can be used to determine which releases have the most assets, and which have the least assets.
+-- It is relevant because a user could determine which releases are most popular with the community, and which are least popular.
+
+SELECT r1.id, r1.name, COUNT(*) OVER (PARTITION BY r1.id) AS 'Number of Assets'
+FROM AssetRelease r1
+    JOIN Asset a1 ON (r1.id = a1.rid)
+GROUP BY r1.id, r1.name
+HAVING COUNT(*) > 1
+ORDER BY COUNT(*) DESC;
+
+-- Develop an interesting and relevant query that involves either a WITH clause, or the creation of a view
+
+-- This query gets the users that have the most assets added to the database.
+--  It is interesting because it can be used to determine which users are using the software the most for adding assets.
+-- It is relevant because a user could determine which users are using the software the most, and could ask them for feedback on the software.
+
+WITH
+    UserAssetCount
+    AS
+    (
+        SELECT username, COUNT(*) AS 'Asset Count'
+        FROM Asset
+        GROUP BY username
+    )
+SELECT username, 'Asset Count'
+FROM UserAssetCount
+WHERE 'Asset Count' = (SELECT MAX('Asset Count')
+FROM UserAssetCount);

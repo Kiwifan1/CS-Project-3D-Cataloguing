@@ -1,4 +1,4 @@
-package UI;
+package Logic;
 
 import javax.swing.JCheckBox;
 

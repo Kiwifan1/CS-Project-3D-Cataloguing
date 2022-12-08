@@ -45,7 +45,7 @@ public class Attribute {
 
         try {
             Statement st = cn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT name FROM Attribute");
+            ResultSet rs = st.executeQuery("SELECT name FROM Attribute ORDER BY name");
 
             while (rs.next()) {
                 attributes.add(rs.getString("name"));
@@ -62,22 +62,27 @@ public class Attribute {
      * Gets an attribute from the database
      * 
      * @param name The name of the attribute
-     * @return An array of the name and description
+     * @return An ArrayList of the name and description
      */
-    public String[] getAttribute(String name) {
+    public ArrayList<String> getAttributes(String name) {
         try {
-            String query = "SELECT * FROM Attribute WHERE Name = ?";
+            String query = "SELECT * FROM Attribute WHERE Name LIKE ?";
             PreparedStatement ps = cn.prepareStatement(query);
 
-            ps.setString(1, name);
+            ps.setString(1, name + "%");
+
+            query += " ORDER BY name";
 
             ResultSet rs = ps.executeQuery();
 
-            String[] attribute = new String[2];
-            attribute[0] = rs.getString("Name");
-            attribute[1] = rs.getString("Description");
+            ArrayList<String> attributes = new ArrayList<String>();
 
-            return attribute;
+            while (rs.next()) {
+                attributes.add(rs.getString("Name"));
+            }
+
+            return attributes;
+
         } catch (Exception e) {
             System.out.println(e);
             return null;
@@ -87,7 +92,7 @@ public class Attribute {
     /**
      * Removes an attribute from the database
      * 
-     * @param name        The name of the attribute
+     * @param name The name of the attribute
      * @return Returns true if the attribute was removed successfully
      */
     public boolean removeAttribute(String name) {

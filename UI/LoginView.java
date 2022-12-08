@@ -33,6 +33,7 @@ public class LoginView extends JFrame implements ActionListener {
 
     ConnectLogic logic;
     Login login;
+    AuditLog auditLog;
 
     JPanel mainPanel;
 
@@ -50,6 +51,9 @@ public class LoginView extends JFrame implements ActionListener {
 
         logic = new ConnectLogic();
         login = new Login(logic);
+        auditLog = new AuditLog(logic);
+
+        auditLog.cleanup();
 
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -66,6 +70,7 @@ public class LoginView extends JFrame implements ActionListener {
 
         this.logic = logic;
         login = new Login(logic);
+        auditLog = new AuditLog(logic);
 
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -126,9 +131,9 @@ public class LoginView extends JFrame implements ActionListener {
 
             message.setForeground(Color.GREEN);
             message.setText("Login Successful");
-
-            libraryView = new LibraryView(logic);
-            this.setVisible(false);
+            auditLog.log("Login", user);
+            this.dispose();
+            libraryView = new LibraryView(this.logic, this.login, this.auditLog);
         } else {
             message.setForeground(Color.RED);
             message.setText("Login Failed");

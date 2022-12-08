@@ -4,11 +4,14 @@ import java.util.ArrayList;
 
 // Simple Entity class to hold asset information for the UI
 public class Entity {
+
+    // local variables
     private String filePath;
     private ArrayList<String> attributes;
     private String username;
     private String name;
-    private int rid;
+    private String publisher;
+    private Release release;
     private String scale;
     private String description;
 
@@ -17,21 +20,40 @@ public class Entity {
         attributes = new ArrayList<String>();
         username = "";
         name = "";
-        rid = 0;
         scale = "";
         description = "";
+        publisher = "";
+        release = new Release();
     }
 
-    public Entity(String filePath, String attribute, String username, String name, int rid, String scale,
-            String description) {
+    public Entity(String filePath, String attribute, String username, String name, String scale,
+            String description, String publisher, Release release) {
         attributes = new ArrayList<String>();
-        this.filePath = filePath;
         attributes.add(attribute);
+
+        this.filePath = filePath;
         this.username = username;
         this.name = name;
-        this.rid = rid;
         this.scale = scale;
         this.description = description;
+        this.release = release;
+        this.publisher = publisher;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public Release getRelease() {
+        return release;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public void setRelease(Release release) {
+        this.release = release;
     }
 
     public String getFilePath() {
@@ -48,10 +70,6 @@ public class Entity {
 
     public String getName() {
         return name;
-    }
-
-    public int getRid() {
-        return rid;
     }
 
     public String getScale() {
@@ -82,15 +100,22 @@ public class Entity {
         this.name = name;
     }
 
-    public void setRid(int rid) {
-        this.rid = rid;
-    }
-
     public void setScale(String scale) {
         this.scale = scale;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Entity)) {
+            return false;
+        }
+        Entity entity = (Entity) o;
+        return filePath.equals(entity.filePath);
     }
 }
