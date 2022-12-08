@@ -64,7 +64,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         createAuditPanel();
 
         mainPanel.add(analysisPanel);
-        mainPanel.add(auditLogPanel, BorderLayout.SOUTH);
+        mainPanel.add(auditLogPanel);
 
     }
 
@@ -81,7 +81,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
             textPane.setEditable(false);
             textPane.setText(log.toString());
             textPane.setFont(new Font("Arial", Font.PLAIN, 12));
-            textPane.setBorder(BorderFactory.createEmptyBorder(5, 1, 5, 5));
+            textPane.setBorder(BorderFactory.createEmptyBorder(1, 1, 3, 5));
             textPane.setBackground(this.getForeground());
             auditPanel.add(textPane);
         }
@@ -89,7 +89,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         // create an auto scrolling panel for the audit log
         scrollPane = new JScrollPane(auditPanel);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Audit Log"));
-        scrollPane.setPreferredSize(new Dimension(700, 250));
+        scrollPane.setPreferredSize(new Dimension(700, 470));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBackground(this.getForeground());
@@ -120,6 +120,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         JLabel averageFileSizeLabel = new JLabel();
         averageFileSizeLabel.setText(analytics.getAverageFileSize() + "MB");
         averageFileSizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         averageFileSizePanel.add(averageFileSizeLabel);
 
         analysisPanel.add(averageFileSizePanel);
