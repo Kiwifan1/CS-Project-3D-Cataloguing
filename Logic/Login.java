@@ -33,7 +33,7 @@ public class Login {
      */
     public boolean addUser(String username, String password) {
         try {
-            String query = "INSERT INTO AppUser VALUES (MD5(?), MD5(?))";
+            String query = "INSERT INTO AppUser VALUES (?, MD5(?))";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, username);
@@ -57,7 +57,7 @@ public class Login {
      */
     public boolean login(String username, String password) {
         try {
-            String query = "SELECT * FROM AppUser WHERE Username = MD5(?) AND Password = MD5(?)";
+            String query = "SELECT * FROM AppUser WHERE Username = ? AND Password = MD5(?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, username);
@@ -85,7 +85,7 @@ public class Login {
      */
     private boolean changeLastLogin() {
         try {
-            String query = "UPDATE AppUser SET last_login = CURRENT_TIMESTAMP WHERE Username = MD5(?)";
+            String query = "UPDATE AppUser SET last_login = CURRENT_TIMESTAMP WHERE Username = ?";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, currUser);
@@ -130,7 +130,7 @@ public class Login {
      */
     public void updatePassword(String password) {
         try {
-            String query = "UPDATE AppUser SET Pass = MD5(?) WHERE Username = MD5(?)";
+            String query = "UPDATE AppUser SET Pass = MD5(?) WHERE Username = ?";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, password);
@@ -149,7 +149,7 @@ public class Login {
      */
     public boolean removeUser() {
         try {
-            String query = "DELETE FROM AppUser WHERE Username = MD5(?)";
+            String query = "DELETE FROM AppUser WHERE Username = ?";
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, currUser);

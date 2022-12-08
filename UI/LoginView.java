@@ -53,6 +53,8 @@ public class LoginView extends JFrame implements ActionListener {
         login = new Login(logic);
         auditLog = new AuditLog(logic);
 
+        auditLog.cleanup();
+
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

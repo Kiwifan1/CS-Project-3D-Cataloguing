@@ -21,7 +21,7 @@ public class AuditLog {
      */
     public boolean log(String action, String user) {
         try {
-            PreparedStatement ps = cn.prepareStatement("INSERT INTO AuditLog VALUES (MD5(?), CURRENT_TIMESTAMP(), ?)");
+            PreparedStatement ps = cn.prepareStatement("INSERT INTO AuditLog VALUES (?, CURRENT_TIMESTAMP(), ?)");
             ps.setString(1, user);
             ps.setString(2, action);
             ps.executeUpdate();
@@ -128,6 +128,19 @@ public class AuditLog {
         }
 
         return logs;
+    }
+
+    /**
+     * Remove all audit log entries that are more than 2 weeks old
+     */
+    public void cleanup() {
+        try {
+            PreparedStatement ps = cn.prepareStatement(
+                    "DELETE FROM AuditLog WHERE time < TIMESTAMPADD(HOUR, -2, SYSDATE())");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

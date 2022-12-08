@@ -19,7 +19,7 @@ public class Analytics {
     public double getAverageFileSize() {
 
         try {
-            String query = "SELECT * FROM Asset";
+            String query = "SELECT DISTINCT filepath FROM Asset";
             int fileSize = 0;
             int fileCount = 0;
             PreparedStatement ps = cn.prepareStatement(query);
@@ -30,10 +30,37 @@ public class Analytics {
                 fileSize += file.length();
                 fileCount++;
             }
-            if (fileCount == 0 ) {
+            if (fileCount == 0) {
                 return 0;
             }
-            return (fileSize / fileCount) / (1024 * 1024);
+            double average = ((double) fileSize / (double) fileCount) / (1024 * 1024);
+            average = Math.round(average * 100.0) / 100.0;
+            return average;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    /**
+     * Gets the total file size of all the files in the database (in mb)
+     * 
+     * @return The total file size
+     */
+    public double getTotalFileSize() {
+        try {
+            String query = "SELECT DISTINCT filepath FROM Asset";
+            int fileSize = 0;
+            PreparedStatement ps = cn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                File file = new File(rs.getString("filepath"));
+                fileSize += file.length();
+            }
+            double total = ((double) fileSize) / (1024 * 1024);
+            total = Math.round(total * 100.0) / 100.0;
+            return total;
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
@@ -56,7 +83,7 @@ public class Analytics {
 
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 publishers.add(rs.getString("name"));
             }
             return publishers;
@@ -82,7 +109,7 @@ public class Analytics {
 
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 attributes.add(rs.getString("attribute"));
             }
             return attributes;
@@ -101,7 +128,7 @@ public class Analytics {
      */
     public HashMap<String, Boolean> getUserRecentActivity() {
         try {
-            String query = "SELECT username, CASE WHEN lat_login > TIMESTAMPADD(MONTH, -1, SYSDATE()) THEN 'active' ELSE 'inactive' END AS 'status' FROM AppUser";
+            String query = "SELECT username, CASE WHEN last_login > TIMESTAMPADD(MONTH, -1, SYSDATE()) THEN 'active' ELSE 'inactive' END AS 'status' FROM AppUser";
             PreparedStatement ps = cn.prepareStatement(query);
             HashMap<String, Boolean> users = new HashMap<String, Boolean>();
 
