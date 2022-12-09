@@ -130,9 +130,13 @@ public class AddView extends BoilerPlateView implements ActionListener {
             String name = JOptionPane.showInputDialog("Enter the name of the publisher");
             String source = JOptionPane.showInputDialog("Enter the source of the publisher");
             if (name != null && source != null) {
-                auditLog.log("Publisher Added " + name, login.getCurrUser());
-                publisher.addPublisher(name, source);
-                updatePublisherScroll(null);
+                if (publisher.addPublisher(name, source)) {
+                    auditLog.log("Publisher Added " + name, login.getCurrUser());
+                    updatePublisherScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Publisher already exists");
+                    auditLog.log("Publisher Add Failed " + name, login.getCurrUser());
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Please enter a name and source for the publisher");
             }
@@ -143,12 +147,12 @@ public class AddView extends BoilerPlateView implements ActionListener {
         remPubBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the publisher");
             if (name != null) {
-                boolean success = publisher.removePublisher(name);
-                if (success) {
+                if (publisher.removePublisher(name)) {
                     auditLog.log("Publisher Removed " + name, login.getCurrUser());
                     updatePublisherScroll(null);
                 } else {
                     JOptionPane.showMessageDialog(null, "Publisher not found");
+                    auditLog.log("Publisher Remove Failed " + name, login.getCurrUser());
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Please enter a name for the publisher");
@@ -157,19 +161,19 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         // add release button
         addRelBtn = new JButton("Add Release");
-        addRelBtn.addActionListener(e ->
-
-        {
+        addRelBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the release");
             String description = JOptionPane.showInputDialog("Enter the description of the release");
             if (name != null) {
                 int lastRID = release.getLastRID();
                 if (lastRID == -1) {
                     JOptionPane.showMessageDialog(null, "Error getting last RID");
-                } else {
+                } else if (release.addRelease(lastRID + 1, name, publisherList.getSelectedValue(), description)) {
                     auditLog.log("Release Added " + (lastRID + 1), login.getCurrUser());
-                    release.addRelease(lastRID + 1, name, publisherList.getSelectedValue(), description);
                     updateReleaseScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Release already exists");
+                    auditLog.log("Release Add Failed " + (lastRID + 1), login.getCurrUser());
                 }
             }
         });
@@ -179,11 +183,9 @@ public class AddView extends BoilerPlateView implements ActionListener {
         remRelBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the release");
             String publisher = JOptionPane.showInputDialog("Enter the name of the publisher");
-
             String[] publishers = { publisher };
             if (name != null) {
                 ArrayList<Release> releases = release.getReleaseFromNameAndPub(name, publishers);
-
                 if (releases.size() > 1) {
                     String[] options = new String[releases.size()];
                     for (int i = 0; i < releases.size(); i++) {
@@ -197,13 +199,16 @@ public class AddView extends BoilerPlateView implements ActionListener {
                     }
                     String releaseName = (String) JOptionPane.showInputDialog(null, "Select a release to remove",
                             "Remove Release", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-                    if (release != null) {
+
+                    if (release != null && release.removeRelease(Integer.parseInt(releaseName.split(" - ")[0]))) {
                         auditLog.log("Release Removed " + (options[0]), login.getCurrUser());
-                        release.removeRelease(Integer.parseInt(releaseName.split(" - ")[0]));
                         updateReleaseScroll(null);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Release not found");
+                        auditLog.log("Release Remove Failed " + (options[0]), login.getCurrUser());
                     }
-                } else if (releases.size() == 1) {
-                    release.removeRelease(releases.get(0).getId());
+                } else if (releases.size() == 1 && release.removeRelease(releases.get(0).getId())) {
+                    auditLog.log("Release Removed " + releases.get(0).getId(), login.getCurrUser());
                     updateReleaseScroll(null);
                 } else {
                     JOptionPane.showMessageDialog(null, "Release not found");
@@ -215,14 +220,18 @@ public class AddView extends BoilerPlateView implements ActionListener {
 
         // add scale button
         addScaleBtn = new JButton("Add Scale");
-        addScaleBtn.addActionListener(e ->
-
-        {
+        addScaleBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the scale");
             if (name != null) {
-                auditLog.log("Scale Added " + name, login.getCurrUser());
-                scaleScroll.add(new JLabel(name));
-                updateScaleScroll(null);
+                if (scale.addScale(name)) {
+                    auditLog.log("Scale Added " + name, login.getCurrUser());
+                    updateScaleScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Scale already exists");
+                    auditLog.log("Scale Add Failed " + name, login.getCurrUser());
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the scale");
             }
         });
 
@@ -231,9 +240,13 @@ public class AddView extends BoilerPlateView implements ActionListener {
         remScaleBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the scale");
             if (name != null) {
-                auditLog.log("Scale Removed " + name, login.getCurrUser());
-                scale.removeScale(name);
-                updateScaleScroll(null);
+                if (scale.removeScale(name)) {
+                    auditLog.log("Scale Removed " + name, login.getCurrUser());
+                    updateScaleScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Scale not found");
+                    auditLog.log("Scale Remove Failed " + name, login.getCurrUser());
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Please enter a name for the scale");
             }
@@ -247,9 +260,15 @@ public class AddView extends BoilerPlateView implements ActionListener {
             String name = JOptionPane.showInputDialog("Enter the name of the attribute");
             String description = JOptionPane.showInputDialog("Enter the description of the attribute");
             if (name != null) {
-                auditLog.log("Attribute Added " + name, login.getCurrUser());
-                attribute.addAttribute(name, description);
-                updateAttributeScroll(null);
+                if (attribute.addAttribute(name, description)) {
+                    auditLog.log("Attribute Added " + name, login.getCurrUser());
+                    updateAttributeScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Attribute already exists");
+                    auditLog.log("Attribute Add Failed " + name, login.getCurrUser());
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please enter a name for the attribute");
             }
         });
 
@@ -258,9 +277,13 @@ public class AddView extends BoilerPlateView implements ActionListener {
         remAttBtn.addActionListener(e -> {
             String name = JOptionPane.showInputDialog("Enter the name of the attribute");
             if (name != null) {
-                auditLog.log("Attribute Removed " + name, login.getCurrUser());
-                attribute.removeAttribute(name);
-                updateAttributeScroll(null);
+                if (attribute.removeAttribute(name)) {
+                    auditLog.log("Attribute Removed " + name, login.getCurrUser());
+                    updateAttributeScroll(null);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Attribute not found");
+                    auditLog.log("Attribute Remove Failed " + name, login.getCurrUser());
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Please enter a name for the attribute");
             }
