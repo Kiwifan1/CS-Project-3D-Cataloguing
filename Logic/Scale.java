@@ -46,8 +46,8 @@ public class Scale {
 
             ps.setString(1, name);
 
-            ps.executeUpdate();
-            return true;
+            int updateRow = ps.executeUpdate();
+            return updateRow > 0;
         } catch (Exception e) {
             System.out.println(e);
             return false;

@@ -65,12 +65,12 @@ public class LoginView extends JFrame implements ActionListener {
         this.setVisible(true);
     }
 
-    public LoginView(ConnectLogic logic) {
+    public LoginView(ConnectLogic logic, AuditLog auditLog) {
         super("Sign In");
 
         this.logic = logic;
+        this.auditLog = auditLog;
         login = new Login(logic);
-        auditLog = new AuditLog(logic);
 
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

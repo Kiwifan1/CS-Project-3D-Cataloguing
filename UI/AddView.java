@@ -872,7 +872,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         logout.addActionListener(e -> {
             auditLog.log("Logged out", login.getCurrUser());
             this.dispose();
-            new LoginView(this.logic);
+            new LoginView(this.logic, this.auditLog);
         });
 
         analytics.addActionListener(e -> {

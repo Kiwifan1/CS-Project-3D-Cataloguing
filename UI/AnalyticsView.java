@@ -33,6 +33,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
     private JPanel mainPanel;
     private JPanel auditLogPanel;
+    private JPanel editAuditPanel;
     private JPanel auditPanel;
     private JPanel analysisPanel;
 
@@ -65,10 +66,11 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         createAnalysisPanel();
         createInactiveUsersPanel();
         createAuditPanel();
+        createEditAuditPanel();
 
         mainPanel.add(analysisPanel);
         mainPanel.add(auditLogPanel);
-
+        mainPanel.add(editAuditPanel);
     }
 
     /**
@@ -92,7 +94,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         // create an auto scrolling panel for the audit log
         scrollPane = new JScrollPane(auditPanel);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Audit Log"));
-        scrollPane.setPreferredSize(new Dimension(700, 420));
+        scrollPane.setPreferredSize(new Dimension(700, 380));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBackground(this.getForeground());
@@ -101,6 +103,24 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         auditLogPanel.setLayout(new BoxLayout(auditLogPanel, BoxLayout.Y_AXIS));
         auditLogPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         auditLogPanel.add(scrollPane);
+    }
+
+    /**
+     * Updates the Audit Panel
+     */
+    private void updateAuditPanel() {
+        auditPanel.removeAll();
+        for (Log log : auditLog.getLogs()) {
+            JTextPane textPane = new JTextPane();
+            textPane.setEditable(false);
+            textPane.setText(log.toString());
+            textPane.setFont(auditFont);
+            textPane.setBorder(BorderFactory.createEmptyBorder(1, 1, 3, 5));
+            textPane.setBackground(this.getForeground());
+            auditPanel.add(textPane);
+        }
+        auditPanel.revalidate();
+        auditPanel.repaint();
     }
 
     /**
@@ -184,6 +204,42 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         analysisPanel.add(mostPopularAttributesPanel);
     }
 
+    private void createEditAuditPanel() {
+        // create the edit audit panel
+        editAuditPanel = new JPanel();
+        editAuditPanel.setLayout(new BoxLayout(editAuditPanel, BoxLayout.X_AXIS));
+        editAuditPanel.setBorder(BorderFactory.createEmptyBorder(3, 10, 10, 10));
+        editAuditPanel.setPreferredSize(new Dimension(300, 50));
+        editAuditPanel.setMaximumSize(editAuditPanel.getPreferredSize());
+        editAuditPanel.setBorder(BorderFactory.createTitledBorder("Edit Audit"));
+
+        // Create a button for clearing the audit log
+        JButton clearAuditLogButton = new JButton("Clear Audit Log");
+        clearAuditLogButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                auditLog.clearAuditLog();
+                updateAuditPanel();
+            }
+        });
+        editAuditPanel.add(clearAuditLogButton);
+
+        // create a selection box for how often the audit log is cleared
+        String[] clearOptions = { "Daily", "Weekly", "Monthly", "Never" };
+        JComboBox<String> clearAuditLogComboBox = new JComboBox<String>(clearOptions);
+        clearAuditLogComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox<String> cb = (JComboBox<String>) e.getSource();
+                String clearOption = (String) cb.getSelectedItem();
+                auditLog.setTimeToClean(clearOption);
+            }
+        });
+        clearAuditLogComboBox.setSize(100, 40);
+        clearAuditLogComboBox.setSelectedItem(auditLog.getTimeToClean());
+        editAuditPanel.add(clearAuditLogComboBox);
+    }
+
     /**
      * Creates the inactive users panel
      */
@@ -224,7 +280,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         logout.addActionListener(e -> {
             auditLog.log("Logged out", login.getCurrUser());
             this.dispose();
-            new LoginView(this.logic);
+            new LoginView(this.logic, this.auditLog);
         });
 
         library.addActionListener(e -> {
