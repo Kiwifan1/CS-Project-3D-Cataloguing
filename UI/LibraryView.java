@@ -714,6 +714,10 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                             edit.addActionListener(new ActionListener() {
                                 @Override
                                 public void actionPerformed(ActionEvent e) {
+                                    // check if user already has edit asset open
+                                    if (editFrame != null) {
+                                        editFrame.dispose();
+                                    }
                                     editAsset();
                                     createResults(displayAreaPanel, searchField.getText());
                                 }
@@ -913,13 +917,22 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
                 // get the new attributes
                 ArrayList<String> newAttributes = new ArrayList<String>();
-                for (Component component : attributeBox.getComponents()) {
-                    if (component instanceof JCheckBox) {
-                        JCheckBox checkBox = (JCheckBox) component;
-                        if (checkBox.isSelected()) {
-                            newAttributes.add(checkBox.getText());
-                        }
+                for (int i = 0; i < attributeBoxes.length; i++) {
+                    if (attributeBoxes[i].isSelected()) {
+                        newAttributes.add(attributeBoxes[i].getText());
                     }
+                }
+
+                // check at least one attribute is selected
+                if (newAttributes.size() == 0) {
+                    JOptionPane.showMessageDialog(null, "Please select at least one attribute");
+                    return;
+                }
+
+                // check if path is valid in computer
+                if (!(new File(path).exists())) {
+                    JOptionPane.showMessageDialog(null, "Path is invalid");
+                    return;
                 }
 
                 // update the asset

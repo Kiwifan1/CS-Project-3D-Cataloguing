@@ -93,12 +93,6 @@ public class Asset {
             String name, int rid, String scale,
             String description) {
         try {
-            String query = "UPDATE Asset SET Attribute = ?, Username = MD5(?), Name = ?, rid = ?, Scale = ?, Description = ? WHERE FilePath = ? AND Attribute = ?";
-
-            PreparedStatement ps = cn.prepareStatement(query);
-
-            boolean newAttrLonger = newAttributes.length > oldAttributes.length;
-            int minLength = Math.min(oldAttributes.length, newAttributes.length);
 
             // update all old attributes with new attributes, if there are more new
             // attributes than old attributes, add the extra new attributes, if there are
@@ -107,54 +101,36 @@ public class Asset {
             ArrayList<String> oldAttrList = new ArrayList<String>(Arrays.asList(oldAttributes));
             ArrayList<String> newAttrList = new ArrayList<String>(Arrays.asList(newAttributes));
 
-            ps.setString(2, username);
-            ps.setString(3, name);
-            ps.setInt(4, rid);
-            ps.setString(5, scale);
-            ps.setString(6, description);
-            ps.setString(7, filePath);
+            String query = "INSERT INTO Asset VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            // update old attributes with new attributes
-            for (int i = 0; i < minLength; i++) {
-                // if the database already has the new attribute, don't add it
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
+            ps.setString(3, username);
+            ps.setString(4, name);
+            ps.setInt(5, rid);
+            ps.setString(6, scale);
+            ps.setString(7, description);
+
+            // add all new attributes that are not in the old attributes
+            for (int i = 0; i < newAttributes.length; i++) {
                 if (!oldAttrList.contains(newAttributes[i])) {
-                    ps.setString(1, newAttributes[i]);
-                    ps.setString(8, oldAttributes[i]);
-
-                    ps.executeUpdate();
-                }
-            }
-
-            if (newAttrLonger) { // if there are more new attributes, add them
-                query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?)";
-
-                ps = cn.prepareStatement(query);
-                ps.setString(1, filePath);
-                ps.setString(3, username);
-                ps.setString(4, name);
-                ps.setInt(5, rid);
-                ps.setString(6, scale);
-                ps.setString(7, description);
-
-                for (int i = minLength; i < newAttributes.length; i++) {
                     ps.setString(2, newAttributes[i]);
                     ps.executeUpdate();
                 }
+            }
+            query = "DELETE FROM Asset WHERE FilePath = ? AND Attribute = ?";
 
-            } else { // if there are not more new attributes, remove the extra old attributes
-                query = "DELETE FROM Asset WHERE FilePath = ? AND Attribute = ?";
+            ps = cn.prepareStatement(query);
 
-                ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
 
-                ps.setString(1, filePath);
-
-                for (int i = 0; i < oldAttributes.length; i++) {
-                    // if the new attributes don't contain the old one, remove it
-                    if (!newAttrList.contains(oldAttributes[i])) {
-                        ps.setString(2, oldAttributes[i]);
-
-                        ps.executeUpdate();
-                    }
+            // delete all old attributes that are not in the new attributes
+            for (int i = 0; i < oldAttributes.length; i++) {
+                if (!newAttrList.contains(oldAttributes[i])) {
+                    ps.setString(2, oldAttributes[i]);
+                    ps.executeUpdate();
                 }
             }
 
@@ -377,10 +353,11 @@ public class Asset {
                     query += " AND";
                 }
                 for (int i = 0; i < attributes.length; i++) {
+                    // check if filepath has all the given attributes
                     if (i == 0) {
-                        query += " attribute = ?";
+                        query += " filepath IN (SELECT filepath FROM Asset WHERE attribute = ?)";
                     } else {
-                        query += " AND attribute = ?";
+                        query += " AND filepath IN (SELECT filepath FROM Asset WHERE attribute = ?)";
                     }
                 }
             }
