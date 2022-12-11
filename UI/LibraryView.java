@@ -821,17 +821,19 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         // attributes
         JLabel attributesLabel = new JLabel("Attributes:");
-        JComboBox attributeBox = new JComboBox();
+        ArrayList<String> oldAttributes = selectedAsset.getAttributes();
+        ArrayList<String> allAttributes = attribute.getAllAttributes();
 
-        ArrayList<String> oldAttributes = new ArrayList<String>();
-        for (String attribute : attribute.getAllAttributes()) {
-            JCheckBox checkBox = new JCheckBox(attribute);
-            if (selectedAsset.getAttributes().contains(attribute)) {
-                checkBox.setSelected(true);
-                oldAttributes.add(attribute);
+        JCheckBox[] attributeBoxes = new JCheckBox[allAttributes.size()];
+
+        for (int i = 0; i < allAttributes.size(); i++) {
+            attributeBoxes[i] = new JCheckBox(allAttributes.get(i));
+            if (oldAttributes.contains(allAttributes.get(i))) {
+                attributeBoxes[i].setSelected(true);
             }
-            attributeBox.addItem(checkBox);
         }
+
+        ComboCheckBox attributeBox = new ComboCheckBox(attributeBoxes);
 
         // description
         JLabel descriptionLabel = new JLabel("Description:");
