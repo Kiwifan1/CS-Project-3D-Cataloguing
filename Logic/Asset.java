@@ -113,6 +113,8 @@ public class Asset {
             ps.setString(6, scale);
             ps.setString(7, description);
 
+            /* Updates Attributes */
+
             // add all new attributes that are not in the old attributes
             for (int i = 0; i < newAttributes.length; i++) {
                 if (!oldAttrList.contains(newAttributes[i])) {
@@ -134,9 +136,79 @@ public class Asset {
                 }
             }
 
+            /* Updates filepath */
+
+            if (!filePath.equals("") && !filePathExists(filePath)) {
+                query = "UPDATE Asset SET FilePath = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setString(1, filePath);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates name */
+            if (!name.equals("")) {
+                query = "UPDATE Asset SET Name = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setString(1, name);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates release id */
+            if (rid != -1) {
+                query = "UPDATE Asset SET rid = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setInt(1, rid);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates scale */
+            if (!scale.equals("")) {
+                query = "UPDATE Asset SET Scale = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setString(1, scale);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates description */
+            query = "UPDATE Asset SET Description = ? WHERE FilePath = ?";
+            ps = cn.prepareStatement(query);
+            ps.setString(1, description);
+            ps.setString(2, filePath);
+            ps.executeUpdate();
+
             ps.close();
 
             return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Checks if a filepath exists in the database
+     * 
+     * @param filePath filepath to be checked
+     * @return true if filepath exists, false otherwise
+     */
+    private boolean filePathExists(String filePath) {
+        try {
+            String query = "SELECT * FROM Asset WHERE FilePath = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ps.close();
+                return true;
+            }
+            ps.close();
+            return false;
         } catch (Exception e) {
             System.out.println(e);
             return false;
