@@ -36,6 +36,8 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
     static final int SCROLL_HEIGHT = 150;
     static final int DISPLAY_WIDTH = 700;
     static final int DISPLAY_HEIGHT = 250;
+    static final int EDIT_WIDTH = 300;
+    static final int EDIT_HEIGHT = 30;
 
     private ConnectLogic logic;
     private Login login;
@@ -374,7 +376,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
             releases = release.getReleaseFromNameAndPub(relSearch.getText(),
                     publishers.toArray(new String[publishers.size()]));
         } else {
-            releases = release.getReleaseFromPub(publishers.toArray(new String[publishers.size()]));
+            releases = release.getReleaseFromPubs(publishers.toArray(new String[publishers.size()]));
         }
 
         JPanel releasePanel = new JPanel();
@@ -730,12 +732,13 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                             });
                         }
 
-                    } else if (e.getClickCount() == 2) {
+                        // if double clicked, open asset
+                    } else if (e.getClickCount() == 2 && !SwingUtilities.isRightMouseButton(e)) {
                         // open asset
                         try {
                             Desktop.getDesktop().open(new File(entity.getFilePath()));
                         } catch (IOException e1) {
-                            e1.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Asset could not be opened");
                         }
                     }
                 }
@@ -753,12 +756,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
      */
     private void editAsset() {
         // add fields to panel
-        String attributes = "";
-        for (String attribute : selectedAsset.getAttributes()) {
-            attributes += attribute + ", ";
-        }
-
-        attributes = attributes.substring(0, attributes.length() - 2);
 
         JPanel namePanel = new JPanel();
         namePanel.setLayout(new BoxLayout(namePanel, BoxLayout.X_AXIS));
@@ -785,20 +782,58 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JTextField nameField = new JTextField(selectedAsset.getName());
 
         JLabel scaleLabel = new JLabel("Scale:");
-        JTextField scaleField = new JTextField(selectedAsset.getScale());
+        JComboBox scaleBox = new JComboBox(scale.getAllScales().toArray());
+        scaleBox.setSelectedItem(selectedAsset.getScale());
 
         JLabel pathLabel = new JLabel("Path:");
         JTextField pathField = new JTextField(selectedAsset.getFilePath());
 
-        JLabel publisherLabel = new JLabel("Publisher:");
-        JTextField publisherField = new JTextField(selectedAsset.getPublisher());
-
+        // release
         JLabel releaseLabel = new JLabel("Release:");
-        JTextField releaseField = new JTextField(selectedAsset.getRelease().getName());
+        ArrayList<Release> possibleReleases = release.getReleaseFromPub(selectedAsset.getPublisher());
+        ArrayList<String> releaseNames = new ArrayList<String>();
+        for (Release release : possibleReleases) {
+            releaseNames.add(release.getName());
+        }
+        JComboBox releaseBox = new JComboBox(releaseNames.toArray());
 
+        // publisher
+        JLabel publisherLabel = new JLabel("Publisher:");
+        JComboBox publisherBox = new JComboBox(publisher.getAllPublishers().toArray());
+        publisherBox.setSelectedItem(selectedAsset.getPublisher());
+
+        // on publisher update, update release
+        publisherBox.addActionListener(e -> {
+            JComboBox cb = (JComboBox) e.getSource();
+            String publisher = (String) cb.getSelectedItem();
+            ArrayList<Release> releases = release.getReleaseFromPub(publisher);
+            releaseNames.clear();
+            for (Release release : releases) {
+                releaseNames.add(release.getName());
+            }
+            releaseBox.setModel(new DefaultComboBoxModel(releaseNames.toArray()));
+
+            // if the release box has the old release, select it
+            if (releaseNames.contains(selectedAsset.getRelease())) {
+                releaseBox.setSelectedItem(selectedAsset.getRelease());
+            }
+        });
+
+        // attributes
         JLabel attributesLabel = new JLabel("Attributes:");
-        JTextField attributesField = new JTextField(attributes);
+        JComboBox attributeBox = new JComboBox();
 
+        ArrayList<String> oldAttributes = new ArrayList<String>();
+        for (String attribute : attribute.getAllAttributes()) {
+            JCheckBox checkBox = new JCheckBox(attribute);
+            if (selectedAsset.getAttributes().contains(attribute)) {
+                checkBox.setSelected(true);
+                oldAttributes.add(attribute);
+            }
+            attributeBox.addItem(checkBox);
+        }
+
+        // description
         JLabel descriptionLabel = new JLabel("Description:");
         JTextField descriptionField = new JTextField(selectedAsset.getDescription());
 
@@ -808,20 +843,20 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         editPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // set the size of the fields
-        nameField.setPreferredSize(new Dimension(300, 50));
-        scaleField.setPreferredSize(new Dimension(300, 50));
-        pathField.setPreferredSize(new Dimension(300, 50));
-        publisherField.setPreferredSize(new Dimension(300, 50));
-        releaseField.setPreferredSize(new Dimension(300, 50));
-        attributesField.setPreferredSize(new Dimension(300, 50));
-        descriptionField.setPreferredSize(new Dimension(300, 50));
+        nameField.setPreferredSize(new Dimension(EDIT_WIDTH, EDIT_HEIGHT));
+        scaleBox.setPreferredSize(new Dimension(EDIT_WIDTH, EDIT_HEIGHT));
+        pathField.setPreferredSize(new Dimension(EDIT_WIDTH, EDIT_HEIGHT));
+        publisherBox.setPreferredSize(new Dimension(EDIT_WIDTH, EDIT_HEIGHT));
+        releaseBox.setPreferredSize(new Dimension(EDIT_WIDTH, EDIT_HEIGHT));
+        attributeBox.setPreferredSize(new Dimension(EDIT_WIDTH, EDIT_HEIGHT));
+        descriptionField.setPreferredSize(new Dimension(EDIT_WIDTH, EDIT_HEIGHT));
 
         nameField.setMaximumSize(nameField.getPreferredSize());
-        scaleField.setMaximumSize(scaleField.getPreferredSize());
+        scaleBox.setMaximumSize(scaleBox.getPreferredSize());
         pathField.setMaximumSize(pathField.getPreferredSize());
-        publisherField.setMaximumSize(publisherField.getPreferredSize());
-        releaseField.setMaximumSize(releaseField.getPreferredSize());
-        attributesField.setMaximumSize(attributesField.getPreferredSize());
+        publisherBox.setMaximumSize(publisherBox.getPreferredSize());
+        releaseBox.setMaximumSize(releaseBox.getPreferredSize());
+        attributeBox.setMaximumSize(attributeBox.getPreferredSize());
         descriptionField.setMaximumSize(descriptionField.getPreferredSize());
 
         // add fields to panel
@@ -829,15 +864,15 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         namePanel.add(nameLabel);
         namePanel.add(nameField);
         scalePanel.add(scaleLabel);
-        scalePanel.add(scaleField);
+        scalePanel.add(scaleBox);
         pathPanel.add(pathLabel);
         pathPanel.add(pathField);
         publisherPanel.add(publisherLabel);
-        publisherPanel.add(publisherField);
+        publisherPanel.add(publisherBox);
         releasePanel.add(releaseLabel);
-        releasePanel.add(releaseField);
+        releasePanel.add(releaseBox);
         attributePanel.add(attributesLabel);
-        attributePanel.add(attributesField);
+        attributePanel.add(attributeBox);
         descriptionPanel.add(descriptionLabel);
         descriptionPanel.add(descriptionField);
 
@@ -854,8 +889,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         JButton saveButton = new JButton("Save");
         saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        String[] oldAttributes = attributesField.getText().split(", ");
-
         // when save button is clicked, save changes
 
         saveButton.addActionListener(new ActionListener() {
@@ -865,9 +898,9 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                 // get the new values
                 String path = pathField.getText();
                 String name = nameField.getText();
-                String scale = scaleField.getText();
-                String publisher = publisherField.getText();
-                String releaseName = releaseField.getText();
+                String scale = scaleBox.getSelectedItem().toString();
+                String publisher = publisherBox.getSelectedItem().toString();
+                String releaseName = releaseBox.getSelectedItem().toString();
                 String description = descriptionField.getText();
 
                 String[] publishers = { publisher };
@@ -876,10 +909,20 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
                 int rid = releases.get(0).getId();
 
-                String[] newAttributes = attributesField.getText().split(", ");
+                // get the new attributes
+                ArrayList<String> newAttributes = new ArrayList<String>();
+                for (Component component : attributeBox.getComponents()) {
+                    if (component instanceof JCheckBox) {
+                        JCheckBox checkBox = (JCheckBox) component;
+                        if (checkBox.isSelected()) {
+                            newAttributes.add(checkBox.getText());
+                        }
+                    }
+                }
 
                 // update the asset
-                boolean success = asset.editAsset(path, oldAttributes, newAttributes, login.getCurrUser(), name, rid,
+                boolean success = asset.editAsset(path, oldAttributes.toArray(new String[oldAttributes.size()]),
+                        newAttributes.toArray(new String[newAttributes.size()]), login.getCurrUser(), name, rid,
                         scale,
                         description);
 

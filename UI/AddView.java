@@ -386,7 +386,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
         if (isSearch) {
             releases = release.getReleaseFromNameAndPub(relSearch.getText(), pubArray);
         } else {
-            releases = release.getReleaseFromPub(pubArray);
+            releases = release.getReleaseFromPubs(pubArray);
         }
         // convert the releases to a string and int array
 
