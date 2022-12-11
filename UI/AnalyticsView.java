@@ -290,7 +290,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
         addItem.addActionListener(e -> {
             this.dispose();
-            new AddView(this.logic, this.login, this.auditLog);
+            new AddFileView(this.logic, this.login, this.auditLog);
         });
 
     }

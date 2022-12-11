@@ -30,7 +30,7 @@ import java.awt.dnd.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 
-public class AddView extends BoilerPlateView implements ActionListener {
+public class AddFileView extends BoilerPlateView implements ActionListener {
 
     private ConnectLogic logic;
     private Login login;
@@ -80,7 +80,7 @@ public class AddView extends BoilerPlateView implements ActionListener {
     private List<File> droppedFiles;
     private HashMap<String, Boolean> checkedAttributes;
 
-    public AddView(ConnectLogic logic, Login login, AuditLog auditLog) {
+    public AddFileView(ConnectLogic logic, Login login, AuditLog auditLog) {
         super("Home");
 
         // SQL logic

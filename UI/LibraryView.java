@@ -567,6 +567,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
         int scrollPos = scaleScroll.getVerticalScrollBar().getValue();
 
         makeScalePane(isSearch);
+
         scalePanel.remove(1);
         scalePanel.add(scaleScroll, 1);
         scaleScroll.getVerticalScrollBar().setValue(scrollPos);
@@ -1005,7 +1006,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
 
         addItem.addActionListener(e -> {
             this.dispose();
-            new AddView(this.logic, this.login, this.auditLog);
+            new AddFileView(this.logic, this.login, this.auditLog);
         });
     }
 
@@ -1026,8 +1027,6 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                 updateReleaseScroll(relSearch.getText());
                 updateScaleScroll(scaleSearch.getText());
             } else if (box.getParent() == releaseScroll.getViewport().getView()) { // release scroll
-                updateScaleScroll(scaleSearch.getText());
-            } else if (box.getParent() == scaleScroll.getViewport().getView()) { // scale scroll
                 updateScaleScroll(scaleSearch.getText());
             } else if (box.getParent() == attributeScroll.getViewport().getView()) { // attribute scroll
                 updateScaleScroll(scaleSearch.getText());
