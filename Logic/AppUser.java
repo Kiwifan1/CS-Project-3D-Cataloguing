@@ -47,4 +47,21 @@ public class AppUser {
             return false;
         }
     }
+
+    /**
+     * Adds an admin to the database
+     * 
+     * @param user - username
+     * @return - true if admin was added, false if admin was not added
+     */
+    public boolean addAdmin(String user) {
+        try {
+            PreparedStatement ps = cn.prepareStatement("INSERT INTO Admin VALUES (?)");
+            ps.setString(1, user);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+    }
 }

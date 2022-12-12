@@ -238,4 +238,22 @@ public class AuditLog {
                 return "Daily";
         }
     }
+
+    /**
+     * Exports the audit log to a CSV file
+     */
+    public void exportAuditLog() {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("auditLog.csv"));
+            bw.write("Username,Action,Time");
+            bw.newLine();
+            for (Log log : getLogs()) {
+                bw.write(log.getUser() + "," + log.getAction() + "," + log.getTimestamp());
+                bw.newLine();
+            }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

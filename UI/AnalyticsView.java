@@ -27,6 +27,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
     private Font analyticFont = new Font("Arial", Font.BOLD, 20);
 
     private ConnectLogic logic;
+    private AppUser appUser;
     private Analytics analytics;
     private AuditLog auditLog;
     private Login login;
@@ -48,6 +49,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         this.auditLog = auditLog;
 
         analytics = new Analytics(logic);
+        appUser = new AppUser(logic);
 
         mainPanel = new JPanel();
 
@@ -64,7 +66,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
      */
     private void createMainPanel() {
         createAnalysisPanel();
-        createInactiveUsersPanel();
+        createUsersPanel();
         createAuditPanel();
         createEditAuditPanel();
 
@@ -96,7 +98,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         scrollPane.setBorder(BorderFactory.createTitledBorder("Audit Log"));
         scrollPane.setPreferredSize(new Dimension(700, 380));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBackground(this.getForeground());
 
         auditLogPanel = new JPanel();
@@ -116,7 +118,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
             textPane.setText(log.toString());
             textPane.setFont(auditFont);
             textPane.setBorder(BorderFactory.createEmptyBorder(1, 1, 3, 5));
-            textPane.setBackground(this.getForeground());
+            // textPane.setBackground(this.getForeground());
             auditPanel.add(textPane);
         }
         auditPanel.revalidate();
@@ -204,14 +206,47 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         analysisPanel.add(mostPopularAttributesPanel);
     }
 
+    /**
+     * Creates the edit audit panel
+     */
     private void createEditAuditPanel() {
         // create the edit audit panel
         editAuditPanel = new JPanel();
         editAuditPanel.setLayout(new BoxLayout(editAuditPanel, BoxLayout.X_AXIS));
         editAuditPanel.setBorder(BorderFactory.createEmptyBorder(3, 10, 10, 10));
-        editAuditPanel.setPreferredSize(new Dimension(300, 50));
+        editAuditPanel.setPreferredSize(new Dimension(500, 50));
         editAuditPanel.setMaximumSize(editAuditPanel.getPreferredSize());
         editAuditPanel.setBorder(BorderFactory.createTitledBorder("Edit Audit"));
+
+        // create a button for adding an admin
+        JButton addAdminButton = new JButton("Add Admin");
+        addAdminButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String adminName = JOptionPane.showInputDialog("Enter the username of the admin to add");
+                if (adminName != null) {
+                    if (appUser.addAdmin(adminName)) {
+                        updateAuditPanel();
+                        auditLog.log("Admin added: " + adminName, login.getCurrUser());
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Error Adding Admin", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    updateAuditPanel();
+                }
+            }
+        });
+
+        editAuditPanel.add(addAdminButton);
+
+        // create a button for exporting the audit log
+        JButton exportAuditLogButton = new JButton("Export Audit Log");
+        exportAuditLogButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                auditLog.exportAuditLog();
+            }
+        });
+        editAuditPanel.add(exportAuditLogButton);
 
         // Create a button for clearing the audit log
         JButton clearAuditLogButton = new JButton("Clear Audit Log");
@@ -243,36 +278,71 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
     /**
      * Creates the inactive users panel
      */
-    private void createInactiveUsersPanel() {
-        JPanel inactiveUsersPanel = new JPanel();
-        inactiveUsersPanel.setLayout(new BoxLayout(inactiveUsersPanel, BoxLayout.Y_AXIS));
-        inactiveUsersPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        inactiveUsersPanel.setPreferredSize(new Dimension(ANALYTICS_WIDTH, ANALYTICS_HEIGHT));
-        inactiveUsersPanel.setMaximumSize(inactiveUsersPanel.getPreferredSize());
+    private void createUsersPanel() {
+        JPanel usersPanel = new JPanel();
+        usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
+        usersPanel.setPreferredSize(new Dimension(ANALYTICS_WIDTH + 20, ANALYTICS_HEIGHT));
+        usersPanel.setMaximumSize(usersPanel.getPreferredSize());
+        usersPanel.setBorder(BorderFactory.createTitledBorder("Users"));
+
+        JPanel activePanel = new JPanel();
+        activePanel.setLayout(new BoxLayout(activePanel, BoxLayout.X_AXIS));
+
+        JPanel inactivePanel = new JPanel();
+        inactivePanel.setLayout(new BoxLayout(inactivePanel, BoxLayout.X_AXIS));
+
+        JLabel activeLabel = new JLabel("Active: ");
+        JLabel inactiveLabel = new JLabel("Inactive: ");
+
+        JComboBox<String> inactiveUsersComboBox = new JComboBox<String>();
+        JComboBox<String> activeUsersComboBox = new JComboBox<String>();
 
         // create the inactive users label
-        JScrollPane scrollPane = new JScrollPane();
         HashMap<String, Boolean> users = analytics.getUserRecentActivity();
 
         for (String user : users.keySet()) {
             if (!users.get(user)) {
                 JLabel inactiveUsersLabel = new JLabel();
                 inactiveUsersLabel.setText(user);
+                if (login.isAdmin(user)) {
+                    inactiveUsersLabel.setText(user + " (Admin)");
+                }
                 inactiveUsersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
                 inactiveUsersLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
                 inactiveUsersLabel.setBorder(BorderFactory.createEmptyBorder(1, 0, 1, 0));
-                inactiveUsersPanel.add(inactiveUsersLabel);
+                inactiveUsersComboBox.addItem(user);
+            } else {
+                JLabel activeUsersLabel = new JLabel();
+                activeUsersLabel.setText(user);
+                if (login.isAdmin(user)) {
+                    activeUsersLabel.setText(user + " (Admin)");
+                }
+                activeUsersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                activeUsersLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+                activeUsersLabel.setBorder(BorderFactory.createEmptyBorder(1, 0, 1, 0));
+                activeUsersComboBox.addItem(user);
             }
         }
+        activeUsersComboBox.setToolTipText("Active Users");
+        activeUsersComboBox.setEditable(false);
+        activeUsersComboBox.setPreferredSize(new Dimension(ANALYTICS_WIDTH - 10, ANALYTICS_HEIGHT));
+        activeUsersComboBox.setMaximumSize(activeUsersComboBox.getPreferredSize());
 
-        scrollPane = new JScrollPane(inactiveUsersPanel);
-        scrollPane.setPreferredSize(new Dimension(ANALYTICS_WIDTH, ANALYTICS_HEIGHT));
-        scrollPane.setMaximumSize(scrollPane.getPreferredSize());
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Inactive Users"));
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        inactiveUsersComboBox.setToolTipText("Inactive Users");
+        inactiveUsersComboBox.setEditable(false);
+        inactiveUsersComboBox.setPreferredSize(new Dimension(ANALYTICS_WIDTH - 14, ANALYTICS_HEIGHT));
+        inactiveUsersComboBox.setMaximumSize(inactiveUsersComboBox.getPreferredSize());
 
-        analysisPanel.add(scrollPane);
+        activePanel.add(activeLabel);
+        activePanel.add(activeUsersComboBox);
+
+        inactivePanel.add(inactiveLabel);
+        inactivePanel.add(inactiveUsersComboBox);
+
+        usersPanel.add(activePanel);
+        usersPanel.add(inactivePanel);
+
+        analysisPanel.add(usersPanel);
     }
 
     @Override
