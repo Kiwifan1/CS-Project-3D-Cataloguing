@@ -696,7 +696,7 @@ public class LibraryView extends BoilerPlateView implements ActionListener {
                     // if single clicked, select asset, and highlight it
                     if (e.getClickCount() == 1) {
                         if (selectedPanel != null) {
-                            selectedPanel.setBackground(Color.WHITE);
+                            selectedPanel.setBackground(assetPanel.getBackground());
                         }
                         selectedAsset = entity;
                         selectedPanel = assetPanel;
