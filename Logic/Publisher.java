@@ -48,8 +48,8 @@ public class Publisher {
 
             ps.setString(1, name);
 
-            ps.executeUpdate();
-            return true;
+            int rowUpdate = ps.executeUpdate();
+            return rowUpdate > 0;
         } catch (Exception e) {
             System.out.println(e);
             return false;
@@ -93,7 +93,6 @@ public class Publisher {
             PreparedStatement ps = cn.prepareStatement(query);
 
             ps.setString(1, name + "%");
-
 
             ResultSet rs = ps.executeQuery();
 

@@ -93,12 +93,6 @@ public class Asset {
             String name, int rid, String scale,
             String description) {
         try {
-            String query = "UPDATE Asset SET Attribute = ?, Username = MD5(?), Name = ?, rid = ?, Scale = ?, Description = ? WHERE FilePath = ? AND Attribute = ?";
-
-            PreparedStatement ps = cn.prepareStatement(query);
-
-            boolean newAttrLonger = newAttributes.length > oldAttributes.length;
-            int minLength = Math.min(oldAttributes.length, newAttributes.length);
 
             // update all old attributes with new attributes, if there are more new
             // attributes than old attributes, add the extra new attributes, if there are
@@ -107,60 +101,114 @@ public class Asset {
             ArrayList<String> oldAttrList = new ArrayList<String>(Arrays.asList(oldAttributes));
             ArrayList<String> newAttrList = new ArrayList<String>(Arrays.asList(newAttributes));
 
-            ps.setString(2, username);
-            ps.setString(3, name);
-            ps.setInt(4, rid);
-            ps.setString(5, scale);
-            ps.setString(6, description);
-            ps.setString(7, filePath);
+            String query = "INSERT INTO Asset VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            // update old attributes with new attributes
-            for (int i = 0; i < minLength; i++) {
-                // if the database already has the new attribute, don't add it
+            PreparedStatement ps = cn.prepareStatement(query);
+
+            ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
+            ps.setString(3, username);
+            ps.setString(4, name);
+            ps.setInt(5, rid);
+            ps.setString(6, scale);
+            ps.setString(7, description);
+
+            /* Updates Attributes */
+
+            // add all new attributes that are not in the old attributes
+            for (int i = 0; i < newAttributes.length; i++) {
                 if (!oldAttrList.contains(newAttributes[i])) {
-                    ps.setString(1, newAttributes[i]);
-                    ps.setString(8, oldAttributes[i]);
-
-                    ps.executeUpdate();
-                }
-            }
-
-            if (newAttrLonger) { // if there are more new attributes, add them
-                query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?)";
-
-                ps = cn.prepareStatement(query);
-                ps.setString(1, filePath);
-                ps.setString(3, username);
-                ps.setString(4, name);
-                ps.setInt(5, rid);
-                ps.setString(6, scale);
-                ps.setString(7, description);
-
-                for (int i = minLength; i < newAttributes.length; i++) {
                     ps.setString(2, newAttributes[i]);
                     ps.executeUpdate();
                 }
+            }
+            query = "DELETE FROM Asset WHERE FilePath = ? AND Attribute = ?";
 
-            } else { // if there are not more new attributes, remove the extra old attributes
-                query = "DELETE FROM Asset WHERE FilePath = ? AND Attribute = ?";
+            ps = cn.prepareStatement(query);
 
-                ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
 
-                ps.setString(1, filePath);
-
-                for (int i = 0; i < oldAttributes.length; i++) {
-                    // if the new attributes don't contain the old one, remove it
-                    if (!newAttrList.contains(oldAttributes[i])) {
-                        ps.setString(2, oldAttributes[i]);
-
-                        ps.executeUpdate();
-                    }
+            // delete all old attributes that are not in the new attributes
+            for (int i = 0; i < oldAttributes.length; i++) {
+                if (!newAttrList.contains(oldAttributes[i])) {
+                    ps.setString(2, oldAttributes[i]);
+                    ps.executeUpdate();
                 }
             }
+
+            /* Updates filepath */
+
+            if (!filePath.equals("") && !filePathExists(filePath)) {
+                query = "UPDATE Asset SET FilePath = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setString(1, filePath);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates name */
+            if (!name.equals("")) {
+                query = "UPDATE Asset SET Name = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setString(1, name);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates release id */
+            if (rid != -1) {
+                query = "UPDATE Asset SET rid = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setInt(1, rid);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates scale */
+            if (!scale.equals("")) {
+                query = "UPDATE Asset SET Scale = ? WHERE FilePath = ?";
+                ps = cn.prepareStatement(query);
+                ps.setString(1, scale);
+                ps.setString(2, filePath);
+                ps.executeUpdate();
+            }
+
+            /* Updates description */
+            query = "UPDATE Asset SET Description = ? WHERE FilePath = ?";
+            ps = cn.prepareStatement(query);
+            ps.setString(1, description);
+            ps.setString(2, filePath);
+            ps.executeUpdate();
 
             ps.close();
 
             return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /**
+     * Checks if a filepath exists in the database
+     * 
+     * @param filePath filepath to be checked
+     * @return true if filepath exists, false otherwise
+     */
+    private boolean filePathExists(String filePath) {
+        try {
+            String query = "SELECT * FROM Asset WHERE FilePath = ?";
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, filePath);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ps.close();
+                return true;
+            }
+            ps.close();
+            return false;
         } catch (Exception e) {
             System.out.println(e);
             return false;
@@ -225,6 +273,21 @@ public class Asset {
             rs.close();
             ps.close();
 
+            Collections.sort(scales, new Comparator<String>() {
+                public int compare(String s1, String s2) {
+                    int s1fNum = Integer.parseInt(s1.split(":")[0]);
+                    int s2fNum = Integer.parseInt(s2.split(":")[0]);
+                    int s1sNum = Integer.parseInt(s1.split(":")[1]);
+                    int s2sNum = Integer.parseInt(s2.split(":")[1]);
+
+                    if (s1fNum == s2fNum) {
+                        return s1sNum - s2sNum;
+                    } else {
+                        return s1fNum - s2fNum;
+                    }
+                }
+            });
+
             return scales;
         } catch (Exception e) {
             System.out.println(e);
@@ -265,6 +328,21 @@ public class Asset {
 
             rs.close();
             ps.close();
+
+            Collections.sort(scales, new Comparator<String>() {
+                public int compare(String s1, String s2) {
+                    int s1fNum = Integer.parseInt(s1.split(":")[0]);
+                    int s2fNum = Integer.parseInt(s2.split(":")[0]);
+                    int s1sNum = Integer.parseInt(s1.split(":")[1]);
+                    int s2sNum = Integer.parseInt(s2.split(":")[1]);
+
+                    if (s1fNum == s2fNum) {
+                        return s1sNum - s2sNum;
+                    } else {
+                        return s1fNum - s2fNum;
+                    }
+                }
+            });
 
             return scales;
         } catch (Exception e) {
@@ -377,10 +455,11 @@ public class Asset {
                     query += " AND";
                 }
                 for (int i = 0; i < attributes.length; i++) {
+                    // check if filepath has all the given attributes
                     if (i == 0) {
-                        query += " attribute = ?";
+                        query += " filepath IN (SELECT filepath FROM Asset WHERE attribute = ?)";
                     } else {
-                        query += " AND attribute = ?";
+                        query += " AND filepath IN (SELECT filepath FROM Asset WHERE attribute = ?)";
                     }
                 }
             }

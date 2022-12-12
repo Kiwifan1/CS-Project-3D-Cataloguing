@@ -92,7 +92,7 @@ public class AssetRelease {
      * @param pubs The publisher(s) to search for
      * @return Returns an ArrayList of all the releases that match the publisher
      */
-    public ArrayList<Release> getReleaseFromPub(String[] pubs) {
+    public ArrayList<Release> getReleaseFromPubs(String[] pubs) {
         try {
             ArrayList<Release> releases = new ArrayList<Release>();
             String query = "SELECT * FROM AssetRelease WHERE publisher = ?";
@@ -124,6 +124,31 @@ public class AssetRelease {
             return null;
         }
 
+    }
+
+    /**
+     * Gets all the releases from the database that have the publisher
+     * 
+     * @param pub The publisher to search for
+     * @return Returns an ArrayList of all the releases that match the publisher
+     */
+    public ArrayList<Release> getReleaseFromPub(String pub) {
+        try {
+            String query = "SELECT * FROM AssetRelease WHERE publisher = ? ORDER BY name";
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, pub);
+            ResultSet rs = ps.executeQuery();
+
+            ArrayList<Release> releases = new ArrayList<Release>();
+            while (rs.next()) {
+                releases.add(new Release(rs.getInt("id"), rs.getString("name"), rs.getString("publisher"),
+                        rs.getString("description")));
+            }
+            return releases;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
     }
 
     /**
