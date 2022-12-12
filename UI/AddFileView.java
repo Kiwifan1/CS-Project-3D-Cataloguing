@@ -13,8 +13,12 @@ package UI;
 import Logic.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Stack;
 import java.io.*;
 
 import javax.swing.*;
@@ -823,8 +827,32 @@ public class AddFileView extends BoilerPlateView implements ActionListener {
             public synchronized void drop(DropTargetDropEvent evt) {
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    droppedFiles = (List<File>) evt.getTransferable()
+                    // check if the dropped files is a folder or files
+                    List<File> droppedItems = (List<File>) evt.getTransferable()
                             .getTransferData(DataFlavor.javaFileListFlavor);
+
+                    // turn the droppedItems list into a stack
+                    Stack<File> droppedItemsStack = new Stack<File>();
+
+                    for (int i = 0; i < droppedItems.size(); i++) {
+                        droppedItemsStack.add(droppedItems.get(i));
+                    }
+
+                    droppedFiles = new ArrayList<File>();
+
+                    // go through every folder in the droppedItems list and add the files to the
+                    // droppedFiles list
+                    while (droppedItemsStack.size() > 0) {
+                        File item = droppedItemsStack.pop();
+
+                        if (item.isDirectory()) {
+                            for (int i = 0; i < item.listFiles().length; i++) {
+                                droppedItemsStack.push(item.listFiles()[i]);
+                            }
+                        } else {
+                            droppedFiles.add(item);
+                        }
+                    }
 
                     if (droppedFiles.size() == 1) {
                         nameField.setText(droppedFiles.get(0).getName());
@@ -909,7 +937,7 @@ public class AddFileView extends BoilerPlateView implements ActionListener {
                 // adds the asset to the database and checks if it was successful
                 if (asset.equals("")) {
                     JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
-                } else if (droppedFiles.size() == 0) {
+                } else if (droppedFiles == null || droppedFiles.size() == 0) {
                     JOptionPane.showMessageDialog(null, "Please drag an asset into the box.");
                 } else {
                     for (File file : droppedFiles) {

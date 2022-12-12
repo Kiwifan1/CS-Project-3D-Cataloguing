@@ -20,20 +20,20 @@ public class Analytics {
 
         try {
             String query = "SELECT DISTINCT filepath FROM Asset";
-            int fileSize = 0;
+            double fileSize = 0;
             int fileCount = 0;
             PreparedStatement ps = cn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 File file = new File(rs.getString("filepath"));
-                fileSize += file.length();
+                fileSize += file.length() / (1024 * 1024);
                 fileCount++;
             }
             if (fileCount == 0) {
                 return 0;
             }
-            double average = ((double) fileSize / (double) fileCount) / (1024 * 1024);
+            double average = (fileSize / (double) fileCount);
             average = Math.round(average * 100.0) / 100.0;
             return average;
         } catch (SQLException e) {
@@ -50,16 +50,15 @@ public class Analytics {
     public double getTotalFileSize() {
         try {
             String query = "SELECT DISTINCT filepath FROM Asset";
-            int fileSize = 0;
+            double fileSize = 0;
             PreparedStatement ps = cn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 File file = new File(rs.getString("filepath"));
-                fileSize += file.length();
+                fileSize += file.length() / (1024 * 1024);
             }
-            double total = ((double) fileSize) / (1024 * 1024);
-            total = Math.round(total * 100.0) / 100.0;
+            double total = Math.round(fileSize * 100.0) / 100.0;
             return total;
         } catch (SQLException e) {
             e.printStackTrace();

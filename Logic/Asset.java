@@ -32,7 +32,7 @@ public class Asset {
     public boolean addAsset(String filePath, String[] attributes, String username, String name, int rid, String scale,
             String description) {
         try {
-            String query = "INSERT INTO Asset VALUES (?, ?, MD5(?), ?, ?, ?, ?)";
+            String query = "INSERT INTO Asset VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = cn.prepareStatement(query);
 
             for (int i = 0; i < attributes.length; i++) {

@@ -160,7 +160,12 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
 
         // create the total disk space label
         JLabel totalDiskSpaceLabel = new JLabel();
-        totalDiskSpaceLabel.setText(analytics.getTotalFileSize() + "MB");
+        double totalDiskSpace = analytics.getTotalFileSize();
+        if (totalDiskSpace > 1024) {
+            totalDiskSpaceLabel.setText(Math.round((totalDiskSpace / 1024) * 100) / 100 + "GB");
+        } else {
+            totalDiskSpaceLabel.setText(totalDiskSpace + "MB");
+        }
         totalDiskSpaceLabel.setFont(analyticFont);
         totalDiskSpaceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         totalDiskSpaceLabel.setBorder(BorderFactory.createEmptyBorder(ANALYTICS_HEIGHT / 4, 0, 0, 0));
