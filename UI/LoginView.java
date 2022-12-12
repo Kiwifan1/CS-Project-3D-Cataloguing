@@ -38,6 +38,7 @@ public class LoginView extends JFrame implements ActionListener {
     JPanel mainPanel;
 
     JButton loginButton;
+    JButton newUserButton;
     JTextField userField;
     JPasswordField passField;
     JLabel userLabel;
@@ -65,12 +66,12 @@ public class LoginView extends JFrame implements ActionListener {
         this.setVisible(true);
     }
 
-    public LoginView(ConnectLogic logic) {
+    public LoginView(ConnectLogic logic, AuditLog auditLog) {
         super("Sign In");
 
         this.logic = logic;
+        this.auditLog = auditLog;
         login = new Login(logic);
-        auditLog = new AuditLog(logic);
 
         setSize(300, 100);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,10 +94,12 @@ public class LoginView extends JFrame implements ActionListener {
 
         // make login button
         loginButton = new JButton("Login");
+        newUserButton = new JButton("New User");
 
         userField.addActionListener(this);
         passField.addActionListener(this);
         loginButton.addActionListener(this);
+        newUserButton.addActionListener(this);
 
         // make login message
         message = new JLabel();
@@ -114,29 +117,39 @@ public class LoginView extends JFrame implements ActionListener {
         mainPanel.add(passField);
 
         mainPanel.add(message);
-        mainPanel.add(loginButton);
+        
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
+        buttonPanel.add(loginButton);
+        buttonPanel.add(newUserButton);
+
+        mainPanel.add(buttonPanel);
 
         this.add(mainPanel, BorderLayout.CENTER);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String user = userField.getText();
-        char[] pass = passField.getPassword();
-        String password = new String(pass);
+        if (e.getSource() == loginButton) {
+            String user = userField.getText();
+            char[] pass = passField.getPassword();
+            String password = new String(pass);
 
-        if (login.login(user, password)) {
-            userField.setText("");
-            passField.setText("");
+            if (login.login(user, password)) {
+                userField.setText("");
+                passField.setText("");
 
-            message.setForeground(Color.GREEN);
-            message.setText("Login Successful");
-            auditLog.log("Login", user);
+                message.setForeground(Color.GREEN);
+                message.setText("Login Successful");
+                auditLog.log("Login", user);
+                this.dispose();
+                libraryView = new LibraryView(this.logic, this.login, this.auditLog);
+            } else {
+                message.setForeground(Color.RED);
+                message.setText("Login Failed");
+            }
+        } else if (e.getSource() == newUserButton) {
             this.dispose();
-            libraryView = new LibraryView(this.logic, this.login, this.auditLog);
-        } else {
-            message.setForeground(Color.RED);
-            message.setText("Login Failed");
+            new AddUserView(this.logic, this.auditLog);
         }
     }
 }

@@ -7,9 +7,28 @@ import java.io.*;
 public class AuditLog {
 
     private Connection cn;
+    private String timeToClean;
 
     public AuditLog(ConnectLogic logic) {
         this.cn = logic.getConnection();
+        // read the time to clean from the cleanTimeFile, if it doesn't exist, create it
+        // and set it to DAY
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("cleanTime.txt"));
+            timeToClean = br.readLine();
+            br.close();
+        } catch (FileNotFoundException e) {
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter("cleanTime.txt"));
+                bw.write("DAY");
+                bw.close();
+                this.timeToClean = "DAY";
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -131,16 +150,110 @@ public class AuditLog {
     }
 
     /**
-     * Remove all audit log entries that are more than 2 weeks old
+     * Remove all audit log entries that are more than x time old
      */
     public void cleanup() {
         try {
-            PreparedStatement ps = cn.prepareStatement(
-                    "DELETE FROM AuditLog WHERE time < TIMESTAMPADD(HOUR, -2, SYSDATE())");
+            if (!(timeToClean.equals("NEVER"))) {
+                String query = "DELETE FROM AuditLog WHERE time < TIMESTAMPADD";
+                query += "(" + timeToClean + ", -1, CURRENT_TIMESTAMP())";
+                PreparedStatement ps = cn.prepareStatement(query);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Remove all audit log entries
+     */
+    public void clearAuditLog() {
+        try {
+            PreparedStatement ps = cn.prepareStatement("DELETE FROM AuditLog");
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Set the time to clean up the audit log
+     * 
+     * @param cleanTime The time to clean up the audit log
+     */
+    public void setTimeToClean(String cleanTime) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("cleanTime.txt"));
+            switch (cleanTime) {
+                case "Daily":
+                    this.timeToClean = "DAY";
+                    bw.write(timeToClean);
+                    break;
+                case "Weekly":
+                    this.timeToClean = "WEEK";
+                    bw.write(timeToClean);
+                    break;
+                case "Monthly":
+                    this.timeToClean = "MONTH";
+                    bw.write(timeToClean);
+                    break;
+                case "Yearly":
+                    this.timeToClean = "YEAR";
+                    bw.write(timeToClean);
+                    break;
+                case "Never":
+                    this.timeToClean = "NEVER";
+                    bw.write(timeToClean);
+                    break;
+                default:
+                    this.timeToClean = "DAY";
+                    bw.write(timeToClean);
+                    break;
+            }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get the time to clean up the audit log
+     * 
+     * @return The time to clean up the audit log
+     */
+    public String getTimeToClean() {
+        switch (timeToClean) {
+            case "DAY":
+                return "Daily";
+            case "WEEK":
+                return "Weekly";
+            case "MONTH":
+                return "Monthly";
+            case "YEAR":
+                return "Yearly";
+            case "NEVER":
+                return "Never";
+            default:
+                return "Daily";
+        }
+    }
+
+    /**
+     * Exports the audit log to a CSV file
+     */
+    public void exportAuditLog() {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("auditLog.csv"));
+            bw.write("Username,Action,Time");
+            bw.newLine();
+            for (Log log : getLogs()) {
+                bw.write(log.getUser() + "," + log.getAction() + "," + log.getTimestamp());
+                bw.newLine();
+            }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

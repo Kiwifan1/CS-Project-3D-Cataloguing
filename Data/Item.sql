@@ -66,7 +66,7 @@ CREATE TABLE Asset
     filepath VARCHAR(255) NOT NULL,
     attribute VARCHAR(50) NOT NULL,
     username VARCHAR(50) NOT NULL,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     rid INT NOT NULL,
     scale VARCHAR(10) NOT NULL,
     description TINYTEXT,
