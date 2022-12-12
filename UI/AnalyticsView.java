@@ -162,7 +162,7 @@ public class AnalyticsView extends BoilerPlateView implements ActionListener {
         JLabel totalDiskSpaceLabel = new JLabel();
         double totalDiskSpace = analytics.getTotalFileSize();
         if (totalDiskSpace > 1024) {
-            totalDiskSpaceLabel.setText(Math.round((totalDiskSpace / 1024) * 100) / 100 + "GB");
+            totalDiskSpaceLabel.setText(Math.round((totalDiskSpace / 1024) * 100.0) / 100.0 + "GB");
         } else {
             totalDiskSpaceLabel.setText(totalDiskSpace + "MB");
         }
