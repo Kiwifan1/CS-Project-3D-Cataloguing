@@ -1,6 +1,5 @@
 package Logic;
 
-
 import java.sql.*;
 import java.util.*;
 import java.io.*;
@@ -22,7 +21,9 @@ public class ConnectLogic {
         this.cn = cn;
     }
 
-    public boolean isConnected() { return connected; }
+    public boolean isConnected() {
+        return connected;
+    }
 
     /**
      * Creates a connection to the database
@@ -30,7 +31,7 @@ public class ConnectLogic {
     public boolean makeConnection() {
         try {
             // TODO: FIX ABSOLUTE PATH
-            FileInputStream fis = new FileInputStream("C:/Users/joshu/OneDrive/Apps/Documents/GitHub/CS-Project-3D-Cataloguing/Logic/config.properties");
+            FileInputStream fis = new FileInputStream("config.properties");
             Properties prop = new Properties();
             prop.load(fis);
 
